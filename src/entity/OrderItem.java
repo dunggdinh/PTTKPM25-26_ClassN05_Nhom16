@@ -1,26 +1,23 @@
 package entity;
 
-import java.util.UUID;
-
 public class OrderItem {
-    private UUID id;
-    private UUID productId;
-    private int quantity;
-    private double unitPrice;
-    private double discount;
+    private int orderItemID;
+    private String orderID;
+    private Product product;
 
-    public OrderItem(UUID productId, int quantity, double unitPrice, double discount) {
-        this.id = UUID.randomUUID();
-        this.productId = productId;
-        this.quantity = quantity;
-        this.unitPrice = unitPrice;
-        this.discount = discount;
+    public OrderItem(int orderItemID, String orderID, Product product) {
+        this.orderItemID = orderItemID;
+        this.orderID = orderID;
+        this.product = product;
     }
 
-    public UUID getId() { return id; }
-    public UUID getProductId() { return productId; }
-    public int getQuantity() { return quantity; }
-    public double getUnitPrice() { return unitPrice; }
-    public double getDiscount() { return discount; }
-    public double getSubtotal() { return (unitPrice - discount) * quantity; }
+    public double calculateSubtotal() { return 0.0; }
+    public String getOrderItemInfo() { return ""; }
+
+    public int getOrderItemID() { return orderItemID; }
+    public void setOrderItemID(int orderItemID) { this.orderItemID = orderItemID; }
+    public String getOrderID() { return orderID; }
+    public void setOrderID(String orderID) { this.orderID = orderID; }
+    public Product getProduct() { return product; }
+    public void setProduct(Product product) { this.product = product; }
 }

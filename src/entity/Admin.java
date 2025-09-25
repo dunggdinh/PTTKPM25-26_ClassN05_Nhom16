@@ -1,13 +1,47 @@
 package entity;
 
-public class Admin extends User {
-    private String role;
+import java.util.Date;
 
-    public Admin(String email, String password, String fullName, String phone, String status, String role) {
-        super(email, password, fullName, phone, status);
-        this.role = role;
+public class Admin extends User {
+    private int adminID;
+
+    public Admin(int adminID, String name, String email, String password, String phone, String address, boolean status, Date createdAt) {
+        super(name, email, password, phone, address, status, createdAt, "Admin");
+        this.adminID = adminID;
     }
 
-    public String getRole() { return role; }
-    public void setRole(String role) { this.role = role; }
+    @Override
+    public void createUser(Object userInfo) {
+        // Logic
+    }
+
+    @Override
+    public String getRole() { return "Admin"; }
+
+    @Override
+    public void updateProfile(String name, String phone, String address) {
+        setName(name);
+        setPhone(phone);
+        setAddress(address);
+    }
+
+    @Override
+    public void logout() {
+        setStatus(false);
+    }
+
+    @Override
+    public void changePassword(String oldPassword, String newPassword) {
+        if (getPassword().equals(oldPassword)) {
+            setPassword(newPassword);
+        }
+    }
+
+    @Override
+    public boolean login(String email, String password) {
+        return getEmail().equals(email) && getPassword().equals(password) && isStatus();
+    }
+
+    public int getAdminID() { return adminID; }
+    public void setAdminID(int adminID) { this.adminID = adminID; }
 }
