@@ -1,44 +1,119 @@
-package entity;
-
 import java.util.Date;
 
 public class Inventory {
-    private int inventoryID;
-    private String productID;
-    private String warehouseName;
-    private int stockAvailable;
-    private int safetyStock;
-    private String location;
-    private Date lastUpdated;
+    // ===== Thuộc tính =====
+    private String inventoryID;    // Mã kho
+    private Product product;       // Sản phẩm trong kho
+    private int quantity;          // Số lượng sản phẩm tồn kho
+    private Date lastUpdated;      // Ngày cập nhật kho
 
-    public Inventory(int inventoryID, String productID, String warehouseName, int stockAvailable, int safetyStock, String location) {
+    // ===== Constructor =====
+    public Inventory(String inventoryID, Product product, int quantity) {
         this.inventoryID = inventoryID;
-        this.productID = productID;
-        this.warehouseName = warehouseName;
-        this.stockAvailable = stockAvailable;
-        this.safetyStock = safetyStock;
-        this.location = location;
+        this.product = product;
+        this.quantity = quantity;
+        this.lastUpdated = new Date(); // Mặc định thời gian tạo là hiện tại
+    }
+
+    // ===== Getter & Setter =====
+    public String getInventoryID() {
+        return inventoryID;
+    }
+
+    public void setInventoryID(String inventoryID) {
+        this.inventoryID = inventoryID;
+    }
+
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+        updateLastUpdated();
+    }
+
+    public Date getLastUpdated() {
+        return lastUpdated;
+    }
+
+    private void updateLastUpdated() {
         this.lastUpdated = new Date();
     }
 
-    public void updateStock(String productID, int quantity) {}
-    public int checkStock(String productID) { return 0; }
-    public void reserveStock(String productID, int quantity) {}
-    public void alertLowStock(String productID) {}
-    public void transferStock(int fromWarehouse, int toWarehouse, String productID, int quantity) {}
+    // ===== Các phương thức nghiệp vụ =====
 
-    public int getInventoryID() { return inventoryID; }
-    public void setInventoryID(int inventoryID) { this.inventoryID = inventoryID; }
-    public String getProductID() { return productID; }
-    public void setProductID(String productID) { this.productID = productID; }
-    public String getWarehouseName() { return warehouseName; }
-    public void setWarehouseName(String warehouseName) { this.warehouseName = warehouseName; }
-    public int getStockAvailable() { return stockAvailable; }
-    public void setStockAvailable(int stockAvailable) { this.stockAvailable = stockAvailable; }
-    public int getSafetyStock() { return safetyStock; }
-    public void setSafetyStock(int safetyStock) { this.safetyStock = safetyStock; }
-    public String getLocation() { return location; }
-    public void setLocation(String location) { this.location = location; }
-    public Date getLastUpdated() { return new Date(lastUpdated.getTime()); }
-    public void setLastUpdated(Date lastUpdated) { this.lastUpdated = lastUpdated != null ? new Date(lastUpdated.getTime()) : new Date(); }
+    /**
+     * Tăng số lượng sản phẩm vào kho.
+     * @param product Sản phẩm cần thêm.
+     * @param quantity Số lượng cần tăng.
+     */
+    public void increaseStock(Product product, int quantity) {
+        if (this.product.getProductID().equals(product.getProductID())) {
+            this.quantity += quantity;
+            updateLastUpdated();
+            System.out.println("Đã thêm " + quantity + " sản phẩm " + product.getName() + " vào kho.");
+        } else {
+            System.out.println("Sản phẩm không khớp với kho này!");
+        }
+    }
+
+    /**
+     * Giảm số lượng sản phẩm trong kho.
+     * @param product Sản phẩm cần giảm.
+     * @param quantity Số lượng cần giảm.
+     */
+    public void decreaseStock(Product product, int quantity) {
+        if (this.product.getProductID().equals(product.getProductID())) {
+            if (this.quantity >= quantity) {
+                this.quantity -= quantity;
+                updateLastUpdated();
+                System.out.println("Đã xuất " + quantity + " sản phẩm " + product.getName() + " ra khỏi kho.");
+            } else {
+                System.out.println("Không đủ sản phẩm trong kho để xuất!");
+            }
+        } else {
+            System.out.println("Sản phẩm không khớp với kho này!");
+        }
+    }
+
+    /**
+     * Cảnh báo khi tồn kho dưới mức an toàn (ví dụ < 10 sản phẩm).
+     */
+    public void alertLowStock(String productID) {
+        if (this.product.getProductID().equals(productID) && this.quantity < 10) {
+            System.out.println("Cảnh báo: Sản phẩm '" + product.getName() + "' sắp hết hàng! (Còn: " + this.quantity + ")");
+        }
+    }
+
+    /**
+     * Kiểm tra số lượng tồn kho hiện tại.
+     * @return Số lượng tồn kho.
+     */
+    public int checkStock(String productID) {
+        if (this.product.getProductID().equals(productID)) {
+            return this.quantity;
+        }
+        System.out.println("Không tìm thấy sản phẩm với ID: " + productID);
+        return -1;
+    }
+
+    /**
+     * Hiển thị thông tin kho hàng.
+     */
+    public void displayInventoryInfo() {
+        System.out.println("=== Thông tin kho hàng ===");
+        System.out.println("Mã kho: " + inventoryID);
+        System.out.println("Sản phẩm: " + product.getName() + " (ID: " + product.getProductID() + ")");
+        System.out.println("Số lượng tồn kho: " + quantity);
+        System.out.println("Ngày cập nhật: " + lastUpdated);
+    }
 }

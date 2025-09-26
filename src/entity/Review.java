@@ -1,54 +1,104 @@
-package entity;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class Review {
-    private int reviewID;
-    private String productID;
-    private int customerID;
-    private int rating;
-    private String title;
-    private String comment;
-    private List<String> images;
-    private String status;
-    private Date date;
+    // ===== Attributes =====
+    private int reviewID;                  // Mã định danh đánh giá
+    private String productID;              // Mã sản phẩm được đánh giá
+    private int customerID;                // Mã khách hàng đánh giá
+    private int rating;                    // Điểm số (1–5)
+    private String title;                  // Tiêu đề đánh giá
+    private String comment;                // Nội dung đánh giá
+    private List<String> images;           // Danh sách hình ảnh kèm theo
+    private String status;                 // Trạng thái (Hiển thị/Ẩn/Đang duyệt)
+    private Date date;                     // Ngày đăng
 
-    public Review(int reviewID, String productID, int customerID, int rating, String title, String comment, List<String> images) {
+    // ===== Constructor =====
+    public Review(int reviewID, String productID, int customerID, int rating,
+                  String title, String comment, List<String> images, String status, Date date) {
         this.reviewID = reviewID;
         this.productID = productID;
         this.customerID = customerID;
-        this.rating = Math.min(5, Math.max(1, rating));
+        this.rating = rating;
         this.title = title;
         this.comment = comment;
-        this.images = new ArrayList<>(images != null ? images : new ArrayList<>());
-        this.status = "Pending";
-        this.date = new Date();
+        this.images = images != null ? images : new ArrayList<>();
+        this.status = status;
+        this.date = date;
     }
 
-    public void addReview(String productID, int customerID, int rating, String title, String comment, List<String> images) {}
-    public void editReview(int reviewID, int newRating, String newTitle, String newComment, List<String> newImages) {}
-    public void deleteReview(int reviewID) {}
-    public void approveReview(int reviewID) {}
-    public void reportReview(int reviewID) {}
-
+    // ===== Getters & Setters =====
     public int getReviewID() { return reviewID; }
-    public void setReviewID(int reviewID) { this.reviewID = reviewID; }
     public String getProductID() { return productID; }
-    public void setProductID(String productID) { this.productID = productID; }
     public int getCustomerID() { return customerID; }
-    public void setCustomerID(int customerID) { this.customerID = customerID; }
     public int getRating() { return rating; }
-    public void setRating(int rating) { this.rating = Math.min(5, Math.max(1, rating)); }
     public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
     public String getComment() { return comment; }
-    public void setComment(String comment) { this.comment = comment; }
-    public List<String> getImages() { return new ArrayList<>(images); }
-    public void setImages(List<String> images) { this.images = new ArrayList<>(images); }
+    public List<String> getImages() { return images; }
     public String getStatus() { return status; }
+    public Date getDate() { return date; }
+
+    public void setRating(int rating) { this.rating = rating; }
+    public void setTitle(String title) { this.title = title; }
+    public void setComment(String comment) { this.comment = comment; }
+    public void setImages(List<String> images) { this.images = images; }
     public void setStatus(String status) { this.status = status; }
-    public Date getDate() { return new Date(date.getTime()); }
-    public void setDate(Date date) { this.date = date != null ? new Date(date.getTime()) : new Date(); }
+
+    // ================= Methods =================
+
+    /**
+     * Tạo đánh giá mới
+     */
+    public static Review addReview(int reviewID, String productID, int customerID, int rating,
+                                   String title, String comment, List<String> images) {
+        return new Review(reviewID, productID, customerID, rating, title, comment, images, "Đang duyệt", new Date());
+    }
+
+    /**
+     * Sửa đánh giá
+     */
+    public void editReview(int newRating, String newTitle, String newComment, List<String> newImages) {
+        this.rating = newRating;
+        this.title = newTitle;
+        this.comment = newComment;
+        this.images = newImages != null ? newImages : new ArrayList<>();
+        this.date = new Date(); // Cập nhật ngày chỉnh sửa
+    }
+
+    /**
+     * Xóa đánh giá (thực tế có thể chuyển trạng thái sang "Ẩn")
+     */
+    public void deleteReview() {
+        this.status = "Ẩn";
+    }
+
+    /**
+     * Admin duyệt đánh giá
+     */
+    public void approveReview() {
+        this.status = "Hiển thị";
+    }
+
+    /**
+     * Báo cáo đánh giá vi phạm
+     */
+    public void reportReview() {
+        this.status = "Bị báo cáo";
+    }
+
+    /**
+     * Lấy thông tin chi tiết đánh giá
+     */
+    public String getReviewDetails() {
+        return "ReviewID: " + reviewID +
+                " | ProductID: " + productID +
+                " | CustomerID: " + customerID +
+                " | Rating: " + rating +
+                " | Title: " + title +
+                " | Comment: " + comment +
+                " | Images: " + (images.isEmpty() ? "Không có" : images) +
+                " | Status: " + status +
+                " | Date: " + date;
+    }
 }
