@@ -1,3 +1,5 @@
+package entity;
+
 public class Admin extends User {
     // ===== Thuộc tính riêng của Admin =====
     private int adminID; // Mã định danh quản trị viên

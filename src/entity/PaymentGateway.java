@@ -1,3 +1,5 @@
+package entity;
+
 public class PaymentGateway {
     // ===== Thuộc tính =====
     private String gatewayName;      // Tên cổng thanh toán (VNPay, PayPal, Stripe)

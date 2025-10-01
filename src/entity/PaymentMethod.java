@@ -1,3 +1,5 @@
+package entity;
+
 public class PaymentMethod {
     // ===== Thuộc tính =====
     private String methodID;      // Mã phương thức thanh toán
