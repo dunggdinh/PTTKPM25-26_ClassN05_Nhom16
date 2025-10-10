@@ -163,7 +163,7 @@
 
             @include('payments_gateway')
 
-            
+        </main>    
 
             
         
@@ -172,65 +172,7 @@
 </main>
     </div>
 
-    <div id="product-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4 transition-opacity duration-300">
-        <div class="modal-content bg-white rounded-lg shadow-xl max-w-lg w-full p-6">
-            <h2 id="modal-title" class="text-2xl font-bold text-gray-800 mb-4"></h2>
-            <form id="product-form" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Tên sản phẩm</label>
-                    <input type="text" id="product-name" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Danh mục</label>
-                    <select id="product-category" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                        <option value="laptop">Laptop</option>
-                        <option value="phone">Điện thoại</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">SKU</label>
-                    <input type="text" id="product-sku" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Tồn kho hiện tại</label>
-                        <input type="number" id="product-stock" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Tồn kho tối thiểu</label>
-                        <input type="number" id="product-min-stock" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Giá bán (VND)</label>
-                    <input type="number" id="product-price" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                </div>
-                <div class="flex justify-end space-x-3 mt-6">
-                    <button type="button" id="cancel-modal" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
-                        Hủy
-                    </button>
-                    <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                        Lưu
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
     
-    <div id="confirm-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="modal-content bg-white rounded-lg shadow-xl max-w-sm w-full p-6 text-center">
-            <i class="fas fa-question-circle text-6xl text-blue-500 mb-4 animate-bounce"></i>
-            <h3 class="text-xl font-bold text-gray-800 mb-2" id="confirm-modal-title">Xác nhận</h3>
-            <p class="text-sm text-gray-600 mb-4" id="confirm-modal-message"></p>
-            <div class="flex justify-center space-x-4">
-                <button id="cancel-confirm" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors">Hủy</button>
-                <button id="confirm-action" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">Xác nhận</button>
-            </div>
-        </div>
-    </div>
-    <div id="toast-notification" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full shadow-lg opacity-0 transition-opacity duration-300">
-        <span id="toast-message"></span>
-    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {

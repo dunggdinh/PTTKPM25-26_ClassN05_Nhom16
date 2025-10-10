@@ -6,7 +6,6 @@
     <title>Quản lý nhập hàng</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url('css/app.css') }}">
 </head>
 <body class="bg-gray-100 p-6">
 
@@ -33,7 +32,6 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200" id="deliveries-table-body">
-                    <!-- Placeholder khi chưa có dữ liệu -->
                     <tr>
                         <td colspan="7" class="text-center text-gray-400 py-4">Chưa có lô hàng nào</td>
                     </tr>
@@ -42,6 +40,83 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Dữ liệu tạm thời
+    let pendingDeliveries = [
+        { id: 1, orderCode: "DH001", supplier: "Công ty ABC", product: "Laptop Dell", quantity: 20, expectedDate: "2025-10-05" },
+        { id: 2, orderCode: "DH002", supplier: "Công ty XYZ", product: "Điện thoại iPhone", quantity: 15, expectedDate: "2025-10-06" }
+    ];
+
+    let inventory = [
+        { name: "Laptop Dell", currentStock: 50 },
+        { name: "Điện thoại iPhone", currentStock: 30 }
+    ];
+
+    const showToast = (message) => alert(message);
+
+    const renderDeliveries = () => {
+        const tbody = document.getElementById('deliveries-table-body');
+        tbody.innerHTML = '';
+
+        if (pendingDeliveries.length === 0) {
+            tbody.innerHTML = `<tr>
+                <td colspan="7" class="text-center text-gray-400 py-4">Chưa có lô hàng nào</td>
+            </tr>`;
+            return;
+        }
+
+        pendingDeliveries.forEach(delivery => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="px-4 py-3">${delivery.orderCode}</td>
+                <td class="px-4 py-3">${delivery.supplier}</td>
+                <td class="px-4 py-3">${delivery.product}</td>
+                <td class="px-4 py-3">${delivery.quantity}</td>
+                <td class="px-4 py-3">${delivery.expectedDate}</td>
+                <td class="px-4 py-3">
+                    <span class="px-2 py-1 text-xs rounded bg-yellow-100 text-yellow-600">Chờ xử lý</span>
+                </td>
+                <td class="px-4 py-3 flex space-x-2">
+                    <button onclick="handleConfirmDelivery(${delivery.id})" class="flex items-center px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200">
+                        <i class="fas fa-check mr-1"></i> Xác nhận
+                    </button>
+                    <button onclick="handleRejectDelivery(${delivery.id})" class="flex items-center px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
+                        <i class="fas fa-times mr-1"></i> Từ chối
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    };
+
+    const handleConfirmDelivery = (id) => {
+        const index = pendingDeliveries.findIndex(d => d.id === id);
+        if (index !== -1) {
+            const delivery = pendingDeliveries[index];
+            const product = inventory.find(p => p.name === delivery.product);
+            if (product) {
+                product.currentStock += delivery.quantity;
+                pendingDeliveries.splice(index, 1);
+                showToast(`Đã nhập thành công ${delivery.quantity} sản phẩm ${delivery.product} vào kho.`);
+            } else {
+                showToast('Lỗi: Sản phẩm không tồn tại trong kho.');
+            }
+            renderDeliveries();
+        }
+    };
+
+    const handleRejectDelivery = (id) => {
+        const index = pendingDeliveries.findIndex(d => d.id === id);
+        if (index !== -1) {
+            pendingDeliveries.splice(index, 1);
+            showToast('Đã từ chối lô hàng thành công.');
+            renderDeliveries();
+        }
+    };
+
+    renderDeliveries();
+</script>
 
 </body>
 </html>
