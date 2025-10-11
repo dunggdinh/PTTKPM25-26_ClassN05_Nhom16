@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
+use App\Http\Controllers\AuthController;
+
 
 
 Route::get('/customer', function () {
@@ -68,6 +70,10 @@ Route::prefix('auth')->name('auth.')->group(function () {
     Route::get('/register', function () {
         return view('auth.register');
     })->name('register');
+    // tạm thời để vậy
+    Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register.form');
+    Route::post('/register', [AuthController::class, 'register'])->name('register');
+
     Route::get('/reset_password', function () {
         return view('auth.reset_password');
     })->name('reset_password');
