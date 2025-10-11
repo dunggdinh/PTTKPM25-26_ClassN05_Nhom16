@@ -1,0 +1,1358 @@
+ <?php
+echo '
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Tồn Kho - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .pulse-warning {
+            animation: pulseWarning 2s infinite;
+        }
+        
+        @keyframes pulseWarning {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            
+            #printContent, #printContent * {
+                visibility: visible;
+            }
+            
+            #printContent {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                box-shadow: none !important;
+            }
+            
+            .print-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 12px;
+            }
+            
+            .print-table th,
+            .print-table td {
+                border: 1px solid #000;
+                padding: 8px;
+                text-align: left;
+            }
+            
+            .print-table th {
+                background-color: #f3f4f6 !important;
+                font-weight: bold;
+            }
+            
+            .print-header {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            
+            .print-stats {
+                display: flex;
+                justify-content: space-around;
+                margin: 20px 0;
+                border: 1px solid #000;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-full">
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Page Title -->
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">Quản Lý Tồn Kho</h1>
+                <p class="text-gray-600 mt-2">Quản lý và theo dõi tình trạng tồn kho của tất cả sản phẩm.</p>
+            </div>
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 p-3 rounded-lg">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Tổng sản phẩm</p>
+                            <p class="text-2xl font-bold text-gray-900">1,247</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex items-center">
+                        <div class="bg-yellow-100 p-3 rounded-lg">
+                            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Sắp hết hàng</p>
+                            <p class="text-2xl font-bold text-gray-900">23</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex items-center">
+                        <div class="bg-red-100 p-3 rounded-lg">
+                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Hết hàng</p>
+                            <p class="text-2xl font-bold text-gray-900">5</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex items-center">
+                        <div class="bg-green-100 p-3 rounded-lg">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Còn hàng</p>
+                            <p class="text-2xl font-bold text-gray-900">1,219</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alerts Section -->
+            <div class="bg-white rounded-xl shadow-md mb-8">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-900 flex items-center">
+                        <svg class="w-6 h-6 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                        Cảnh báo tồn kho
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div id="alertsList" class="space-y-4">
+                        <!-- Alerts will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Table -->
+            <div class="bg-white rounded-xl shadow-md">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Danh sách tồn kho</h2>
+                    <!-- Filters and Search -->
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                        <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+                            <div class="relative">
+                                <input type="text" id="searchInput" placeholder="Tìm kiếm sản phẩm..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent w-full md:w-64">
+                                <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
+                            
+                            <select id="categoryFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent">
+                                <option value="">Tất cả danh mục</option>
+                                <option value="smartphone">Điện thoại</option>
+                                <option value="laptop">Laptop</option>
+                                <option value="tablet">Tablet</option>
+                                <option value="accessory">Phụ kiện</option>
+                            </select>
+                            
+                            <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent">
+                                <option value="">Tất cả trạng thái</option>
+                                <option value="in-stock">Còn hàng</option>
+                                <option value="low-stock">Sắp hết</option>
+                                <option value="out-of-stock">Hết hàng</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex space-x-3">
+                            <button onclick="showExcelPreview()" class="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                <span>Xuất Excel</span>
+                            </button>
+                            <button onclick="refreshData()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                </svg>
+                                <span>Làm mới</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <input type="checkbox" id="selectAll" class="text-green-600 focus:ring-green-500" onchange="toggleSelectAll()">
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sản phẩm</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Danh mục</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tồn kho</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tối thiểu</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giá</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTable" class="bg-white divide-y divide-gray-200">
+                            <!-- Table rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Excel Export Modal -->
+    <div id="excelPreviewModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg w-full max-w-4xl mx-4 max-h-5/6 overflow-y-auto">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center p-6 border-b border-gray-200">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-green-100 p-2 rounded-lg">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900">Xuất dữ liệu Excel</h3>
+                        <p class="text-sm text-gray-600">Tùy chỉnh dữ liệu xuất theo nhu cầu</p>
+                    </div>
+                </div>
+                <button onclick="closeExcelPreview()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Modal Content -->
+            <div class="p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Left Column -->
+                    <div class="space-y-6">
+                        <!-- Export Range -->
+                        <div>
+                            <h4 class="text-lg font-semibold text-gray-900 mb-3">Phạm vi xuất</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="radio" name="exportRange" value="all" checked class="text-green-600 focus:ring-green-500">
+                                    <span class="ml-2 text-sm text-gray-700">Tất cả sản phẩm (<span id="totalCount">8</span> sản phẩm)</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="exportRange" value="current" class="text-green-600 focus:ring-green-500">
+                                    <span class="ml-2 text-sm text-gray-700">Trang hiện tại (<span id="currentCount">8</span> sản phẩm)</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="exportRange" value="selected" class="text-green-600 focus:ring-green-500">
+                                    <span class="ml-2 text-sm text-gray-700">Sản phẩm đã chọn (<span id="selectedCount">0</span> sản phẩm)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- File Format & Name -->
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Định dạng file</label>
+                                <select id="fileFormat" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="xlsx">Excel (.xlsx)</option>
+                                    <option value="csv">CSV (.csv)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tên file</label>
+                                <input type="text" id="fileName" value="bao-cao-ton-kho" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <p class="text-xs text-gray-500 mt-1">Tên file sẽ được thêm ngày tháng tự động</p>
+                            </div>
+                        </div>
+
+                        <!-- Status Filter -->
+                        <div>
+                            <h4 class="text-lg font-semibold text-gray-900 mb-3">Lọc theo trạng thái</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="statusInStock" checked class="text-green-600 focus:ring-green-500">
+                                    <span class="ml-2 text-sm text-gray-700">Còn hàng</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="statusLowStock" checked class="text-green-600 focus:ring-green-500">
+                                    <span class="ml-2 text-sm text-gray-700">Sắp hết</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="statusOutStock" checked class="text-green-600 focus:ring-green-500">
+                                    <span class="ml-2 text-sm text-gray-700">Hết hàng</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="space-y-6">
+                        <!-- Column Selection -->
+                        <div>
+                            <h4 class="text-lg font-semibold text-gray-900 mb-3">Chọn cột xuất</h4>
+                            <div class="max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-3 space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="colId" checked class="text-green-600 focus:ring-green-500">
+                                    <span class="ml-2 text-sm text-gray-700">ID</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="colName" checked class="text-green-600 focus:ring-green-500">
+                                    <span class="ml-2 text-sm text-gray-700">Tên sản phẩm</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="colSku" checked class="text-green-600 focus:ring-green-500">
+                                    <span class="ml-2 text-sm text-gray-700">Mã SKU</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="colCategory" checked class="text-green-600 focus:ring-green-500">
+                                    <span class="ml-2 text-sm text-gray-700">Danh mục</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="colBrand" class="text-green-600 focus:ring-green-500">
+                                    <span class="ml-2 text-sm text-gray-700">Thương hiệu</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="colStock" checked class="text-green-600 focus:ring-green-500">
+                                    <span class="ml-2 text-sm text-gray-700">Tồn kho</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="colMinStock" checked class="text-green-600 focus:ring-green-500">
+                                    <span class="ml-2 text-sm text-gray-700">Tồn kho tối thiểu</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="colStatus" checked class="text-green-600 focus:ring-green-500">
+                                    <span class="ml-2 text-sm text-gray-700">Trạng thái</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="colPrice" checked class="text-green-600 focus:ring-green-500">
+                                    <span class="ml-2 text-sm text-gray-700">Giá bán</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="colSupplier" class="text-green-600 focus:ring-green-500">
+                                    <span class="ml-2 text-sm text-gray-700">Nhà cung cấp</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="colLocation" class="text-green-600 focus:ring-green-500">
+                                    <span class="ml-2 text-sm text-gray-700">Vị trí kho</span>
+                                </label>
+                            </div>
+                            <div class="flex space-x-2 mt-3">
+                                <button onclick="selectAllColumns()" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded transition-colors">
+                                    Chọn tất cả
+                                </button>
+                                <button onclick="deselectAllColumns()" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded transition-colors">
+                                    Bỏ chọn tất cả
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Additional Options -->
+                        <div>
+                            <h4 class="text-lg font-semibold text-gray-900 mb-3">Tùy chọn bổ sung</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="includeHeaders" checked class="text-green-600 focus:ring-green-500">
+                                    <span class="ml-2 text-sm text-gray-700">Bao gồm tiêu đề cột</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="includeTimestamp" checked class="text-green-600 focus:ring-green-500">
+                                    <span class="ml-2 text-sm text-gray-700">Thêm thời gian xuất</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="includeStats" class="text-green-600 focus:ring-green-500">
+                                    <span class="ml-2 text-sm text-gray-700">Thêm thống kê tổng quan</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview Summary -->
+                <div class="mt-6 bg-gray-50 rounded-lg p-4">
+                    <div id="exportSummary" class="text-sm text-gray-600">
+                        <p>Sẽ xuất: <span class="font-medium text-gray-900">8 sản phẩm</span></p>
+                        <p>Định dạng: <span class="font-medium text-gray-900">Excel (.xlsx)</span></p>
+                        <p>Cột: <span class="font-medium text-gray-900">9 cột</span></p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-between items-center mt-6 pt-4 border-t border-gray-200">
+                    <div class="flex items-center text-sm text-gray-500">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.586-6.586a2 2 0 00-2.828-2.828z"></path>
+                        </svg>
+                        File sẽ được tải xuống tự động
+                    </div>
+                    <div class="flex space-x-3">
+                        <button onclick="closeExcelPreview()" class="bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg border border-gray-300 transition-colors">
+                            Hủy
+                        </button>
+                        <button onclick="downloadExcel()" class="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-6 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3"></path>
+                            </svg>
+                            <span>Xuất Excel</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Details Modal -->
+    <div id="detailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg w-full max-w-2xl mx-4 max-h-5/6 overflow-y-auto">
+            <div class="flex justify-between items-center p-6 border-b border-gray-200">
+                <h3 class="text-xl font-bold text-gray-900">Chi tiết sản phẩm</h3>
+                <button onclick="closeDetailsModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div id="productDetails" class="space-y-6">
+                    <!-- Product details will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div class="flex items-center mb-4">
+                <div class="bg-red-100 p-3 rounded-full mr-4">
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900">Xác nhận xóa</h3>
+                    <p class="text-sm text-gray-600">Hành động này không thể hoàn tác</p>
+                </div>
+            </div>
+            <div class="mb-6">
+                <p class="text-gray-700">Bạn có chắc chắn muốn xóa sản phẩm:</p>
+                <p id="deleteProductName" class="font-semibold text-gray-900 mt-2"></p>
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="deleteProduct()" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors font-medium">
+                    Xóa sản phẩm
+                </button>
+                <button onclick="closeDeleteModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-lg transition-colors font-medium">
+                    Hủy
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Stock Modal -->
+    <div id="updateModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-900">Cập nhật tồn kho</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Sản phẩm</label>
+                    <p id="modalProductName" class="text-gray-900 font-medium"></p>
+                </div>
+                <div>
+                    <label for="newStock" class="block text-sm font-medium text-gray-700 mb-2">Số lượng mới</label>
+                    <input type="number" id="newStock" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent" min="0">
+                </div>
+                <div>
+                    <label for="minStock" class="block text-sm font-medium text-gray-700 mb-2">Tồn kho tối thiểu</label>
+                    <input type="number" id="minStock" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent" min="0">
+                </div>
+                <div class="flex space-x-3 pt-4">
+                    <button onclick="updateStock()" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg transition-colors">
+                        Cập nhật
+                    </button>
+                    <button onclick="closeModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-lg transition-colors">
+                        Hủy
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data
+        let selectedProducts = new Set();
+
+        let inventoryData = [
+            { 
+                id: 1, 
+                name: \'iPhone 15 Pro Max\', 
+                category: \'smartphone\', 
+                stock: 0, 
+                minStock: 5, 
+                price: \'29,990,000\', 
+                status: \'out-of-stock\',
+                sku: \'IP15PM-256-TI\',
+                brand: \'Apple\',
+                model: \'256GB Titanium\',
+                supplier: \'Apple Vietnam\',
+                location: \'Kho A - Kệ 1\',
+                lastUpdated: \'2024-01-15\',
+                description: \'iPhone 15 Pro Max với chip A17 Pro, camera 48MP, màn hình Super Retina XDR 6.7 inch\'
+            },
+            { 
+                id: 2, 
+                name: \'Samsung Galaxy S24 Ultra\', 
+                category: \'smartphone\', 
+                stock: 3, 
+                minStock: 10, 
+                price: \'26,990,000\', 
+                status: \'low-stock\',
+                sku: \'SGS24U-512-BK\',
+                brand: \'Samsung\',
+                model: \'512GB Black\',
+                supplier: \'Samsung Vietnam\',
+                location: \'Kho A - Kệ 2\',
+                lastUpdated: \'2024-01-14\',
+                description: \'Galaxy S24 Ultra với S Pen, camera 200MP, màn hình Dynamic AMOLED 6.8 inch\'
+            },
+            { 
+                id: 3, 
+                name: \'MacBook Pro M3\', 
+                category: \'laptop\', 
+                stock: 15, 
+                minStock: 5, 
+                price: \'52,990,000\', 
+                status: \'in-stock\',
+                sku: \'MBP-M3-16-SG\',
+                brand: \'Apple\',
+                model: \'16 inch Space Gray\',
+                supplier: \'Apple Vietnam\',
+                location: \'Kho B - Kệ 1\',
+                lastUpdated: \'2024-01-13\',
+                description: \'MacBook Pro 16 inch với chip M3, 16GB RAM, 512GB SSD, màn hình Liquid Retina XDR\'
+            },
+            { 
+                id: 4, 
+                name: \'iPad Air M2\', 
+                category: \'tablet\', 
+                stock: 2, 
+                minStock: 8, 
+                price: \'16,990,000\', 
+                status: \'low-stock\',
+                sku: \'IPA-M2-11-BL\',
+                brand: \'Apple\',
+                model: \'11 inch Blue\',
+                supplier: \'Apple Vietnam\',
+                location: \'Kho A - Kệ 3\',
+                lastUpdated: \'2024-01-12\',
+                description: \'iPad Air với chip M2, màn hình Liquid Retina 11 inch, hỗ trợ Apple Pencil\'
+            },
+            { 
+                id: 5, 
+                name: \'AirPods Pro 2\', 
+                category: \'accessory\', 
+                stock: 25, 
+                minStock: 15, 
+                price: \'6,490,000\', 
+                status: \'in-stock\',
+                sku: \'APP2-USBC-WH\',
+                brand: \'Apple\',
+                model: \'USB-C White\',
+                supplier: \'Apple Vietnam\',
+                location: \'Kho C - Kệ 1\',
+                lastUpdated: \'2024-01-11\',
+                description: \'AirPods Pro thế hệ 2 với chip H2, chống ồn chủ động, cổng USB-C\'
+            },
+            { 
+                id: 6, 
+                name: \'Dell XPS 13\', 
+                category: \'laptop\', 
+                stock: 0, 
+                minStock: 3, 
+                price: \'28,990,000\', 
+                status: \'out-of-stock\',
+                sku: \'DXS13-I7-16-SL\',
+                brand: \'Dell\',
+                model: \'i7 16GB Silver\',
+                supplier: \'Dell Vietnam\',
+                location: \'Kho B - Kệ 2\',
+                lastUpdated: \'2024-01-10\',
+                description: \'Dell XPS 13 với Intel Core i7, 16GB RAM, 512GB SSD, màn hình InfinityEdge\'
+            },
+            { 
+                id: 7, 
+                name: \'Xiaomi 14 Ultra\', 
+                category: \'smartphone\', 
+                stock: 8, 
+                minStock: 12, 
+                price: \'24,990,000\', 
+                status: \'low-stock\',
+                sku: \'XM14U-512-BK\',
+                brand: \'Xiaomi\',
+                model: \'512GB Black\',
+                supplier: \'Xiaomi Vietnam\',
+                location: \'Kho A - Kệ 4\',
+                lastUpdated: \'2024-01-09\',
+                description: \'Xiaomi 14 Ultra với camera Leica, Snapdragon 8 Gen 3, màn hình AMOLED 6.73 inch\'
+            },
+            { 
+                id: 8, 
+                name: \'Surface Pro 9\', 
+                category: \'tablet\', 
+                stock: 12, 
+                minStock: 6, 
+                price: \'22,990,000\', 
+                status: \'in-stock\',
+                sku: \'SP9-I5-8-GR\',
+                brand: \'Microsoft\',
+                model: \'i5 8GB Graphite\',
+                supplier: \'Microsoft Vietnam\',
+                location: \'Kho B - Kệ 3\',
+                lastUpdated: \'2024-01-08\',
+                description: \'Surface Pro 9 với Intel Core i5, 8GB RAM, 256GB SSD, màn hình PixelSense Flow\'
+            }
+        ];
+
+        let currentEditId = null;
+        let currentDeleteId = null;
+
+        function toggleSelectAll() {
+            const selectAllCheckbox = document.getElementById(\'selectAll\');
+            const productCheckboxes = document.querySelectorAll(\'.product-checkbox\');
+            
+            // Only affect currently visible products
+            productCheckboxes.forEach(checkbox => {
+                const productId = parseInt(checkbox.dataset.id);
+                if (selectAllCheckbox.checked) {
+                    selectedProducts.add(productId);
+                    checkbox.checked = true;
+                } else {
+                    selectedProducts.delete(productId);
+                    checkbox.checked = false;
+                }
+            });
+            
+            updateSelectedCount();
+        }
+
+        function toggleProductSelection(productId) {
+            if (selectedProducts.has(productId)) {
+                selectedProducts.delete(productId);
+            } else {
+                selectedProducts.add(productId);
+            }
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            const productCheckboxes = document.querySelectorAll(\'.product-checkbox\');
+            const selectAllCheckbox = document.getElementById(\'selectAll\');
+            
+            // Update select all checkbox state based on currently visible items
+            const checkedCount = document.querySelectorAll(\'.product-checkbox:checked\').length;
+            const totalCount = productCheckboxes.length;
+            
+            if (checkedCount === 0) {
+                selectAllCheckbox.indeterminate = false;
+                selectAllCheckbox.checked = false;
+            } else if (checkedCount === totalCount) {
+                selectAllCheckbox.indeterminate = false;
+                selectAllCheckbox.checked = true;
+            } else {
+                selectAllCheckbox.indeterminate = true;
+                selectAllCheckbox.checked = false;
+            }
+            
+            // Update count in export modal if open
+            const selectedCountElement = document.getElementById(\'selectedCount\');
+            if (selectedCountElement) {
+                selectedCountElement.textContent = selectedProducts.size;
+            }
+        }
+
+        function renderInventoryTable() {
+            const tbody = document.getElementById(\'inventoryTable\');
+            const searchTerm = document.getElementById(\'searchInput\').value.toLowerCase();
+            const categoryFilter = document.getElementById(\'categoryFilter\').value;
+            const statusFilter = document.getElementById(\'statusFilter\').value;
+
+            let filteredData = inventoryData.filter(item => {
+                const matchesSearch = item.name.toLowerCase().includes(searchTerm);
+                const matchesCategory = !categoryFilter || item.category === categoryFilter;
+                const matchesStatus = !statusFilter || item.status === statusFilter;
+                return matchesSearch && matchesCategory && matchesStatus;
+            });
+
+            tbody.innerHTML = filteredData.map(item => {
+                const statusClass = {
+                    \'in-stock\': \'bg-green-100 text-green-800\',
+                    \'low-stock\': \'bg-yellow-100 text-yellow-800\',
+                    \'out-of-stock\': \'bg-red-100 text-red-800\'
+                }[item.status];
+
+                const statusText = {
+                    \'in-stock\': \'Còn hàng\',
+                    \'low-stock\': \'Sắp hết\',
+                    \'out-of-stock\': \'Hết hàng\'
+                }[item.status];
+
+                const isSelected = selectedProducts.has(item.id);
+
+                return `
+                    <tr class="hover:bg-gray-50 fade-in">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <input type="checkbox" class="product-checkbox text-green-600 focus:ring-green-500" data-id="${item.id}" ${isSelected ? \'checked\' : \'\'} onchange="toggleProductSelection(${item.id})">
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">${item.name}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500">${getCategoryName(item.category)}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-bold ${item.stock === 0 ? \'text-red-600\' : item.stock <= item.minStock ? \'text-yellow-600\' : \'text-green-600\'}">${item.stock}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500">${item.minStock}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                                ${statusText}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">${item.price}₫</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button onclick="openUpdateModal(${item.id})" class="text-blue-600 hover:text-blue-900 mr-3">Cập nhật</button>
+                            <button onclick="viewDetails(${item.id})" class="text-green-600 hover:text-green-900 mr-3">Chi tiết</button>
+                            <button onclick="confirmDelete(${item.id})" class="text-red-600 hover:text-red-900">Xóa</button>
+                        </td>
+                    </tr>
+                `;
+            }).join(\'\');
+            
+            // Update selection state after rendering
+            setTimeout(updateSelectedCount, 0);
+        }
+
+        function renderAlerts() {
+            const alertsList = document.getElementById(\'alertsList\');
+            const alerts = inventoryData.filter(item => item.status === \'out-of-stock\' || item.status === \'low-stock\');
+
+            alertsList.innerHTML = alerts.map(item => {
+                const isOutOfStock = item.status === \'out-of-stock\';
+                const alertClass = isOutOfStock ? \'border-red-200 bg-red-50\' : \'border-yellow-200 bg-yellow-50\';
+                const iconClass = isOutOfStock ? \'text-red-500\' : \'text-yellow-500\';
+                const textClass = isOutOfStock ? \'text-red-800\' : \'text-yellow-800\';
+
+                return `
+                    <div class="flex items-center p-4 ${alertClass} border rounded-lg">
+                        <svg class="w-5 h-5 ${iconClass} mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                        <div class="flex-1">
+                            <p class="font-medium ${textClass}">${item.name}</p>
+                            <p class="text-sm ${textClass}">
+                                ${isOutOfStock ? \'Đã hết hàng\' : `Chỉ còn ${item.stock} sản phẩm (tối thiểu: ${item.minStock})`}
+                            </p>
+                        </div>
+                        <button onclick="openUpdateModal(${item.id})" class="ml-4 bg-white px-3 py-1 rounded text-sm font-medium ${textClass} hover:bg-gray-100 transition-colors">
+                            Cập nhật
+                        </button>
+                    </div>
+                `;
+            }).join(\'\');
+        }
+
+        function getCategoryName(category) {
+            const categories = {
+                \'smartphone\': \'Điện thoại\',
+                \'laptop\': \'Laptop\',
+                \'tablet\': \'Tablet\',
+                \'accessory\': \'Phụ kiện\'
+            };
+            return categories[category] || category;
+        }
+
+        function openUpdateModal(id) {
+            const item = inventoryData.find(item => item.id === id);
+            if (item) {
+                currentEditId = id;
+                document.getElementById(\'modalProductName\').textContent = item.name;
+                document.getElementById(\'newStock\').value = item.stock;
+                document.getElementById(\'minStock\').value = item.minStock;
+                document.getElementById(\'updateModal\').classList.remove(\'hidden\');
+                document.getElementById(\'updateModal\').classList.add(\'flex\');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById(\'updateModal\').classList.add(\'hidden\');
+            document.getElementById(\'updateModal\').classList.remove(\'flex\');
+            currentEditId = null;
+        }
+
+        function updateStock() {
+            if (currentEditId) {
+                const newStock = parseInt(document.getElementById(\'newStock\').value);
+                const minStock = parseInt(document.getElementById(\'minStock\').value);
+                
+                const item = inventoryData.find(item => item.id === currentEditId);
+                if (item) {
+                    item.stock = newStock;
+                    item.minStock = minStock;
+                    
+                    // Update status based on stock levels
+                    if (newStock === 0) {
+                        item.status = \'out-of-stock\';
+                    } else if (newStock <= minStock) {
+                        item.status = \'low-stock\';
+                    } else {
+                        item.status = \'in-stock\';
+                    }
+                    
+                    renderInventoryTable();
+                    renderAlerts();
+                    closeModal();
+                    
+                    // Show success message
+                    showNotification(\'Cập nhật tồn kho thành công!\', \'success\');
+                }
+            }
+        }
+
+        function viewDetails(id) {
+            const item = inventoryData.find(item => item.id === id);
+            if (item) {
+                showProductDetails(item);
+                document.getElementById(\'detailsModal\').classList.remove(\'hidden\');
+                document.getElementById(\'detailsModal\').classList.add(\'flex\');
+            }
+        }
+
+        function showProductDetails(item) {
+            const statusClass = {
+                \'in-stock\': \'bg-green-100 text-green-800\',
+                \'low-stock\': \'bg-yellow-100 text-yellow-800\',
+                \'out-of-stock\': \'bg-red-100 text-red-800\'
+            }[item.status];
+
+            const statusText = {
+                \'in-stock\': \'Còn hàng\',
+                \'low-stock\': \'Sắp hết\',
+                \'out-of-stock\': \'Hết hàng\'
+            }[item.status];
+
+            const stockColor = item.stock === 0 ? \'text-red-600\' : item.stock <= item.minStock ? \'text-yellow-600\' : \'text-green-600\';
+
+            const detailsHTML = `
+                <!-- Product Header -->
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900 mb-2">${item.name}</h2>
+                            <p class="text-gray-600 mb-3">${item.description}</p>
+                            <span class="px-3 py-1 text-sm font-semibold rounded-full ${statusClass}">
+                                ${statusText}
+                            </span>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-3xl font-bold ${stockColor} mb-1">${item.stock}</div>
+                            <div class="text-sm text-gray-500">Tồn kho</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Information Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Basic Information -->
+                    <div class="bg-white border border-gray-200 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <svg class="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Thông tin cơ bản
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Mã SKU:</span>
+                                <span class="font-medium text-gray-900">${item.sku}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Thương hiệu:</span>
+                                <span class="font-medium text-gray-900">${item.brand}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Model:</span>
+                                <span class="font-medium text-gray-900">${item.model}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Danh mục:</span>
+                                <span class="font-medium text-gray-900">${getCategoryName(item.category)}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Giá bán:</span>
+                                <span class="font-bold text-blue-600 text-lg">${item.price}₫</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stock Information -->
+                    <div class="bg-white border border-gray-200 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                            Thông tin tồn kho
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Số lượng hiện tại:</span>
+                                <span class="font-bold text-xl ${stockColor}">${item.stock}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Tồn kho tối thiểu:</span>
+                                <span class="font-medium text-gray-900">${item.minStock}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Vị trí kho:</span>
+                                <span class="font-medium text-gray-900">${item.location}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Nhà cung cấp:</span>
+                                <span class="font-medium text-gray-900">${item.supplier}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Cập nhật cuối:</span>
+                                <span class="font-medium text-gray-900">${new Date(item.lastUpdated).toLocaleDateString(\'vi-VN\')}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stock Status Alert -->
+                ${item.status !== \'in-stock\' ? `
+                <div class="bg-${item.status === \'out-of-stock\' ? \'red\' : \'yellow\'}-50 border border-${item.status === \'out-of-stock\' ? \'red\' : \'yellow\'}-200 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-${item.status === \'out-of-stock\' ? \'red\' : \'yellow\'}-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                        <div>
+                            <h4 class="font-medium text-${item.status === \'out-of-stock\' ? \'red\' : \'yellow\'}-800">
+                                ${item.status === \'out-of-stock\' ? \'Cảnh báo: Sản phẩm đã hết hàng!\' : \'Cảnh báo: Sản phẩm sắp hết hàng!\'}
+                            </h4>
+                            <p class="text-sm text-${item.status === \'out-of-stock\' ? \'red\' : \'yellow\'}-700 mt-1">
+                                ${item.status === \'out-of-stock\' ? \'Cần nhập hàng ngay lập tức để đáp ứng nhu cầu khách hàng.\' : `Chỉ còn ${item.stock} sản phẩm, cần nhập thêm hàng sớm.`}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                ` : \'\'}
+
+                <!-- Action Buttons -->
+                <div class="flex space-x-3 pt-4 border-t border-gray-200">
+                    <button onclick="openUpdateModal(${item.id}); closeDetailsModal();" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        <span>Cập nhật tồn kho</span>
+                    </button>
+                    <button onclick="closeDetailsModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-3 px-4 rounded-lg font-medium transition-colors">
+                        Đóng
+                    </button>
+                </div>
+            `;
+
+            document.getElementById(\'productDetails\').innerHTML = detailsHTML;
+        }
+
+        function closeDetailsModal() {
+            document.getElementById(\'detailsModal\').classList.add(\'hidden\');
+            document.getElementById(\'detailsModal\').classList.remove(\'flex\');
+        }
+
+        function confirmDelete(id) {
+            const item = inventoryData.find(item => item.id === id);
+            if (item) {
+                currentDeleteId = id;
+                document.getElementById(\'deleteProductName\').textContent = item.name;
+                document.getElementById(\'deleteModal\').classList.remove(\'hidden\');
+                document.getElementById(\'deleteModal\').classList.add(\'flex\');
+            }
+        }
+
+        function closeDeleteModal() {
+            document.getElementById(\'deleteModal\').classList.add(\'hidden\');
+            document.getElementById(\'deleteModal\').classList.remove(\'flex\');
+            currentDeleteId = null;
+        }
+
+        function deleteProduct() {
+            if (currentDeleteId) {
+                const item = inventoryData.find(item => item.id === currentDeleteId);
+                if (item) {
+                    // Remove from inventory data
+                    inventoryData = inventoryData.filter(item => item.id !== currentDeleteId);
+                    
+                    // Remove from selected products if it was selected
+                    selectedProducts.delete(currentDeleteId);
+                    
+                    // Re-render table and alerts
+                    renderInventoryTable();
+                    renderAlerts();
+                    
+                    // Close modal
+                    closeDeleteModal();
+                    
+                    // Show success message
+                    showNotification(`Đã xóa sản phẩm "${item.name}" thành công!`, \'success\');
+                }
+            }
+        }
+
+        function showExcelPreview() {
+            updateExportSummary();
+            document.getElementById(\'excelPreviewModal\').classList.remove(\'hidden\');
+            document.getElementById(\'excelPreviewModal\').classList.add(\'flex\');
+        }
+
+        function closeExcelPreview() {
+            document.getElementById(\'excelPreviewModal\').classList.add(\'hidden\');
+            document.getElementById(\'excelPreviewModal\').classList.remove(\'flex\');
+        }
+
+        function selectAllColumns() {
+            const checkboxes = document.querySelectorAll(\'[id^="col"]\');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+            });
+            updateExportSummary();
+        }
+
+        function deselectAllColumns() {
+            const checkboxes = document.querySelectorAll(\'[id^="col"]\');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            updateExportSummary();
+        }
+
+        function updateExportSummary() {
+            // Get selected range
+            const selectedRange = document.querySelector(\'input[name="exportRange"]:checked\').value;
+            let productCount = inventoryData.length;
+            
+            if (selectedRange === \'current\') {
+                // Count filtered results
+                const searchTerm = document.getElementById(\'searchInput\').value.toLowerCase();
+                const categoryFilter = document.getElementById(\'categoryFilter\').value;
+                const statusFilter = document.getElementById(\'statusFilter\').value;
+                
+                productCount = inventoryData.filter(item => {
+                    const matchesSearch = item.name.toLowerCase().includes(searchTerm);
+                    const matchesCategory = !categoryFilter || item.category === categoryFilter;
+                    const matchesStatus = !statusFilter || item.status === statusFilter;
+                    return matchesSearch && matchesCategory && matchesStatus;
+                }).length;
+            } else if (selectedRange === \'selected\') {
+                productCount = selectedProducts.size;
+            }
+            
+            // Count selected columns
+            const selectedColumns = document.querySelectorAll(\'[id^="col"]:checked\').length;
+            
+            // Get file format
+            const fileFormat = document.getElementById(\'fileFormat\').value;
+            const formatText = fileFormat === \'xlsx\' ? \'Excel (.xlsx)\' : \'CSV (.csv)\';
+            
+            // Update summary
+            document.getElementById(\'exportSummary\').innerHTML = `
+                <p>Sẽ xuất: <span class="font-medium text-gray-900">${productCount} sản phẩm</span></p>
+                <p>Định dạng: <span class="font-medium text-gray-900">${formatText}</span></p>
+                <p>Cột: <span class="font-medium text-gray-900">${selectedColumns} cột</span></p>
+            `;
+            
+            // Update counts in radio buttons
+            document.getElementById(\'totalCount\').textContent = inventoryData.length;
+            document.getElementById(\'currentCount\').textContent = document.querySelectorAll(\'.product-checkbox\').length;
+            document.getElementById(\'selectedCount\').textContent = selectedProducts.size;
+        }
+
+        function downloadExcel() {
+            showNotification(\'Đang tạo file Excel...\', \'info\');
+            
+            // Get export settings
+            const selectedRange = document.querySelector(\'input[name="exportRange"]:checked\').value;
+            const fileFormat = document.getElementById(\'fileFormat\').value;
+            const fileName = document.getElementById(\'fileName\').value || \'bao-cao-ton-kho\';
+            const includeHeaders = document.getElementById(\'includeHeaders\').checked;
+            const includeTimestamp = document.getElementById(\'includeTimestamp\').checked;
+            const includeStats = document.getElementById(\'includeStats\').checked;
+            
+            // Get status filters
+            const statusFilters = {
+                \'in-stock\': document.getElementById(\'statusInStock\').checked,
+                \'low-stock\': document.getElementById(\'statusLowStock\').checked,
+                \'out-of-stock\': document.getElementById(\'statusOutStock\').checked
+            };
+            
+            // Get selected columns
+            const selectedColumns = {
+                id: document.getElementById(\'colId\').checked,
+                name: document.getElementById(\'colName\').checked,
+                sku: document.getElementById(\'colSku\').checked,
+                category: document.getElementById(\'colCategory\').checked,
+                brand: document.getElementById(\'colBrand\').checked,
+                stock: document.getElementById(\'colStock\').checked,
+                minStock: document.getElementById(\'colMinStock\').checked,
+                status: document.getElementById(\'colStatus\').checked,
+                price: document.getElementById(\'colPrice\').checked,
+                supplier: document.getElementById(\'colSupplier\').checked,
+                location: document.getElementById(\'colLocation\').checked
+            };
+            
+            // Filter data based on settings
+            let dataToExport = inventoryData;
+            
+            // Apply range filter
+            if (selectedRange === \'current\') {
+                const searchTerm = document.getElementById(\'searchInput\').value.toLowerCase();
+                const categoryFilter = document.getElementById(\'categoryFilter\').value;
+                const statusFilter = document.getElementById(\'statusFilter\').value;
+                
+                dataToExport = inventoryData.filter(item => {
+                    const matchesSearch = item.name.toLowerCase().includes(searchTerm);
+                    const matchesCategory = !categoryFilter || item.category === categoryFilter;
+                    const matchesStatus = !statusFilter || item.status === statusFilter;
+                    return matchesSearch && matchesCategory && matchesStatus;
+                });
+            } else if (selectedRange === \'selected\') {
+                dataToExport = inventoryData.filter(item => selectedProducts.has(item.id));
+            }
+            
+            // Apply status filter
+            dataToExport = dataToExport.filter(item => statusFilters[item.status]);
+            
+            // Prepare export data with selected columns
+            const exportData = dataToExport.map((item, index) => {
+                const row = {};
+                if (selectedColumns.id) row[\'ID\'] = item.id;
+                if (selectedColumns.name) row[\'Tên sản phẩm\'] = item.name;
+                if (selectedColumns.sku) row[\'Mã SKU\'] = item.sku;
+                if (selectedColumns.category) row[\'Danh mục\'] = getCategoryName(item.category);
+                if (selectedColumns.brand) row[\'Thương hiệu\'] = item.brand;
+                if (selectedColumns.stock) row[\'Tồn kho\'] = item.stock;
+                if (selectedColumns.minStock) row[\'Tối thiểu\'] = item.minStock;
+                if (selectedColumns.status) row[\'Trạng thái\'] = {
+                    \'in-stock\': \'Còn hàng\',
+                    \'low-stock\': \'Sắp hết\',
+                    \'out-of-stock\': \'Hết hàng\'
+                }[item.status];
+                if (selectedColumns.price) row[\'Giá (VNĐ)\'] = item.price;
+                if (selectedColumns.supplier) row[\'Nhà cung cấp\'] = item.supplier;
+                if (selectedColumns.location) row[\'Vị trí kho\'] = item.location;
+                return row;
+            });
+            
+            if (exportData.length === 0) {
+                showNotification(\'Không có dữ liệu để xuất!\', \'error\');
+                return;
+            }
+            
+            // Create workbook and worksheet
+            const wb = XLSX.utils.book_new();
+            let ws;
+            
+            if (includeHeaders && (includeTimestamp || includeStats)) {
+                // Create worksheet with headers
+                ws = XLSX.utils.json_to_sheet([]);
+                
+                let currentRow = 0;
+                
+                // Add title and timestamp
+                if (includeTimestamp) {
+                    const now = new Date();
+                    const dateStr = now.toLocaleDateString(\'vi-VN\');
+                    const timeStr = now.toLocaleTimeString(\'vi-VN\');
+                    
+                    XLSX.utils.sheet_add_aoa(ws, [
+                        [\'BÁO CÁO TỒN KHO\'],
+                        [`Ngày xuất: ${dateStr} - ${timeStr}`],
+                        [\'\']
+                    ], { origin: `A${currentRow + 1}` });
+                    currentRow += 3;
+                }
+                
+                // Add statistics
+                if (includeStats) {
+                    const totalProducts = dataToExport.length;
+                    const inStock = dataToExport.filter(item => item.status === \'in-stock\').length;
+                    const lowStock = dataToExport.filter(item => item.status === \'low-stock\').length;
+                    const outOfStock = dataToExport.filter(item => item.status === \'out-of-stock\').length;
+                    
+                    XLSX.utils.sheet_add_aoa(ws, [
+                        [\'THỐNG KÊ TỔNG QUAN:\'],
+                        [`Tổng sản phẩm: ${totalProducts}`],
+                        [`Còn hàng: ${inStock}`],
+                        [`Sắp hết: ${lowStock}`],
+                        [`Hết hàng: ${outOfStock}`],
+                        [\'\']
+                    ], { origin: `A${currentRow + 1}` });
+                    currentRow += 6;
+                }
+                
+                // Add data
+                XLSX.utils.sheet_add_json(ws, exportData, { origin: `A${currentRow + 1}` });
+            } else {
+                // Simple data export
+                ws = XLSX.utils.json_to_sheet(exportData, { skipHeader: !includeHeaders });
+            }
+            
+            // Add worksheet to workbook
+            XLSX.utils.book_append_sheet(wb, ws, \'Báo cáo tồn kho\');
+            
+            // Generate filename with current date
+            const now = new Date();
+            const dateStr = now.toISOString().split(\'T\')[0];
+            const extension = fileFormat === \'xlsx\' ? \'xlsx\' : \'csv\';
+            const filename = `${fileName}-${dateStr}.${extension}`;
+            
+            // Write and download file
+            if (fileFormat === \'csv\') {
+                XLSX.writeFile(wb, filename, { bookType: \'csv\' });
+            } else {
+                XLSX.writeFile(wb, filename);
+            }
+            
+            showNotification(`Tải ${fileFormat.toUpperCase()} thành công!`, \'success\');
+            closeExcelPreview();
+        }
+
+        function refreshData() {
+            showNotification(\'Đang làm mới dữ liệu...\', \'info\');
+            // Simulate refresh
+            setTimeout(() => {
+                renderInventoryTable();
+                renderAlerts();
+                showNotification(\'Dữ liệu đã được cập nhật!\', \'success\');
+            }, 1000);
+        }
+
+
+
+        function showNotification(message, type) {
+            const notification = document.createElement(\'div\');
+            const bgColor = type === \'success\' ? \'bg-green-500\' : type === \'error\' ? \'bg-red-500\' : \'bg-blue-500\';
+            
+            notification.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 fade-in`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Event listeners
+        document.getElementById(\'searchInput\').addEventListener(\'input\', renderInventoryTable);
+        document.getElementById(\'categoryFilter\').addEventListener(\'change\', renderInventoryTable);
+        document.getElementById(\'statusFilter\').addEventListener(\'change\', renderInventoryTable);
+        
+        // Export form event listeners
+        document.addEventListener(\'change\', function(e) {
+            if (e.target.name === \'exportRange\' || 
+                e.target.id === \'fileFormat\' || 
+                e.target.id.startsWith(\'col\') || 
+                e.target.id.startsWith(\'status\')) {
+                updateExportSummary();
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById(\'updateModal\').addEventListener(\'click\', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Close Excel preview modal when clicking outside
+        document.getElementById(\'excelPreviewModal\').addEventListener(\'click\', function(e) {
+            if (e.target === this) {
+                closeExcelPreview();
+            }
+        });
+
+        // Close details modal when clicking outside
+        document.getElementById(\'detailsModal\').addEventListener(\'click\', function(e) {
+            if (e.target === this) {
+                closeDetailsModal();
+            }
+        });
+
+        // Close delete modal when clicking outside
+        document.getElementById(\'deleteModal\').addEventListener(\'click\', function(e) {
+            if (e.target === this) {
+                closeDeleteModal();
+            }
+        });
+
+
+
+        // Initialize the page
+        renderInventoryTable();
+        renderAlerts();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement(\'script\');d.innerHTML="window.__CF$cv$params={r:\'98c82e12f1bd3ee9\',t:\'MTc2MDEyMDkzMi4wMDAwMDA=\'};var a=document.createElement(\'script\');a.nonce=\'\';a.src=\'/cdn-cgi/challenge-platform/scripts/jsd/main.js\';document.getElementsByTagName(\'head\')[0].appendChild(a);";b.getElementsByTagName(\'head\')[0].appendChild(d)}}if(document.body){var a=document.createElement(\'iframe\');a.height=1;a.width=1;a.style.position=\'absolute\';a.style.top=0;a.style.left=0;a.style.border=\'none\';a.style.visibility=\'hidden\';document.body.appendChild(a);if(\'loading\'!==document.readyState)c();else if(window.addEventListener)document.addEventListener(\'DOMContentLoaded\',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);\'loading\'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
+
+';
+?>
