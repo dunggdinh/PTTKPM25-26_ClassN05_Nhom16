@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
 use App\Http\Controllers\AuthController;
-
+use App\Http\Controllers\PaymentController;
 
 
 Route::get('/customer', function () {
@@ -155,3 +155,13 @@ Route::get('/js/products.js', function () {
 // Route::get('/payments', function () {
 //     return view('payments_gateway');
 // });
+// Route để hiển thị trang thanh toán
+Route::get('/checkout', function () {
+    return view('checkout');
+});
+
+// Route để xử lý việc tạo thanh toán
+Route::post('/vnpay-payment', [PaymentController::class, 'createPayment']);
+
+// Route để VNPAY trả kết quả về
+Route::get('/vnpay-return', [PaymentController::class, 'returnPayment']);
