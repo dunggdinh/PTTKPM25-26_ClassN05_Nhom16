@@ -204,7 +204,9 @@
             </div>
 
             <!-- Form đăng ký -->
-            <form id="registerForm" class="space-y-6">
+            <!-- <form id="registerForm" class="space-y-6"> --> // tạm ẩn 
+            <form id="registerForm" method="POST" action="{{ route('auth.register') }}" class="space-y-6">
+                @csrf
                 <!-- Step 1: Thông tin cá nhân -->
                 <div id="step1" class="step-content">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">Thông tin cá nhân</h3>
@@ -335,10 +337,11 @@
                     <div>
                         <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-2">Xác nhận mật khẩu *</label>
                         <div class="relative">
+                            <!-- // thay đổi ở name -->
                             <input 
                                 type="password" 
                                 id="confirmPassword" 
-                                name="confirmPassword"
+                                name="password_confirmation"
                                 required
                                 class="input-field w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none pr-12"
                                 placeholder="Nhập lại mật khẩu"
