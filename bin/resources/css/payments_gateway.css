@@ -1,0 +1,14 @@
+/* Custom CSS cho payments_gateway */
+.section {
+    margin: 20px;
+}
+
+table th {
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+button {
+    transition: all 0.2s ease-in-out;
+}

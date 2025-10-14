@@ -1,398 +1,688 @@
+ <?php
+echo '
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payments Gateway</title>
+    <title>Quản Lý Thanh Toán - Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/payments_gateway.css') }}">
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .status-pending { @apply bg-yellow-100 text-yellow-800; }
+        .status-completed { @apply bg-green-100 text-green-800; }
+        .status-failed { @apply bg-red-100 text-red-800; }
+        .status-refunded { @apply bg-blue-100 text-blue-800; }
+    </style>
 </head>
-<body class="bg-gray-50 font-sans">
+<body class="bg-gray-50 min-h-full">
+    <div class="min-h-full">
 
-    <div id="payment-gateway" class="section">
 
-    <!-- Header -->
-    
+        <!-- Title Section -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
+            <div class="text-left">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">Quản Lý Thanh Toán</h1>
+                <p class="text-lg text-gray-600">
+                    Quản trị thanh toán, theo dõi giao dịch và xử lý hoàn tiền.
+                </p>
+            </div>
+        </div>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Navigation Tabs -->
-        <div class="mb-8">
-            <nav class="flex space-x-1 bg-white rounded-lg p-1 shadow-sm">
-                <button id="authTab" class="tab-button flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all duration-200 bg-blue-600 text-white">
-                    <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                    </svg>
-                    Xác thực giao dịch
-                </button>
-                <button id="transactionTab" class="tab-button flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all duration-200 text-gray-600 hover:text-gray-900">
-                    <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                    </svg>
-                    Danh sách giao dịch
-                </button>
-                <button id="refundTab" class="tab-button flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all duration-200 text-gray-600 hover:text-gray-900">
-                    <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
-                    </svg>
-                    Hoàn tiền
-                </button>
-            </nav>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8">
+                    <button onclick="showTab(\'verification\')" id="tab-verification" class="tab-button border-b-2 border-blue-500 text-blue-600 py-2 px-1 text-sm font-medium">
+                        🔍 Xác Thực Thanh Toán
+                    </button>
+                    <button onclick="showTab(\'transactions\')" id="tab-transactions" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-2 px-1 text-sm font-medium">
+                        📊 Danh Sách Giao Dịch
+                    </button>
+                    <button onclick="showTab(\'refunds\')" id="tab-refunds" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-2 px-1 text-sm font-medium">
+                        💰 Hoàn Tiền
+                    </button>
+                </nav>
+            </div>
         </div>
 
-        <!-- Authentication Interface -->
-        <div id="authInterface" class="tab-content">
-            <div class="grid lg:grid-cols-2 gap-8">
-                <!-- Payment Authentication Form -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <div class="flex items-center mb-6">
-                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                            </svg>
-                        </div>
-                        <h2 class="text-xl font-semibold text-gray-900">Xác thực thanh toán</h2>
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Verification Tab -->
+            <div id="verification-tab" class="tab-content fade-in">
+                <div class="bg-white rounded-lg shadow">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-semibold text-gray-900">Xác Thực Thanh Toán Chờ Duyệt</h2>
+                        <p class="text-sm text-gray-600 mt-1">Kiểm tra và xác thực các giao dịch thanh toán</p>
                     </div>
-
-                    <form id="authForm" class="space-y-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Mã giao dịch</label>
-                            <input type="text" id="transactionId" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="TXN-2024-001234" value="TXN-2024-001234">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Số tiền (VNĐ)</label>
-                            <input type="text" id="amount" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="1,500,000" value="1,500,000">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Phương thức thanh toán</label>
-                            <select id="paymentMethod" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                <option value="visa">Visa/Mastercard</option>
-                                <option value="momo">Ví MoMo</option>
-                                <option value="zalopay">ZaloPay</option>
-                                <option value="banking">Internet Banking</option>
-                            </select>
-                        </div>
-
-
-
-                        <div>
-                            <button type="submit" id="authenticateBtn" class="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium">
-                                Xác thực thanh toán
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Authentication Status -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <div class="flex items-center mb-6">
-                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <h2 class="text-xl font-semibold text-gray-900">Trạng thái xác thực</h2>
-                    </div>
-
-                    <div id="authStatus" class="space-y-4">
-                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                            <span class="text-sm font-medium text-gray-700">Trạng thái</span>
-                            <span class="px-3 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Chờ xác thực</span>
-                        </div>
-
-                        <div class="space-y-3">
-                            <div class="flex items-center">
-                                <div class="w-4 h-4 bg-green-500 rounded-full mr-3"></div>
-                                <span class="text-sm text-gray-600">Thông tin giao dịch hợp lệ</span>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="w-4 h-4 bg-green-500 rounded-full mr-3"></div>
-                                <span class="text-sm text-gray-600">Kết nối ngân hàng thành công</span>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="w-4 h-4 bg-yellow-400 rounded-full mr-3 pulse-animation"></div>
-                                <span class="text-sm text-gray-600">Đang chờ xác thực thanh toán</span>
-                            </div>
-                        </div>
-
-                        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
-                            <h3 class="text-sm font-medium text-blue-900 mb-2">Thông tin giao dịch</h3>
-                            <div class="space-y-1 text-sm text-blue-700">
-                                <div class="flex justify-between">
-                                    <span>Mã GD:</span>
-                                    <span class="font-medium">TXN-2024-001234</span>
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            <div class="border border-yellow-200 rounded-lg p-4 bg-yellow-50">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3">
+                                            <span class="text-lg">🏪</span>
+                                            <div>
+                                                <h3 class="font-medium text-gray-900">Đơn hàng #DH001234</h3>
+                                                <p class="text-sm text-gray-600">Khách hàng: Nguyễn Văn An</p>
+                                                <p class="text-sm text-gray-600">Số tiền: 2,450,000 VNĐ</p>
+                                                <p class="text-sm text-gray-600">Phương thức: Chuyển khoản ngân hàng</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button onclick="verifyPayment(\'DH001234\', \'approved\')" class="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700">
+                                            ✅ Xác Nhận
+                                        </button>
+                                        <button onclick="verifyPayment(\'DH001234\', \'rejected\')" class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700">
+                                            ❌ Từ Chối
+                                        </button>
+                                    </div>
                                 </div>
-                                <div class="flex justify-between">
-                                    <span>Số tiền:</span>
-                                    <span class="font-medium">1,500,000 VNĐ</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span>Thời gian:</span>
-                                    <span class="font-medium">14:30 - 15/12/2024</span>
+                            </div>
+
+                            <div class="border border-yellow-200 rounded-lg p-4 bg-yellow-50">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3">
+                                            <span class="text-lg">🏪</span>
+                                            <div>
+                                                <h3 class="font-medium text-gray-900">Đơn hàng #DH001235</h3>
+                                                <p class="text-sm text-gray-600">Khách hàng: Trần Thị Bình</p>
+                                                <p class="text-sm text-gray-600">Số tiền: 1,200,000 VNĐ</p>
+                                                <p class="text-sm text-gray-600">Phương thức: Ví điện tử MoMo</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button onclick="verifyPayment(\'DH001235\', \'approved\')" class="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700">
+                                            ✅ Xác Nhận
+                                        </button>
+                                        <button onclick="verifyPayment(\'DH001235\', \'rejected\')" class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700">
+                                            ❌ Từ Chối
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Refund Interface -->
-        <div id="refundInterface" class="tab-content hidden">
-            <div class="grid lg:grid-cols-2 gap-8">
-                <!-- Refund Request Form -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <div class="flex items-center mb-6">
-                        <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-3">
-                            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
-                            </svg>
+            <!-- Transactions Tab -->
+            <div id="transactions-tab" class="tab-content hidden">
+                <div class="bg-white rounded-lg shadow">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h2 class="text-lg font-semibold text-gray-900">Danh Sách Giao Dịch</h2>
+                                <p class="text-sm text-gray-600 mt-1">Tất cả giao dịch thanh toán trong hệ thống</p>
+                            </div>
+                            <div class="flex space-x-3">
+                                <div class="relative">
+                                    <button id="statusFilterBtn" onclick="toggleDropdown(\'statusDropdown\')" class="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white hover:bg-gray-50 flex items-center justify-between min-w-[150px]">
+                                        <span id="statusFilterText">Tất cả trạng thái</span>
+                                        <svg class="w-4 h-4 ml-2 transition-transform duration-200" id="statusArrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </button>
+                                    <div id="statusDropdown" class="absolute top-full left-0 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg z-10 hidden">
+                                        <div class="py-1">
+                                            <button onclick="selectStatus(\'Tất cả trạng thái\')" class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100">Tất cả trạng thái</button>
+                                            <button onclick="selectStatus(\'Hoàn thành\')" class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center">
+                                                <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>Hoàn thành
+                                            </button>
+                                            <button onclick="selectStatus(\'Chờ xử lý\')" class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center">
+                                                <span class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>Chờ xử lý
+                                            </button>
+                                            <button onclick="selectStatus(\'Thất bại\')" class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center">
+                                                <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>Thất bại
+                                            </button>
+                                            <button onclick="selectStatus(\'Đã hoàn tiền\')" class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center">
+                                                <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>Đã hoàn tiền
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="relative">
+                                    <button id="providerFilterBtn" onclick="toggleDropdown(\'providerDropdown\')" class="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white hover:bg-gray-50 flex items-center justify-between min-w-[170px]">
+                                        <span id="providerFilterText">Tất cả nhà cung cấp</span>
+                                        <svg class="w-4 h-4 ml-2 transition-transform duration-200" id="providerArrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </button>
+                                    <div id="providerDropdown" class="absolute top-full left-0 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg z-10 hidden">
+                                        <div class="py-1">
+                                            <button onclick="selectProvider(\'Tất cả nhà cung cấp\')" class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100">Tất cả nhà cung cấp</button>
+                                            <button onclick="selectProvider(\'Vietcombank\')" class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center">
+                                                <span class="text-green-600 mr-2">🏦</span>Vietcombank
+                                            </button>
+                                            <button onclick="selectProvider(\'MoMo\')" class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center">
+                                                <span class="text-pink-600 mr-2">📱</span>MoMo
+                                            </button>
+                                            <button onclick="selectProvider(\'ZaloPay\')" class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center">
+                                                <span class="text-blue-600 mr-2">💳</span>ZaloPay
+                                            </button>
+                                            <button onclick="selectProvider(\'Sacombank\')" class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center">
+                                                <span class="text-blue-800 mr-2">🏦</span>Sacombank
+                                            </button>
+                                            <button onclick="selectProvider(\'BIDV\')" class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center">
+                                                <span class="text-green-700 mr-2">🏦</span>BIDV
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="date" class="border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                <button onclick="showExportModal()" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 flex items-center space-x-2">
+                                    <span>⬇</span>
+                                    <span>Xuất Excel</span>
+                                </button>
+                            </div>
                         </div>
-                        <h2 class="text-xl font-semibold text-gray-900">Yêu cầu hoàn tiền</h2>
                     </div>
-
-                    <form id="refundForm" class="space-y-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Chọn giao dịch cần hoàn tiền</label>
-                            <select id="originalTransactionId" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                <option value="">Chọn giao dịch...</option>
-                                <option value="TXN-2024-001234" data-amount="1,500,000" data-customer="Nguyễn Văn A">TXN-2024-001234 - Nguyễn Văn A (1,500,000 VNĐ)</option>
-                                <option value="TXN-2024-001233" data-amount="750,000" data-customer="Trần Thị B">TXN-2024-001233 - Trần Thị B (750,000 VNĐ)</option>
-                                <option value="TXN-2024-001231" data-amount="980,000" data-customer="Phạm Thị D">TXN-2024-001231 - Phạm Thị D (980,000 VNĐ)</option>
-                                <option value="TXN-2024-001230" data-amount="1,800,000" data-customer="Hoàng Văn E">TXN-2024-001230 - Hoàng Văn E (1,800,000 VNĐ)</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Số tiền hoàn (VNĐ)</label>
-                            <input type="text" id="refundAmount" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Chọn giao dịch để tự động điền" readonly>
-                            <div class="mt-2 flex space-x-2">
-                                <button type="button" id="fullRefundBtn" class="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors">Hoàn toàn bộ</button>
-                                <button type="button" id="partialRefundBtn" class="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors">Hoàn một phần</button>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Lý do hoàn tiền</label>
-                            <select id="refundReason" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                <option value="">Chọn lý do</option>
-                                <option value="customer_request">Yêu cầu khách hàng</option>
-                                <option value="duplicate_payment">Thanh toán trùng lặp</option>
-                                <option value="service_not_provided">Không cung cấp dịch vụ</option>
-                                <option value="technical_error">Lỗi kỹ thuật</option>
-                                <option value="fraud">Gian lận</option>
-                                <option value="other">Khác</option>
-                            </select>
-                            <div id="customReasonDiv" class="mt-3 hidden">
-                                <input type="text" id="customReason" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Nhập lý do cụ thể...">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Mô tả chi tiết</label>
-                            <textarea id="refundDescription" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Nhập mô tả chi tiết về lý do hoàn tiền..."></textarea>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Ưu tiên xử lý</label>
-                            <div class="flex space-x-4">
-                                <label class="flex items-center">
-                                    <input type="radio" name="priority" value="normal" class="mr-2" checked>
-                                    <span class="text-sm">Bình thường</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="radio" name="priority" value="high" class="mr-2">
-                                    <span class="text-sm">Cao</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="radio" name="priority" value="urgent" class="mr-2">
-                                    <span class="text-sm">Khẩn cấp</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div>
-                            <button type="submit" id="submitRefundBtn" class="w-full py-3 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 font-medium">
-                                Gửi yêu cầu hoàn tiền
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Refund Status -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <div class="flex items-center mb-6">
-                        <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
-                            <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <h2 class="text-xl font-semibold text-gray-900">Trạng thái hoàn tiền</h2>
-                    </div>
-
-                    <div id="refundStatus" class="space-y-4">
-                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                            <span class="text-sm font-medium text-gray-700">Trạng thái</span>
-                            <span class="px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">Chưa có yêu cầu</span>
-                        </div>
-
-                        <div class="space-y-3">
-                            <div class="flex items-center">
-                                <div class="w-4 h-4 bg-gray-300 rounded-full mr-3"></div>
-                                <span class="text-sm text-gray-500">Kiểm tra thông tin giao dịch</span>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="w-4 h-4 bg-gray-300 rounded-full mr-3"></div>
-                                <span class="text-sm text-gray-500">Xác minh yêu cầu hoàn tiền</span>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="w-4 h-4 bg-gray-300 rounded-full mr-3"></div>
-                                <span class="text-sm text-gray-500">Xử lý hoàn tiền</span>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="w-4 h-4 bg-gray-300 rounded-full mr-3"></div>
-                                <span class="text-sm text-gray-500">Hoàn tất</span>
-                            </div>
-                        </div>
-
-                        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
-                            <h3 class="text-sm font-medium text-blue-900 mb-2">Thông tin hướng dẫn</h3>
-                            <div class="space-y-2 text-sm text-blue-700">
-                                <p>• Thời gian xử lý: 3-5 ngày làm việc</p>
-                                <p>• Hoàn tiền về tài khoản gốc</p>
-                                <p>• Phí xử lý: Miễn phí</p>
-                                <p>• Hỗ trợ: 1900-xxxx</p>
-                            </div>
-                        </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" class="text-blue-600 focus:ring-blue-500">
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã GD</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khách hàng</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số tiền</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phương thức</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thời gian</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <input type="checkbox" class="transaction-checkbox text-blue-600 focus:ring-blue-500" data-transaction-id="TXN001" onchange="updateSelectedCount()">
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#TXN001</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Nguyễn Văn An</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2,450,000 VNĐ</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Chuyển khoản</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <select onchange="changeTransactionStatus(\'TXN001\', this.value)" class="px-2 py-1 text-xs font-medium rounded-full border-0 bg-green-100 text-green-800 cursor-pointer hover:bg-green-200 focus:ring-2 focus:ring-green-500">
+                                            <option value="completed" selected class="bg-white text-gray-900">Hoàn thành</option>
+                                            <option value="pending" class="bg-white text-gray-900">Chờ xử lý</option>
+                                            <option value="failed" class="bg-white text-gray-900">Thất bại</option>
+                                            <option value="refunded" class="bg-white text-gray-900">Đã hoàn tiền</option>
+                                        </select>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">15/12/2024 14:30</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                        <button onclick="viewTransaction(\'TXN001\')" class="text-blue-600 hover:text-blue-800">Xem chi tiết</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <input type="checkbox" class="transaction-checkbox text-blue-600 focus:ring-blue-500" data-transaction-id="TXN002" onchange="updateSelectedCount()">
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#TXN002</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Trần Thị Bình</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">1,200,000 VNĐ</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">MoMo</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <select onchange="changeTransactionStatus(\'TXN002\', this.value)" class="px-2 py-1 text-xs font-medium rounded-full border-0 bg-yellow-100 text-yellow-800 cursor-pointer hover:bg-yellow-200 focus:ring-2 focus:ring-yellow-500">
+                                            <option value="completed" class="bg-white text-gray-900">Hoàn thành</option>
+                                            <option value="pending" selected class="bg-white text-gray-900">Chờ xử lý</option>
+                                            <option value="failed" class="bg-white text-gray-900">Thất bại</option>
+                                            <option value="refunded" class="bg-white text-gray-900">Đã hoàn tiền</option>
+                                        </select>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">15/12/2024 13:45</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                        <button onclick="viewTransaction(\'TXN002\')" class="text-blue-600 hover:text-blue-800">Xem chi tiết</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <input type="checkbox" class="transaction-checkbox text-blue-600 focus:ring-blue-500" data-transaction-id="TXN003" onchange="updateSelectedCount()">
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#TXN003</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Lê Văn Cường</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">850,000 VNĐ</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Thẻ tín dụng</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <select onchange="changeTransactionStatus(\'TXN003\', this.value)" class="px-2 py-1 text-xs font-medium rounded-full border-0 bg-blue-100 text-blue-800 cursor-pointer hover:bg-blue-200 focus:ring-2 focus:ring-blue-500">
+                                            <option value="completed" class="bg-white text-gray-900">Hoàn thành</option>
+                                            <option value="pending" class="bg-white text-gray-900">Chờ xử lý</option>
+                                            <option value="failed" class="bg-white text-gray-900">Thất bại</option>
+                                            <option value="refunded" selected class="bg-white text-gray-900">Đã hoàn tiền</option>
+                                        </select>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">14/12/2024 16:20</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                        <button onclick="viewTransaction(\'TXN003\')" class="text-blue-600 hover:text-blue-800">Xem chi tiết</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Recent Refund Requests -->
-            <div class="mt-8 bg-white rounded-xl shadow-lg">
-                <div class="p-6 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-900">Yêu cầu hoàn tiền gần đây</h3>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã hoàn tiền</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giao dịch gốc</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số tiền</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lý do</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày tạo</th>
-                            </tr>
-                        </thead>
-                        <tbody id="refundTableBody" class="bg-white divide-y divide-gray-200">
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">REF-2024-001</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">TXN-2024-001232</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">2,200,000 VNĐ</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">Yêu cầu khách hàng</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 py-1 text-xs font-medium rounded-full border bg-green-100 text-green-800 border-green-200">
+            <!-- Refunds Tab -->
+            <div id="refunds-tab" class="tab-content hidden">
+                <div class="bg-white rounded-lg shadow">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-semibold text-gray-900">Quản Lý Hoàn Tiền</h2>
+                        <p class="text-sm text-gray-600 mt-1">Xử lý các yêu cầu hoàn tiền từ khách hàng</p>
+                    </div>
+                    <div class="p-6">
+                        <!-- Refund Request Form -->
+                        <div class="mb-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <h3 class="text-md font-medium text-gray-900 mb-4">🔄 Tạo Yêu Cầu Hoàn Tiền Mới</h3>
+                            <form onsubmit="processRefund(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Mã giao dịch</label>
+                                    <input type="text" placeholder="Nhập mã giao dịch" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Số tiền hoàn</label>
+                                    <input type="text" placeholder="VD: 1,000,000" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                </div>
+                                <div class="flex items-end">
+                                    <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700">
+                                        Tạo Hoàn Tiền
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Refund Requests List -->
+                        <div class="space-y-4">
+                            <h3 class="text-md font-medium text-gray-900">Danh Sách Yêu Cầu Hoàn Tiền</h3>
+                            
+                            <div class="border border-orange-200 rounded-lg p-4 bg-orange-50">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3">
+                                            <span class="text-lg">💸</span>
+                                            <div>
+                                                <h4 class="font-medium text-gray-900">Yêu cầu hoàn tiền #RF001</h4>
+                                                <p class="text-sm text-gray-600">Giao dịch: #TXN003 - Lê Văn Cường</p>
+                                                <p class="text-sm text-gray-600">Số tiền: 850,000 VNĐ</p>
+                                                <p class="text-sm text-gray-600">Lý do: Sản phẩm lỗi</p>
+                                                <p class="text-sm text-gray-600">Ngày yêu cầu: 14/12/2024</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button onclick="approveRefund(\'RF001\')" class="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700">
+                                            ✅ Duyệt
+                                        </button>
+                                        <button onclick="rejectRefund(\'RF001\')" class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700">
+                                            ❌ Từ Chối
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="border border-green-200 rounded-lg p-4 bg-green-50">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3">
+                                            <span class="text-lg">✅</span>
+                                            <div>
+                                                <h4 class="font-medium text-gray-900">Hoàn tiền #RF002 - Đã hoàn thành</h4>
+                                                <p class="text-sm text-gray-600">Giao dịch: #TXN005 - Phạm Thị Dung</p>
+                                                <p class="text-sm text-gray-600">Số tiền: 1,500,000 VNĐ</p>
+                                                <p class="text-sm text-gray-600">Hoàn thành: 13/12/2024</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span class="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
                                         Đã hoàn tiền
                                     </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    14/12/2024
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">REF-2024-002</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">TXN-2024-001225</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">850,000 VNĐ</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">Lỗi kỹ thuật</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 py-1 text-xs font-medium rounded-full border bg-yellow-100 text-yellow-800 border-yellow-200">
-                                        Đang xử lý
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    15/12/2024
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Transaction List Interface -->
-        <div id="transactionInterface" class="tab-content hidden">
-            <div class="bg-white rounded-xl shadow-lg">
-                <!-- Filters -->
-                <div class="p-6 border-b border-gray-200">
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-                        <h2 class="text-xl font-semibold text-gray-900">Danh sách giao dịch</h2>
-                        <div class="flex space-x-3">
-                            <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                <option value="">Tất cả trạng thái</option>
-                                <option value="completed">Thành công</option>
-                                <option value="pending">Đang xử lý</option>
-                                <option value="failed">Thất bại</option>
-                            </select>
-                            <input type="date" id="dateFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            <button id="refreshBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                </svg>
-                            </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </main>
+    </div>
 
-                <!-- Transaction Table -->
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã giao dịch</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số tiền</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phương thức</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thời gian</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody id="transactionTableBody" class="bg-white divide-y divide-gray-200">
-                            <!-- Transactions will be populated here -->
-                        </tbody>
-                    </table>
+    <!-- Export Excel Modal -->
+    <div id="exportModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg max-w-4xl mx-4 w-full max-h-[90vh] overflow-y-auto">
+            <!-- Header -->
+            <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                        <span class="text-xl">📊</span>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900">Xuất dữ liệu Excel</h3>
+                        <p class="text-sm text-gray-600">Tùy chỉnh dữ liệu xuất theo nhu cầu</p>
+                    </div>
                 </div>
+                <button onclick="closeExportModal()" class="text-gray-400 hover:text-gray-600">
+                    <span class="text-2xl">×</span>
+                </button>
+            </div>
 
-                <!-- Pagination -->
-                <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-                    <div class="text-sm text-gray-700">
-                        Hiển thị <span class="font-medium">1-10</span> trong tổng số <span class="font-medium">47</span> giao dịch
+            <!-- Content -->
+            <div class="p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Left Column -->
+                    <div class="space-y-6">
+                        <!-- Phạm vi xuất -->
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-900 mb-3">Phạm vi xuất</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="radio" name="exportRange" value="all" checked class="text-blue-600 focus:ring-blue-500">
+                                    <span class="ml-2 text-sm text-gray-700">Tất cả giao dịch (20 giao dịch)</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="exportRange" value="current" class="text-blue-600 focus:ring-blue-500">
+                                    <span class="ml-2 text-sm text-gray-700">Trang hiện tại (3 giao dịch)</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="exportRange" value="selected" class="text-blue-600 focus:ring-blue-500">
+                                    <span class="ml-2 text-sm text-gray-700">Giao dịch đã chọn (<span id="selectedCount">0</span> giao dịch)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Định dạng file -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Định dạng file</label>
+                            <select class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                <option>Excel (.xlsx)</option>
+                                <option>CSV (.csv)</option>
+                            </select>
+                        </div>
+
+                        <!-- Tên file -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tên file</label>
+                            <input type="text" value="danh-sach-giao-dich" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                            <p class="text-xs text-gray-500 mt-1">Tên file sẽ được thêm ngày tháng tự động</p>
+                        </div>
+
+                        <!-- Lọc theo trạng thái -->
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-900 mb-3">Lọc theo trạng thái</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500">
+                                    <span class="ml-2 text-sm text-gray-700">Hoàn thành</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500">
+                                    <span class="ml-2 text-sm text-gray-700">Chờ xử lý</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500">
+                                    <span class="ml-2 text-sm text-gray-700">Đã hoàn tiền</span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex space-x-2">
-                        <button class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">Trước</button>
-                        <button class="px-3 py-1 bg-blue-600 text-white rounded text-sm">1</button>
-                        <button class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">2</button>
-                        <button class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">3</button>
-                        <button class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">Sau</button>
+
+                    <!-- Right Column -->
+                    <div class="space-y-6">
+                        <!-- Chọn cột xuất -->
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-900 mb-3">Chọn cột xuất</h4>
+                            <div class="border border-gray-200 rounded-md p-3 max-h-48 overflow-y-auto">
+                                <div class="space-y-2">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Mã GD</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Khách hàng</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Số tiền</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Phương thức</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Địa chỉ</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Trạng thái</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Thời gian</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Mã tham chiếu</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Phí giao dịch</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2 mt-3">
+                                <button onclick="selectAllColumns()" class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-md hover:bg-blue-200">
+                                    Chọn tất cả
+                                </button>
+                                <button onclick="deselectAllColumns()" class="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-md hover:bg-gray-200">
+                                    Bỏ chọn tất cả
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Tùy chọn bổ sung -->
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-900 mb-3">Tùy chọn bổ sung</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500">
+                                    <span class="ml-2 text-sm text-gray-700">Bao gồm tiêu đề cột</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500">
+                                    <span class="ml-2 text-sm text-gray-700">Thêm thời gian xuất</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="text-blue-600 focus:ring-blue-500">
+                                    <span class="ml-2 text-sm text-gray-700">Thêm thống kê tổng quan</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Xem trước -->
+                        <div class="bg-gray-50 rounded-md p-4">
+                            <h4 class="text-sm font-medium text-gray-900 mb-2">Xem trước thông tin xuất</h4>
+                            <div class="text-xs text-gray-600 space-y-1">
+                                <p>Sẽ xuất: <span class="font-medium">20 giao dịch</span></p>
+                                <p>Định dạng: <span class="font-medium">Excel (.xlsx)</span></p>
+                                <p>Cột: <span class="font-medium">8 cột</span></p>
+                            </div>
+                        </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs text-gray-500 flex items-center">
+                        <span class="mr-1">📎</span>
+                        File sẽ được tải xuống tự động
+                    </p>
+                    <div class="flex space-x-3">
+                        <button onclick="closeExportModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                            Hủy
+                        </button>
+                        <button onclick="exportToExcel()" class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 flex items-center space-x-2">
+                            <span>🟩 Xuất Excel</span>
+                            <span class="text-xs">↓</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Detail Modal -->
+    <div id="transactionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg max-w-2xl mx-4 w-full max-h-[90vh] overflow-y-auto">
+            <!-- Header -->
+            <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <span class="text-xl">📋</span>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900">Chi Tiết Giao Dịch</h3>
+                        <p class="text-sm text-gray-600">Thông tin đầy đủ về giao dịch</p>
+                    </div>
+                </div>
+                <button onclick="closeTransactionModal()" class="text-gray-400 hover:text-gray-600">
+                    <span class="text-2xl">×</span>
+                </button>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Left Column -->
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="text-sm font-medium text-gray-900 mb-3">Thông Tin Giao Dịch</h4>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Mã giao dịch:</span>
+                                    <span class="text-sm font-medium text-gray-900" id="detail-transaction-id">#TXN001</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Số tiền:</span>
+                                    <span class="text-sm font-medium text-gray-900" id="detail-amount">2,450,000 VNĐ</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Phí giao dịch:</span>
+                                    <span class="text-sm font-medium text-gray-900" id="detail-fee">12,250 VNĐ</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Tổng cộng:</span>
+                                    <span class="text-sm font-bold text-blue-600" id="detail-total">2,462,250 VNĐ</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Trạng thái:</span>
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full status-completed" id="detail-status">Hoàn thành</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="text-sm font-medium text-gray-900 mb-3">Thông Tin Khách Hàng</h4>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Họ tên:</span>
+                                    <span class="text-sm font-medium text-gray-900" id="detail-customer-name">Nguyễn Văn An</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Email:</span>
+                                    <span class="text-sm font-medium text-gray-900" id="detail-customer-email">nguyenvanan@email.com</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Số điện thoại:</span>
+                                    <span class="text-sm font-medium text-gray-900" id="detail-customer-phone">0901234567</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Địa chỉ:</span>
+                                    <span class="text-sm font-medium text-gray-900" id="detail-customer-address">123 Đường ABC, Q.1, TP.HCM</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="text-sm font-medium text-gray-900 mb-3">Phương Thức Thanh Toán</h4>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Loại:</span>
+                                    <span class="text-sm font-medium text-gray-900" id="detail-payment-method">Chuyển khoản ngân hàng</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Ngân hàng:</span>
+                                    <span class="text-sm font-medium text-gray-900" id="detail-bank">Vietcombank</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Số tài khoản:</span>
+                                    <span class="text-sm font-medium text-gray-900" id="detail-account">****1234</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Mã tham chiếu:</span>
+                                    <span class="text-sm font-medium text-gray-900" id="detail-reference">REF123456789</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="text-sm font-medium text-gray-900 mb-3">Thời Gian</h4>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Tạo giao dịch:</span>
+                                    <span class="text-sm font-medium text-gray-900" id="detail-created-time">15/12/2024 14:25</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Hoàn thành:</span>
+                                    <span class="text-sm font-medium text-gray-900" id="detail-completed-time">15/12/2024 14:30</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Thời gian xử lý:</span>
+                                    <span class="text-sm font-medium text-gray-900" id="detail-processing-time">5 phút</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <h4 class="text-sm font-medium text-gray-900 mb-3">Ghi Chú</h4>
+                            <p class="text-sm text-gray-700" id="detail-notes">Thanh toán đơn hàng #DH001234. Khách hàng đã xác nhận nhận được sản phẩm.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                <div class="flex items-center justify-between">
+                    <div class="flex space-x-3">
+                        <button onclick="printTransaction()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 flex items-center space-x-2">
+                            <span>🖨️</span>
+                            <span>In hóa đơn</span>
+                        </button>
+                        <button onclick="exportTransactionDetail()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 flex items-center space-x-2">
+                            <span>⬇</span>
+                            <span>Xuất PDF</span>
+                        </button>
+                    </div>
+                    <button onclick="closeTransactionModal()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
+                        Đóng
+                    </button>
                 </div>
             </div>
         </div>
@@ -400,16 +690,12 @@
 
     <!-- Success Modal -->
     <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-xl p-6 max-w-md mx-4 fade-in">
+        <div class="bg-white rounded-lg p-6 max-w-md mx-4">
             <div class="text-center">
-                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Xác thực thành công!</h3>
-                <p class="text-gray-600 mb-6">Giao dịch của bạn đã được xác thực và đang được xử lý.</p>
-                <button id="closeModal" class="w-full py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200">
+                <div class="text-4xl mb-4">✅</div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Thành Công!</h3>
+                <p id="successMessage" class="text-gray-600 mb-4"></p>
+                <button onclick="closeModal()" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700">
                     Đóng
                 </button>
             </div>
@@ -417,279 +703,721 @@
     </div>
 
     <script>
-        // Sample transaction data
-        const transactions = [
-            { id: 'TXN-2024-001234', amount: '1,500,000', method: 'Visa', status: 'completed', time: '14:30 - 15/12/2024', customer: 'Nguyễn Văn A' },
-            { id: 'TXN-2024-001233', amount: '750,000', method: 'MoMo', status: 'pending', time: '13:45 - 15/12/2024', customer: 'Trần Thị B' },
-            { id: 'TXN-2024-001232', amount: '2,200,000', method: 'Banking', status: 'failed', time: '12:20 - 15/12/2024', customer: 'Lê Văn C' },
-            { id: 'TXN-2024-001231', amount: '980,000', method: 'ZaloPay', status: 'completed', time: '11:15 - 15/12/2024', customer: 'Phạm Thị D' },
-            { id: 'TXN-2024-001230', amount: '1,800,000', method: 'Visa', status: 'processing', time: '10:30 - 15/12/2024', customer: 'Hoàng Văn E' }
-        ];
+        // Global variables for filter state
+        let selectedTransactions = new Set();
+        let filterState = {
+            status: \'Tất cả trạng thái\',
+            provider: \'Tất cả nhà cung cấp\'
+        };
 
-        // Tab switching
-        document.getElementById('authTab').addEventListener('click', function() {
-            switchTab('auth');
-        });
-
-        document.getElementById('transactionTab').addEventListener('click', function() {
-            switchTab('transaction');
-        });
-
-        document.getElementById('refundTab').addEventListener('click', function() {
-            switchTab('refund');
-        });
-
-        function switchTab(tab) {
-            // Update tab buttons
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('bg-blue-600', 'text-white');
-                btn.classList.add('text-gray-600', 'hover:text-gray-900');
+        // Tab switching functionality
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll(\'.tab-content\').forEach(tab => {
+                tab.classList.add(\'hidden\');
             });
-
-            // Hide all content
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.add('hidden');
+            
+            // Remove active state from all tab buttons
+            document.querySelectorAll(\'.tab-button\').forEach(button => {
+                button.classList.remove(\'border-blue-500\', \'text-blue-600\');
+                button.classList.add(\'border-transparent\', \'text-gray-500\');
             });
+            
+            // Show selected tab
+            document.getElementById(tabName + \'-tab\').classList.remove(\'hidden\');
+            
+            // Add active state to selected tab button
+            const activeButton = document.getElementById(\'tab-\' + tabName);
+            activeButton.classList.remove(\'border-transparent\', \'text-gray-500\');
+            activeButton.classList.add(\'border-blue-500\', \'text-blue-600\');
 
-            if (tab === 'auth') {
-                document.getElementById('authTab').classList.add('bg-blue-600', 'text-white');
-                document.getElementById('authTab').classList.remove('text-gray-600', 'hover:text-gray-900');
-                document.getElementById('authInterface').classList.remove('hidden');
-            } else if (tab === 'transaction') {
-                document.getElementById('transactionTab').classList.add('bg-blue-600', 'text-white');
-                document.getElementById('transactionTab').classList.remove('text-gray-600', 'hover:text-gray-900');
-                document.getElementById('transactionInterface').classList.remove('hidden');
-                renderTransactions();
-            } else if (tab === 'refund') {
-                document.getElementById('refundTab').classList.add('bg-blue-600', 'text-white');
-                document.getElementById('refundTab').classList.remove('text-gray-600', 'hover:text-gray-900');
-                document.getElementById('refundInterface').classList.remove('hidden');
+            // Restore filter state and selections when switching to transactions tab
+            if (tabName === \'transactions\') {
+                restoreFilterState();
+                restoreSelections();
             }
         }
 
-
-
-        // Authentication form
-        document.getElementById('authForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        // Save filter state
+        function saveFilterState() {
+            const statusFilter = document.getElementById(\'statusFilter\');
+            const providerFilter = document.getElementById(\'providerFilter\');
             
-            // Simulate authentication process
-            const authBtn = document.getElementById('authenticateBtn');
-            const originalText = authBtn.textContent;
+            if (statusFilter) filterState.status = statusFilter.value;
+            if (providerFilter) filterState.provider = providerFilter.value;
+        }
+
+        // Restore filter state
+        function restoreFilterState() {
+            const statusFilter = document.getElementById(\'statusFilter\');
+            const providerFilter = document.getElementById(\'providerFilter\');
             
-            authBtn.textContent = 'Đang xác thực...';
-            authBtn.disabled = true;
+            if (statusFilter) statusFilter.value = filterState.status;
+            if (providerFilter) providerFilter.value = filterState.provider;
+        }
+
+        // Toggle select all checkbox
+        function toggleSelectAll() {
+            const selectAllCheckbox = document.getElementById(\'selectAll\');
+            const transactionCheckboxes = document.querySelectorAll(\'.transaction-checkbox\');
+            
+            transactionCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+                const transactionId = checkbox.getAttribute(\'data-transaction-id\');
+                
+                if (selectAllCheckbox.checked) {
+                    selectedTransactions.add(transactionId);
+                } else {
+                    selectedTransactions.delete(transactionId);
+                }
+            });
+            
+            updateSelectedCount();
+        }
+
+        // Update selected count
+        function updateSelectedCount() {
+            const checkedBoxes = document.querySelectorAll(\'.transaction-checkbox:checked\');
+            const selectedCountElement = document.getElementById(\'selectedCount\');
+            
+            // Update selected transactions set
+            selectedTransactions.clear();
+            checkedBoxes.forEach(checkbox => {
+                selectedTransactions.add(checkbox.getAttribute(\'data-transaction-id\'));
+            });
+            
+            if (selectedCountElement) {
+                selectedCountElement.textContent = selectedTransactions.size;
+            }
+
+            // Update select all checkbox state
+            const selectAllCheckbox = document.getElementById(\'selectAll\');
+            const allCheckboxes = document.querySelectorAll(\'.transaction-checkbox\');
+            
+            if (selectAllCheckbox && allCheckboxes.length > 0) {
+                selectAllCheckbox.checked = checkedBoxes.length === allCheckboxes.length;
+                selectAllCheckbox.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < allCheckboxes.length;
+            }
+        }
+
+        // Restore selections after tab switch or filter change
+        function restoreSelections() {
+            const transactionCheckboxes = document.querySelectorAll(\'.transaction-checkbox\');
+            
+            transactionCheckboxes.forEach(checkbox => {
+                const transactionId = checkbox.getAttribute(\'data-transaction-id\');
+                checkbox.checked = selectedTransactions.has(transactionId);
+            });
+            
+            updateSelectedCount();
+        }
+
+        // Pending verification data
+        const pendingVerifications = {
+            \'DH001234\': {
+                orderId: \'DH001234\',
+                transactionId: \'TXN004\',
+                customerName: \'Nguyễn Văn An\',
+                amount: \'2,450,000 VNĐ\',
+                method: \'Chuyển khoản ngân hàng\',
+                email: \'nguyenvanan@email.com\',
+                phone: \'0901234567\',
+                address: \'123 Đường ABC, Q.1, TP.HCM\'
+            },
+            \'DH001235\': {
+                orderId: \'DH001235\',
+                transactionId: \'TXN005\',
+                customerName: \'Trần Thị Bình\',
+                amount: \'1,200,000 VNĐ\',
+                method: \'Ví điện tử MoMo\',
+                email: \'tranthibinh@email.com\',
+                phone: \'0912345678\',
+                address: \'456 Đường XYZ, Q.3, TP.HCM\'
+            }
+        };
+
+        // Payment verification
+        function verifyPayment(orderId, action) {
+            const actionText = action === \'approved\' ? \'xác nhận\' : \'từ chối\';
+            const pendingData = pendingVerifications[orderId];
+            
+            if (action === \'approved\' && pendingData) {
+                // Add to transaction list
+                addToTransactionList(pendingData);
+                
+                // Add to transaction data for detail view
+                transactionData[pendingData.transactionId] = {
+                    id: \'#\' + pendingData.transactionId,
+                    amount: pendingData.amount,
+                    fee: calculateFee(pendingData.amount),
+                    total: calculateTotal(pendingData.amount),
+                    status: \'Hoàn thành\',
+                    statusClass: \'status-completed\',
+                    customerName: pendingData.customerName,
+                    customerEmail: pendingData.email,
+                    customerPhone: pendingData.phone,
+                    customerAddress: pendingData.address,
+                    paymentMethod: pendingData.method,
+                    bank: pendingData.method.includes(\'MoMo\') ? \'MoMo\' : \'Vietcombank\',
+                    account: \'****\' + Math.floor(Math.random() * 9000 + 1000),
+                    reference: \'REF\' + Math.floor(Math.random() * 900000000 + 100000000),
+                    createdTime: new Date().toLocaleString(\'vi-VN\', {
+                        day: \'2-digit\',
+                        month: \'2-digit\',
+                        year: \'numeric\',
+                        hour: \'2-digit\',
+                        minute: \'2-digit\'
+                    }),
+                    completedTime: new Date().toLocaleString(\'vi-VN\', {
+                        day: \'2-digit\',
+                        month: \'2-digit\',
+                        year: \'numeric\',
+                        hour: \'2-digit\',
+                        minute: \'2-digit\'
+                    }),
+                    processingTime: \'2 phút\',
+                    notes: `Thanh toán đơn hàng ${orderId}. Đã được xác thực và hoàn thành.`
+                };
+            }
+            
+            showSuccess(`Đã ${actionText} thanh toán cho đơn hàng ${orderId}`);
+            
+            // Remove the verification item from the list
+            setTimeout(() => {
+                const verificationItems = document.querySelectorAll(\'#verification-tab .border-yellow-200\');
+                if (verificationItems.length > 0) {
+                    verificationItems[0].style.opacity = \'0\';
+                    setTimeout(() => {
+                        verificationItems[0].remove();
+                    }, 300);
+                }
+            }, 1000);
+        }
+
+        // Calculate fee (0.5% of amount)
+        function calculateFee(amountStr) {
+            const amount = parseInt(amountStr.replace(/[^\d]/g, \'\'));
+            const fee = Math.round(amount * 0.005);
+            return fee.toLocaleString(\'vi-VN\') + \' VNĐ\';
+        }
+
+        // Calculate total (amount + fee)
+        function calculateTotal(amountStr) {
+            const amount = parseInt(amountStr.replace(/[^\d]/g, \'\'));
+            const fee = Math.round(amount * 0.005);
+            const total = amount + fee;
+            return total.toLocaleString(\'vi-VN\') + \' VNĐ\';
+        }
+
+        // Add transaction to the list
+        function addToTransactionList(data) {
+            const tbody = document.querySelector(\'#transactions-tab tbody\');
+            const currentTime = new Date().toLocaleString(\'vi-VN\', {
+                day: \'2-digit\',
+                month: \'2-digit\',
+                year: \'numeric\',
+                hour: \'2-digit\',
+                minute: \'2-digit\'
+            });
+
+            const newRow = document.createElement(\'tr\');
+            newRow.className = \'fade-in\';
+            newRow.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <input type="checkbox" class="transaction-checkbox text-blue-600 focus:ring-blue-500" data-transaction-id="${data.transactionId}" onchange="updateSelectedCount()">
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#${data.transactionId}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${data.customerName}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${data.amount}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${data.method.includes(\'MoMo\') ? \'MoMo\' : \'Chuyển khoản\'}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 text-xs font-medium rounded-full status-completed">Hoàn thành</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${currentTime}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <button onclick="viewTransaction(\'${data.transactionId}\')" class="text-blue-600 hover:text-blue-800">Xem chi tiết</button>
+                </td>
+            `;
+
+            // Insert at the top of the table
+            tbody.insertBefore(newRow, tbody.firstChild);
+
+            // Add a subtle highlight animation
+            setTimeout(() => {
+                newRow.style.backgroundColor = \'#dbeafe\';
+                setTimeout(() => {
+                    newRow.style.backgroundColor = \'\';
+                    newRow.style.transition = \'background-color 1s ease\';
+                }, 2000);
+            }, 100);
+        }
+
+        // Transaction data
+        const transactionData = {
+            \'TXN001\': {
+                id: \'#TXN001\',
+                amount: \'2,450,000 VNĐ\',
+                fee: \'12,250 VNĐ\',
+                total: \'2,462,250 VNĐ\',
+                status: \'Hoàn thành\',
+                statusClass: \'status-completed\',
+                customerName: \'Nguyễn Văn An\',
+                customerEmail: \'nguyenvanan@email.com\',
+                customerPhone: \'0901234567\',
+                customerAddress: \'123 Đường ABC, Q.1, TP.HCM\',
+                paymentMethod: \'Chuyển khoản ngân hàng\',
+                bank: \'Vietcombank\',
+                account: \'****1234\',
+                reference: \'REF123456789\',
+                createdTime: \'15/12/2024 14:25\',
+                completedTime: \'15/12/2024 14:30\',
+                processingTime: \'5 phút\',
+                notes: \'Thanh toán đơn hàng #DH001234. Khách hàng đã xác nhận nhận được sản phẩm.\'
+            },
+            \'TXN002\': {
+                id: \'#TXN002\',
+                amount: \'1,200,000 VNĐ\',
+                fee: \'6,000 VNĐ\',
+                total: \'1,206,000 VNĐ\',
+                status: \'Chờ xử lý\',
+                statusClass: \'status-pending\',
+                customerName: \'Trần Thị Bình\',
+                customerEmail: \'tranthibinh@email.com\',
+                customerPhone: \'0912345678\',
+                customerAddress: \'456 Đường XYZ, Q.3, TP.HCM\',
+                paymentMethod: \'Ví điện tử MoMo\',
+                bank: \'MoMo\',
+                account: \'****5678\',
+                reference: \'MOMO987654321\',
+                createdTime: \'15/12/2024 13:40\',
+                completedTime: \'Đang xử lý...\',
+                processingTime: \'Đang xử lý...\',
+                notes: \'Thanh toán đơn hàng #DH001235. Đang chờ xác nhận từ MoMo.\'
+            },
+            \'TXN003\': {
+                id: \'#TXN003\',
+                amount: \'850,000 VNĐ\',
+                fee: \'4,250 VNĐ\',
+                total: \'854,250 VNĐ\',
+                status: \'Đã hoàn tiền\',
+                statusClass: \'status-refunded\',
+                customerName: \'Lê Văn Cường\',
+                customerEmail: \'levancuong@email.com\',
+                customerPhone: \'0923456789\',
+                customerAddress: \'789 Đường DEF, Q.7, TP.HCM\',
+                paymentMethod: \'Thẻ tín dụng\',
+                bank: \'Sacombank\',
+                account: \'****9012\',
+                reference: \'VISA456789123\',
+                createdTime: \'14/12/2024 16:15\',
+                completedTime: \'14/12/2024 16:20\',
+                processingTime: \'5 phút\',
+                notes: \'Đã hoàn tiền do sản phẩm lỗi. Khách hàng yêu cầu hoàn tiền toàn bộ.\'
+            }
+        };
+
+        // View transaction details
+        function viewTransaction(transactionId) {
+            const data = transactionData[transactionId];
+            if (!data) {
+                showSuccess(\'Không tìm thấy thông tin giao dịch!\');
+                return;
+            }
+
+            // Update modal content
+            document.getElementById(\'detail-transaction-id\').textContent = data.id;
+            document.getElementById(\'detail-amount\').textContent = data.amount;
+            document.getElementById(\'detail-fee\').textContent = data.fee;
+            document.getElementById(\'detail-total\').textContent = data.total;
+            
+            const statusElement = document.getElementById(\'detail-status\');
+            statusElement.textContent = data.status;
+            statusElement.className = `px-2 py-1 text-xs font-medium rounded-full ${data.statusClass}`;
+            
+            document.getElementById(\'detail-customer-name\').textContent = data.customerName;
+            document.getElementById(\'detail-customer-email\').textContent = data.customerEmail;
+            document.getElementById(\'detail-customer-phone\').textContent = data.customerPhone;
+            document.getElementById(\'detail-customer-address\').textContent = data.customerAddress;
+            
+            document.getElementById(\'detail-payment-method\').textContent = data.paymentMethod;
+            document.getElementById(\'detail-bank\').textContent = data.bank;
+            document.getElementById(\'detail-account\').textContent = data.account;
+            document.getElementById(\'detail-reference\').textContent = data.reference;
+            
+            document.getElementById(\'detail-created-time\').textContent = data.createdTime;
+            document.getElementById(\'detail-completed-time\').textContent = data.completedTime;
+            document.getElementById(\'detail-processing-time\').textContent = data.processingTime;
+            document.getElementById(\'detail-notes\').textContent = data.notes;
+
+            // Show modal
+            document.getElementById(\'transactionModal\').classList.remove(\'hidden\');
+            document.getElementById(\'transactionModal\').classList.add(\'flex\');
+        }
+
+        // Close transaction modal
+        function closeTransactionModal() {
+            document.getElementById(\'transactionModal\').classList.add(\'hidden\');
+            document.getElementById(\'transactionModal\').classList.remove(\'flex\');
+        }
+
+        // Print transaction
+        function printTransaction() {
+            showSuccess(\'Đang chuẩn bị in hóa đơn...\');
+        }
+
+        // Export transaction detail
+        function exportTransactionDetail() {
+            showSuccess(\'Đang xuất file PDF chi tiết giao dịch...\');
+        }
+
+        // Process refund form
+        function processRefund(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            showSuccess(\'Đã tạo yêu cầu hoàn tiền thành công!\');
+            event.target.reset();
+        }
+
+        // Approve refund
+        function approveRefund(refundId) {
+            showSuccess(`Đã duyệt yêu cầu hoàn tiền ${refundId}`);
+            
+            // Update the refund item status
+            setTimeout(() => {
+                const refundItems = document.querySelectorAll(\'#refunds-tab .border-orange-200\');
+                if (refundItems.length > 0) {
+                    const item = refundItems[0];
+                    item.classList.remove(\'border-orange-200\', \'bg-orange-50\');
+                    item.classList.add(\'border-green-200\', \'bg-green-50\');
+                    
+                    const buttons = item.querySelector(\'.flex.space-x-2\');
+                    buttons.innerHTML = \'<span class="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Đã hoàn tiền</span>\';
+                }
+            }, 1000);
+        }
+
+        // Reject refund
+        function rejectRefund(refundId) {
+            showSuccess(`Đã từ chối yêu cầu hoàn tiền ${refundId}`);
             
             setTimeout(() => {
-                document.getElementById('successModal').classList.remove('hidden');
-                document.getElementById('successModal').classList.add('flex');
-                
-                // Update auth status
-                document.getElementById('authStatus').innerHTML = `
-                    <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg">
-                        <span class="text-sm font-medium text-gray-700">Trạng thái</span>
-                        <span class="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Xác thực thành công</span>
-                    </div>
-                    <div class="space-y-3">
-                        <div class="flex items-center">
-                            <div class="w-4 h-4 bg-green-500 rounded-full mr-3"></div>
-                            <span class="text-sm text-gray-600">Thông tin giao dịch hợp lệ</span>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="w-4 h-4 bg-green-500 rounded-full mr-3"></div>
-                            <span class="text-sm text-gray-600">Kết nối ngân hàng thành công</span>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="w-4 h-4 bg-green-500 rounded-full mr-3"></div>
-                            <span class="text-sm text-gray-600">Xác thực thanh toán thành công</span>
-                        </div>
-                    </div>
-                `;
-                
-                authBtn.textContent = originalText;
-                authBtn.disabled = false;
-            }, 2000);
-        });
+                const refundItems = document.querySelectorAll(\'#refunds-tab .border-orange-200\');
+                if (refundItems.length > 0) {
+                    refundItems[0].style.opacity = \'0\';
+                    setTimeout(() => {
+                        refundItems[0].remove();
+                    }, 300);
+                }
+            }, 1000);
+        }
+
+        // Show success modal
+        function showSuccess(message) {
+            document.getElementById(\'successMessage\').textContent = message;
+            document.getElementById(\'successModal\').classList.remove(\'hidden\');
+            document.getElementById(\'successModal\').classList.add(\'flex\');
+        }
 
         // Close modal
-        document.getElementById('closeModal').addEventListener('click', function() {
-            document.getElementById('successModal').classList.add('hidden');
-            document.getElementById('successModal').classList.remove('flex');
-        });
-
-
-
-        // Render transactions
-        function renderTransactions(filter = '') {
-            const tbody = document.getElementById('transactionTableBody');
-            const filteredTransactions = filter ? transactions.filter(t => t.status === filter) : transactions;
-            
-            tbody.innerHTML = filteredTransactions.map(transaction => `
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-medium text-gray-900">${transaction.id}</div>
-                        <div class="text-sm text-gray-500">${transaction.customer}</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-medium text-gray-900">${transaction.amount} VNĐ</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">${transaction.method}</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 py-1 text-xs font-medium rounded-full border status-${transaction.status}">
-                            ${getStatusText(transaction.status)}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ${transaction.time}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button class="text-blue-600 hover:text-blue-900 mr-3">Chi tiết</button>
-                        <button class="text-gray-600 hover:text-gray-900">In</button>
-                    </td>
-                </tr>
-            `).join('');
+        function closeModal() {
+            document.getElementById(\'successModal\').classList.add(\'hidden\');
+            document.getElementById(\'successModal\').classList.remove(\'flex\');
         }
 
-        function getStatusText(status) {
-            const statusMap = {
-                'completed': 'Thành công',
-                'pending': 'Chờ xử lý',
-                'failed': 'Thất bại',
-                'processing': 'Đang xử lý'
-            };
-            return statusMap[status] || status;
+        // Show export modal
+        function showExportModal() {
+            document.getElementById(\'exportModal\').classList.remove(\'hidden\');
+            document.getElementById(\'exportModal\').classList.add(\'flex\');
         }
 
-        // Filter transactions
-        document.getElementById('statusFilter').addEventListener('change', function() {
-            renderTransactions(this.value);
-        });
+        // Close export modal
+        function closeExportModal() {
+            document.getElementById(\'exportModal\').classList.add(\'hidden\');
+            document.getElementById(\'exportModal\').classList.remove(\'flex\');
+        }
 
-        // Refresh button
-        document.getElementById('refreshBtn').addEventListener('click', function() {
-            const btn = this;
-            btn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>';
-            
-            setTimeout(() => {
-                btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>';
-                renderTransactions();
-            }, 1000);
-        });
+        // Select all columns
+        function selectAllColumns() {
+            const checkboxes = document.querySelectorAll(\'#exportModal input[type="checkbox"]\');
+            checkboxes.forEach(checkbox => {
+                if (checkbox.closest(\'.space-y-2\').previousElementSibling?.textContent?.includes(\'Chọn cột xuất\')) {
+                    checkbox.checked = true;
+                }
+            });
+        }
 
-        // Transaction selection for refund
-        document.getElementById('originalTransactionId').addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            const refundAmountInput = document.getElementById('refundAmount');
-            
-            if (selectedOption.value) {
-                const amount = selectedOption.getAttribute('data-amount');
-                refundAmountInput.value = amount;
-                refundAmountInput.removeAttribute('readonly');
-                refundAmountInput.placeholder = 'Nhập số tiền hoàn';
-            } else {
-                refundAmountInput.value = '';
-                refundAmountInput.setAttribute('readonly', true);
-                refundAmountInput.placeholder = 'Chọn giao dịch để tự động điền';
-            }
-        });
+        // Deselect all columns
+        function deselectAllColumns() {
+            const checkboxes = document.querySelectorAll(\'#exportModal input[type="checkbox"]\');
+            checkboxes.forEach(checkbox => {
+                if (checkbox.closest(\'.space-y-2\').previousElementSibling?.textContent?.includes(\'Chọn cột xuất\')) {
+                    checkbox.checked = false;
+                }
+            });
+        }
 
-        // Full refund button
-        document.getElementById('fullRefundBtn').addEventListener('click', function() {
-            const transactionSelect = document.getElementById('originalTransactionId');
-            const selectedOption = transactionSelect.options[transactionSelect.selectedIndex];
-            const refundAmountInput = document.getElementById('refundAmount');
+        // Export to Excel
+        function exportToExcel() {
+            // Get export range
+            const exportRange = document.querySelector(\'input[name="exportRange"]:checked\').value;
             
-            if (selectedOption.value) {
-                const amount = selectedOption.getAttribute('data-amount');
-                refundAmountInput.value = amount;
-            }
-        });
+            // All transaction data
+            const allTransactions = [
+                [\'Mã GD\', \'Khách hàng\', \'Số tiền\', \'Phương thức\', \'Trạng thái\', \'Thời gian\'],
+                [\'#TXN001\', \'Nguyễn Văn An\', \'2,450,000 VNĐ\', \'Chuyển khoản\', \'Hoàn thành\', \'15/12/2024 14:30\'],
+                [\'#TXN002\', \'Trần Thị Bình\', \'1,200,000 VNĐ\', \'MoMo\', \'Chờ xử lý\', \'15/12/2024 13:45\'],
+                [\'#TXN003\', \'Lê Văn Cường\', \'850,000 VNĐ\', \'Thẻ tín dụng\', \'Đã hoàn tiền\', \'14/12/2024 16:20\'],
+                [\'#TXN004\', \'Phạm Thị Dung\', \'1,500,000 VNĐ\', \'Chuyển khoản\', \'Hoàn thành\', \'13/12/2024 10:15\'],
+                [\'#TXN005\', \'Hoàng Văn Em\', \'750,000 VNĐ\', \'ZaloPay\', \'Hoàn thành\', \'12/12/2024 16:45\']
+            ];
 
-        // Partial refund button
-        document.getElementById('partialRefundBtn').addEventListener('click', function() {
-            const refundAmountInput = document.getElementById('refundAmount');
-            refundAmountInput.value = '';
-            refundAmountInput.focus();
-        });
+            let transactions = [];
 
-        // Custom reason handling
-        document.getElementById('refundReason').addEventListener('change', function() {
-            const customReasonDiv = document.getElementById('customReasonDiv');
-            const customReasonInput = document.getElementById('customReason');
-            
-            if (this.value === 'other') {
-                customReasonDiv.classList.remove('hidden');
-                customReasonInput.focus();
-            } else {
-                customReasonDiv.classList.add('hidden');
-                customReasonInput.value = '';
-            }
-        });
-
-        // Refund form handling
-        document.getElementById('refundForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const submitBtn = document.getElementById('submitRefundBtn');
-            const originalText = submitBtn.textContent;
-            
-            submitBtn.textContent = 'Đang xử lý...';
-            submitBtn.disabled = true;
-            
-            setTimeout(() => {
-                // Update refund status
-                document.getElementById('refundStatus').innerHTML = `
-                    <div class="flex items-center justify-between p-4 bg-orange-50 rounded-lg">
-                        <span class="text-sm font-medium text-gray-700">Trạng thái</span>
-                        <span class="px-3 py-1 text-xs font-medium rounded-full bg-orange-100 text-orange-800">Đang xử lý</span>
-                    </div>
-                    <div class="space-y-3">
-                        <div class="flex items-center">
-                            <div class="w-4 h-4 bg-green-500 rounded-full mr-3"></div>
-                            <span class="text-sm text-gray-600">Kiểm tra thông tin giao dịch</span>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="w-4 h-4 bg-orange-400 rounded-full mr-3 pulse-animation"></div>
-                            <span class="text-sm text-gray-600">Xác minh yêu cầu hoàn tiền</span>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="w-4 h-4 bg-gray-300 rounded-full mr-3"></div>
-                            <span class="text-sm text-gray-500">Xử lý hoàn tiền</span>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="w-4 h-4 bg-gray-300 rounded-full mr-3"></div>
-                            <span class="text-sm text-gray-500">Hoàn tất</span>
-                        </div>
-                    </div>
-                    <div class="mt-6 p-4 bg-green-50 rounded-lg">
-                        <h3 class="text-sm font-medium text-green-900 mb-2">Yêu cầu đã được gửi</h3>
-                        <div class="space-y-1 text-sm text-green-700">
-                            <div class="flex justify-between">
-                                <span>Mã yêu cầu:</span>
-                                <span class="font-medium">REF-2024-003</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span>Thời gian xử lý dự kiến:</span>
-                                <span class="font-medium">3-5 ngày</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
+            if (exportRange === \'all\') {
+                transactions = allTransactions;
+            } else if (exportRange === \'current\') {
+                // Current page transactions (first 3 from the table)
+                transactions = [
+                    allTransactions[0], // Header
+                    allTransactions[1], // TXN001
+                    allTransactions[2], // TXN002
+                    allTransactions[3]  // TXN003
+                ];
+            } else if (exportRange === \'selected\') {
+                // Selected transactions only
+                transactions = [allTransactions[0]]; // Header
                 
-                submitBtn.textContent = 'Yêu cầu đã được gửi';
-                setTimeout(() => {
-                    submitBtn.textContent = originalText;
-                    submitBtn.disabled = false;
-                }, 3000);
-            }, 2000);
+                selectedTransactions.forEach(transactionId => {
+                    const transactionRow = allTransactions.find(row => 
+                        row[0] && row[0].includes(transactionId)
+                    );
+                    if (transactionRow) {
+                        transactions.push(transactionRow);
+                    }
+                });
+
+                if (transactions.length === 1) {
+                    showSuccess(\'Vui lòng chọn ít nhất một giao dịch để xuất!\');
+                    return;
+                }
+            }
+
+            // Convert to CSV format
+            let csvContent = \'\';
+            transactions.forEach(row => {
+                csvContent += row.join(\',\') + \'\n\';
+            });
+
+            // Add BOM for UTF-8 encoding (to display Vietnamese characters correctly in Excel)
+            const BOM = \'\uFEFF\';
+            csvContent = BOM + csvContent;
+
+            // Create and download file
+            const blob = new Blob([csvContent], { type: \'text/csv;charset=utf-8;\' });
+            const link = document.createElement(\'a\');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute(\'href\', url);
+            link.setAttribute(\'download\', `danh-sach-giao-dich-${new Date().toISOString().split(\'T\')[0]}.csv`);
+            link.style.visibility = \'hidden\';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            closeExportModal();
+            
+            const exportedCount = transactions.length - 1; // Subtract header row
+            showSuccess(`Đã xuất ${exportedCount} giao dịch thành công! File sẽ được tải về máy của bạn.`);
+        }
+
+        // Change transaction status
+        function changeTransactionStatus(transactionId, newStatus) {
+            const statusMap = {
+                \'completed\': { text: \'Hoàn thành\', class: \'bg-green-100 text-green-800\', hover: \'hover:bg-green-200\', ring: \'focus:ring-green-500\' },
+                \'pending\': { text: \'Chờ xử lý\', class: \'bg-yellow-100 text-yellow-800\', hover: \'hover:bg-yellow-200\', ring: \'focus:ring-yellow-500\' },
+                \'failed\': { text: \'Thất bại\', class: \'bg-red-100 text-red-800\', hover: \'hover:bg-red-200\', ring: \'focus:ring-red-500\' },
+                \'refunded\': { text: \'Đã hoàn tiền\', class: \'bg-blue-100 text-blue-800\', hover: \'hover:bg-blue-200\', ring: \'focus:ring-blue-500\' }
+            };
+
+            const status = statusMap[newStatus];
+            if (!status) return;
+
+            // Find the select element and update its classes
+            const selectElement = event.target;
+            selectElement.className = `px-2 py-1 text-xs font-medium rounded-full border-0 ${status.class} cursor-pointer ${status.hover} ${status.ring}`;
+
+            // Update transaction data
+            if (transactionData[transactionId]) {
+                transactionData[transactionId].status = status.text;
+                transactionData[transactionId].statusClass = `status-${newStatus}`;
+            }
+
+            // Show success message
+            showSuccess(`Đã cập nhật trạng thái giao dịch ${transactionId} thành "${status.text}"`);
+
+            // Add visual feedback
+            selectElement.style.transform = \'scale(1.05)\';
+            setTimeout(() => {
+                selectElement.style.transform = \'scale(1)\';
+                selectElement.style.transition = \'transform 0.2s ease\';
+            }, 200);
+        }
+
+        // Toggle dropdown visibility
+        function toggleDropdown(dropdownId) {
+            const dropdown = document.getElementById(dropdownId);
+            const arrow = document.getElementById(dropdownId.replace(\'Dropdown\', \'Arrow\'));
+            
+            // Close all other dropdowns first
+            document.querySelectorAll(\'[id$="Dropdown"]\').forEach(dd => {
+                if (dd.id !== dropdownId) {
+                    dd.classList.add(\'hidden\');
+                    const otherArrow = document.getElementById(dd.id.replace(\'Dropdown\', \'Arrow\'));
+                    if (otherArrow) {
+                        otherArrow.style.transform = \'rotate(0deg)\';
+                    }
+                }
+            });
+            
+            // Toggle current dropdown
+            dropdown.classList.toggle(\'hidden\');
+            
+            // Rotate arrow
+            if (dropdown.classList.contains(\'hidden\')) {
+                arrow.style.transform = \'rotate(0deg)\';
+            } else {
+                arrow.style.transform = \'rotate(180deg)\';
+            }
+        }
+
+        // Select status filter
+        function selectStatus(status) {
+            document.getElementById(\'statusFilterText\').textContent = status;
+            document.getElementById(\'statusDropdown\').classList.add(\'hidden\');
+            document.getElementById(\'statusArrow\').style.transform = \'rotate(0deg)\';
+            
+            filterState.status = status;
+            
+            // Apply filter to table (visual feedback)
+            filterTransactions();
+        }
+
+        // Select provider filter
+        function selectProvider(provider) {
+            document.getElementById(\'providerFilterText\').textContent = provider;
+            document.getElementById(\'providerDropdown\').classList.add(\'hidden\');
+            document.getElementById(\'providerArrow\').style.transform = \'rotate(0deg)\';
+            
+            filterState.provider = provider;
+            
+            // Apply filter to table (visual feedback)
+            filterTransactions();
+        }
+
+        // Filter transactions based on selected criteria
+        function filterTransactions() {
+            const rows = document.querySelectorAll(\'#transactions-tab tbody tr\');
+            let visibleCount = 0;
+            
+            rows.forEach(row => {
+                const statusCell = row.querySelector(\'td:nth-child(6)\');
+                const methodCell = row.querySelector(\'td:nth-child(5)\');
+                
+                if (!statusCell || !methodCell) return;
+                
+                const status = statusCell.textContent.trim();
+                const method = methodCell.textContent.trim();
+                
+                let showRow = true;
+                
+                // Filter by status
+                if (filterState.status !== \'Tất cả trạng thái\') {
+                    if (!status.includes(filterState.status)) {
+                        showRow = false;
+                    }
+                }
+                
+                // Filter by provider
+                if (filterState.provider !== \'Tất cả nhà cung cấp\') {
+                    const providerMatch = {
+                        \'Vietcombank\': [\'Chuyển khoản\'],
+                        \'MoMo\': [\'MoMo\'],
+                        \'ZaloPay\': [\'ZaloPay\'],
+                        \'Sacombank\': [\'Thẻ tín dụng\'],
+                        \'BIDV\': [\'BIDV\']
+                    };
+                    
+                    const allowedMethods = providerMatch[filterState.provider] || [];
+                    if (!allowedMethods.some(allowedMethod => method.includes(allowedMethod))) {
+                        showRow = false;
+                    }
+                }
+                
+                if (showRow) {
+                    row.style.display = \'\';
+                    visibleCount++;
+                } else {
+                    row.style.display = \'none\';
+                }
+            });
+            
+            // Update visible count in export modal if it\'s open
+            const exportModal = document.getElementById(\'exportModal\');
+            if (!exportModal.classList.contains(\'hidden\')) {
+                updateExportPreview(visibleCount);
+            }
+        }
+
+        // Update export preview with filtered count
+        function updateExportPreview(visibleCount) {
+            const previewText = document.querySelector(\'.bg-gray-50.rounded-md.p-4 p\');
+            if (previewText) {
+                previewText.innerHTML = `Sẽ xuất: <span class="font-medium">${visibleCount} giao dịch</span>`;
+            }
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener(\'click\', function(event) {
+            const dropdowns = document.querySelectorAll(\'[id$="Dropdown"]\');
+            const buttons = document.querySelectorAll(\'[id$="FilterBtn"]\');
+            
+            let clickedOnDropdown = false;
+            
+            // Check if click was on a dropdown or button
+            buttons.forEach(button => {
+                if (button.contains(event.target)) {
+                    clickedOnDropdown = true;
+                }
+            });
+            
+            dropdowns.forEach(dropdown => {
+                if (dropdown.contains(event.target)) {
+                    clickedOnDropdown = true;
+                }
+            });
+            
+            // Close all dropdowns if click was outside
+            if (!clickedOnDropdown) {
+                dropdowns.forEach(dropdown => {
+                    dropdown.classList.add(\'hidden\');
+                });
+                
+                // Reset arrows
+                document.querySelectorAll(\'[id$="Arrow"]\').forEach(arrow => {
+                    arrow.style.transform = \'rotate(0deg)\';
+                });
+            }
         });
 
-        // Initialize
-        renderTransactions();
+        // Initialize the page
+        document.addEventListener(\'DOMContentLoaded\', function() {
+            showTab(\'verification\');
+            
+            // Initialize selected count
+            updateSelectedCount();
+        });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97c7bb2e925b5c88',t:'MTc1NzQzMTg3NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
-</div>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement(\'script\');d.innerHTML="window.__CF$cv$params={r:\'98cc5323217d3ee9\',t:\'MTc2MDE2NDM5My4wMDAwMDA=\'};var a=document.createElement(\'script\');a.nonce=\'\';a.src=\'/cdn-cgi/challenge-platform/scripts/jsd/main.js\';document.getElementsByTagName(\'head\')[0].appendChild(a);";b.getElementsByTagName(\'head\')[0].appendChild(d)}}if(document.body){var a=document.createElement(\'iframe\');a.height=1;a.width=1;a.style.position=\'absolute\';a.style.top=0;a.style.left=0;a.style.border=\'none\';a.style.visibility=\'hidden\';document.body.appendChild(a);if(\'loading\'!==document.readyState)c();else if(window.addEventListener)document.addEventListener(\'DOMContentLoaded\',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);\'loading\'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
+
+';
+?>
