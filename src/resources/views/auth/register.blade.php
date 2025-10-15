@@ -204,7 +204,6 @@
             </div>
 
             <!-- Form đăng ký -->
-            <!-- <form id="registerForm" class="space-y-6"> --> // tạm ẩn 
             <form id="registerForm" method="POST" action="{{ route('auth.register') }}" class="space-y-6">
                 @csrf
                 <!-- Step 1: Thông tin cá nhân -->
@@ -621,17 +620,22 @@
         setupPasswordToggle('toggleConfirmPassword', 'confirmPassword');
 
         // Form submission
-        registerForm.addEventListener('submit', function(e) {
-            e.preventDefault();
+        // registerForm.addEventListener('submit', function(e) {
+        //     e.preventDefault();
             
-            if (validateStep(currentStep)) {
-                // Simulate registration process
-                setTimeout(() => {
-                    successModal.classList.add('open');
-                }, 500);
+        //     if (validateStep(currentStep)) {
+        //         // Simulate registration process
+        //         setTimeout(() => {
+        //             successModal.classList.add('open');
+        //         }, 500);
+        //     }
+        // });
+        registerForm.addEventListener('submit', function(e) {
+            if (!validateStep(currentStep)) {
+                e.preventDefault(); // Chỉ chặn nếu validate không qua
             }
+            // Nếu validate đúng, để form tự submit lên server
         });
-
         closeModal.addEventListener('click', function() {
             successModal.classList.remove('open');
         });

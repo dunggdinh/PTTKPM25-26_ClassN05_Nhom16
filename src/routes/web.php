@@ -66,10 +66,10 @@ Route::prefix('auth')->name('auth.')->group(function () {
     Route::get('/login', function () {
         return view('auth.login');
     })->name('login');
-
-    Route::get('/register', function () {
-        return view('auth.register');
-    })->name('register');
+    // đừng xóa vội
+    // Route::get('/register', function () {
+    //     return view('auth.register');
+    // })->name('register');
     // tạm thời để vậy
     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register.form');
     Route::post('/register', [AuthController::class, 'register'])->name('register');
