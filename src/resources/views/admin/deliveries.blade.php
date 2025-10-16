@@ -1,5 +1,3 @@
- <?php
-echo '
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -7,28 +5,8 @@ echo '
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản Lý Lô Hàng Nhập - Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            box-sizing: border-box;
-        }
-        
-        .fade-in {
-            animation: fadeIn 0.3s ease-in;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .hover-scale {
-            transition: transform 0.2s ease;
-        }
-        
-        .hover-scale:hover {
-            transform: scale(1.02);
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url('css/app.css') }}">
+
 </head>
 <body class="bg-gray-50 font-sans">
     <div class="min-h-full p-6">
@@ -1380,6 +1358,3 @@ echo '
     </script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement(\'script\');d.innerHTML="window.__CF$cv$params={r:\'98cc185181a1ddc3\',t:\'MTc2MDE2MTk4NC4wMDAwMDA=\'};var a=document.createElement(\'script\');a.nonce=\'\';a.src=\'/cdn-cgi/challenge-platform/scripts/jsd/main.js\';document.getElementsByTagName(\'head\')[0].appendChild(a);";b.getElementsByTagName(\'head\')[0].appendChild(d)}}if(document.body){var a=document.createElement(\'iframe\');a.height=1;a.width=1;a.style.position=\'absolute\';a.style.top=0;a.style.left=0;a.style.border=\'none\';a.style.visibility=\'hidden\';document.body.appendChild(a);if(\'loading\'!==document.readyState)c();else if(window.addEventListener)document.addEventListener(\'DOMContentLoaded\',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);\'loading\'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
-
-';
-?>
