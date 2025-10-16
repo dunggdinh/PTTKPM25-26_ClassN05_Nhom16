@@ -1,5 +1,3 @@
- <?php
-echo '
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -8,84 +6,8 @@ echo '
     <title>Quản Lý Tồn Kho - Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <style>
-        body {
-            box-sizing: border-box;
-        }
-        
-        .fade-in {
-            animation: fadeIn 0.3s ease-in;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .pulse-warning {
-            animation: pulseWarning 2s infinite;
-        }
-        
-        @keyframes pulseWarning {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-            
-            #printContent, #printContent * {
-                visibility: visible;
-            }
-            
-            #printContent {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100% !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                box-shadow: none !important;
-            }
-            
-            .print-table {
-                width: 100%;
-                border-collapse: collapse;
-                font-size: 12px;
-            }
-            
-            .print-table th,
-            .print-table td {
-                border: 1px solid #000;
-                padding: 8px;
-                text-align: left;
-            }
-            
-            .print-table th {
-                background-color: #f3f4f6 !important;
-                font-weight: bold;
-            }
-            
-            .print-header {
-                text-align: center;
-                margin-bottom: 20px;
-            }
-            
-            .print-stats {
-                display: flex;
-                justify-content: space-around;
-                margin: 20px 0;
-                border: 1px solid #000;
-                padding: 10px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url('css/app.css') }}">
+
 </head>
 <body class="bg-gray-50 font-sans">
     <div class="min-h-full">
@@ -1353,6 +1275,3 @@ echo '
     </script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement(\'script\');d.innerHTML="window.__CF$cv$params={r:\'98c82e12f1bd3ee9\',t:\'MTc2MDEyMDkzMi4wMDAwMDA=\'};var a=document.createElement(\'script\');a.nonce=\'\';a.src=\'/cdn-cgi/challenge-platform/scripts/jsd/main.js\';document.getElementsByTagName(\'head\')[0].appendChild(a);";b.getElementsByTagName(\'head\')[0].appendChild(d)}}if(document.body){var a=document.createElement(\'iframe\');a.height=1;a.width=1;a.style.position=\'absolute\';a.style.top=0;a.style.left=0;a.style.border=\'none\';a.style.visibility=\'hidden\';document.body.appendChild(a);if(\'loading\'!==document.readyState)c();else if(window.addEventListener)document.addEventListener(\'DOMContentLoaded\',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);\'loading\'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
-
-';
-?>
