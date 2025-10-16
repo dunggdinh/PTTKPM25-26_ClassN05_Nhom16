@@ -75,22 +75,35 @@ Route::prefix('admin')->name('admin.')->group(function () {
     })->name('warranties');
 });
 
+// tạm ẩn để xử lý sau
+// Route::prefix('auth')->name('auth.')->group(function () {
+//     Route::get('/login', function () {
+//         return view('auth.login');
+//     })->name('login');
+//     // đừng xóa vội
+//     // Route::get('/register', function () {
+//     //     return view('auth.register');
+//     // })->name('register');
+//     // tạm thời để vậy
+//     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register.form');
+//     Route::post('/register', [AuthController::class, 'register'])->name('register');
+
+//     Route::get('/reset_password', function () {
+//         return view('auth.reset_password');
+//     })->name('reset_password');
+// });
 
 Route::prefix('auth')->name('auth.')->group(function () {
-    Route::get('/login', function () {
-        return view('auth.login');
-    })->name('login');
-    // đừng xóa vội
-    // Route::get('/register', function () {
-    //     return view('auth.register');
-    // })->name('register');
-    // tạm thời để vậy
-    Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register.form');
-    Route::post('/register', [AuthController::class, 'register'])->name('register');
+    // Register
+    Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
+    Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
 
-    Route::get('/reset_password', function () {
-        return view('auth.reset_password');
-    })->name('reset_password');
+    // Login
+    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
+
+    // Logout (tiện kiểm thử)
+    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
 

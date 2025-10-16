@@ -204,7 +204,8 @@
             </div>
 
             <!-- Form đăng ký -->
-            <form id="registerForm" method="POST" action="{{ route('auth.register') }}" class="space-y-6">
+            <!-- <form id="registerForm" method="POST" action="{{ route('auth.register') }}" class="space-y-6"> --> 
+            <form id="registerForm" method="POST" action="{{ route('auth.register.submit') }}" class="space-y-6">
                 @csrf
                 <!-- Step 1: Thông tin cá nhân -->
                 <div id="step1" class="step-content">
@@ -620,21 +621,17 @@
         setupPasswordToggle('toggleConfirmPassword', 'confirmPassword');
 
         // Form submission
-        // registerForm.addEventListener('submit', function(e) {
-        //     e.preventDefault();
-            
-        //     if (validateStep(currentStep)) {
-        //         // Simulate registration process
-        //         setTimeout(() => {
-        //             successModal.classList.add('open');
-        //         }, 500);
-        //     }
-        // });
         registerForm.addEventListener('submit', function(e) {
             if (!validateStep(currentStep)) {
                 e.preventDefault(); // Chỉ chặn nếu validate không qua
             }
             // Nếu validate đúng, để form tự submit lên server
+        });
+        registerForm.addEventListener('submit', function (e) {
+            const submitShown = document.getElementById('submitBtn')?.offsetParent !== null; // true nếu nút đang hiển thị
+            if (!submitShown || !validateStep(currentStep)) {
+                e.preventDefault();
+            }
         });
         closeModal.addEventListener('click', function() {
             successModal.classList.remove('open');

@@ -28,13 +28,15 @@
             </div>
 
             <!-- Form đăng nhập -->
-            <form id="loginForm" class="space-y-6">
+            <form id="loginForm" method="POST" action="{{ route('auth.login.submit') }}" class="space-y-6">
+                @csrf
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
                     <input 
-                        type="email" 
-                        id="email" 
+                        type="email"
+                        id="email"
                         name="email"
+                        value="{{ old('email') }}"
                         required
                         class="input-field w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
                         placeholder="Nhập email của bạn"
@@ -45,12 +47,13 @@
                     <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Mật khẩu</label>
                     <div class="relative">
                         <input 
-                            type="password" 
-                            id="password" 
+                            type="password"
+                            id="password"
                             name="password"
                             required
                             class="input-field w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none pr-12"
                             placeholder="Nhập mật khẩu"
+
                         >
                         <button 
                             type="button" 
@@ -67,7 +70,8 @@
 
                 <div class="flex items-center justify-between">
                     <label class="flex items-center">
-                        <input type="checkbox" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                        <!-- <input type="checkbox" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500"> -->
+                        <input type="checkbox" name="remember" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
                         <span class="ml-2 text-sm text-gray-600">Ghi nhớ đăng nhập</span>
                     </label>
                     <a href="#" class="text-sm text-purple-600 hover:text-purple-800 font-medium">Quên mật khẩu?</a>
@@ -85,7 +89,8 @@
             <div class="mt-6 text-center">
                 <p class="text-gray-600">
                     Chưa có tài khoản? 
-                    <a href="#" class="text-purple-600 hover:text-purple-800 font-medium">Đăng ký ngay</a>
+                    <!-- <a href="#" class="text-purple-600 hover:text-purple-800 font-medium">Đăng ký ngay</a> -->
+                    <a href="{{ route('auth.register') }}" class="text-purple-600 hover:text-purple-800 font-medium">Đăng ký ngay</a>
                 </p>
             </div>
 
@@ -164,19 +169,24 @@
         const successModal = document.getElementById('successModal');
         const closeModal = document.getElementById('closeModal');
 
+        // loginForm.addEventListener('submit', function(e) {
+        //     e.preventDefault();
+            
+        //     const email = document.getElementById('email').value;
+        //     const password = document.getElementById('password').value;
+            
+        //     if (email && password) {
+        //         // Simulate login process
+        //         setTimeout(() => {
+        //             successModal.classList.add('open');
+        //         }, 500);
+        //     }
+        // });
         loginForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            if (email && password) {
-                // Simulate login process
-                setTimeout(() => {
-                    successModal.classList.add('open');
-                }, 500);
-            }
+            // ... show modal
         });
+
 
         closeModal.addEventListener('click', function() {
             successModal.classList.remove('open');
