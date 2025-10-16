@@ -11,6 +11,20 @@ Route::get('/customer', function () {
     return view('customer.home');   // resources/views/customer/home.blade.php
 });
 
+//Route Laravel cần
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::view('/home', 'admin.home')->name('home');
+    Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
+    Route::view('/chat', 'admin.chat')->name('chat');
+    Route::view('/customers', 'admin.customers')->name('customers');
+    Route::view('/inventory', 'admin.inventory')->name('inventory');
+    Route::view('/payments_gateway', 'admin.payments_gateway')->name('payments_gateway');
+    Route::view('/returns', 'admin.returns')->name('returns');
+    Route::view('/report', 'admin.report')->name('report');
+    Route::view('/warranties', 'admin.warranties')->name('warranties');
+});
+
+
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', function () {
         return view('admin.dashboard');

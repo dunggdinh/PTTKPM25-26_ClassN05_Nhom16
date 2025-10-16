@@ -1,5 +1,3 @@
- <?php
-echo '
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -7,22 +5,8 @@ echo '
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Bảo hành & Lịch hẹn - Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            box-sizing: border-box;
-        }
-        .tab-active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        .status-pending { background-color: #fef3c7; color: #92400e; }
-        .status-processing { background-color: #dbeafe; color: #1e40af; }
-        .status-completed { background-color: #d1fae5; color: #065f46; }
-        .status-cancelled { background-color: #fee2e2; color: #991b1b; }
-        .priority-high { border-left: 4px solid #ef4444; }
-        .priority-medium { border-left: 4px solid #f59e0b; }
-        .priority-low { border-left: 4px solid #10b981; }
-    </style>
+    <link rel="stylesheet" href="{{ url('css/app.css') }}">
+
 </head>
 <body class="bg-gray-50 min-h-full">
     <div class="max-w-7xl mx-auto p-6">
@@ -1675,6 +1659,3 @@ echo '
     </script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement(\'script\');d.innerHTML="window.__CF$cv$params={r:\'98cc837272e4ddc3\',t:\'MTc2MDE2NjM3Mi4wMDAwMDA=\'};var a=document.createElement(\'script\');a.nonce=\'\';a.src=\'/cdn-cgi/challenge-platform/scripts/jsd/main.js\';document.getElementsByTagName(\'head\')[0].appendChild(a);";b.getElementsByTagName(\'head\')[0].appendChild(d)}}if(document.body){var a=document.createElement(\'iframe\');a.height=1;a.width=1;a.style.position=\'absolute\';a.style.top=0;a.style.left=0;a.style.border=\'none\';a.style.visibility=\'hidden\';document.body.appendChild(a);if(\'loading\'!==document.readyState)c();else if(window.addEventListener)document.addEventListener(\'DOMContentLoaded\',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);\'loading\'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
-
-';
-?>
