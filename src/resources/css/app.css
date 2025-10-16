@@ -17,6 +17,9 @@ body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
+/* Extra alias for banners from snippets */
+.banner-gradient { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+
 /* Register Card */
 .register-card {
     backdrop-filter: blur(10px);
@@ -149,7 +152,6 @@ body {
     opacity: 1;
 }
 
-
 /* ===== Base styles ===== */
 body {
     box-sizing: border-box;
@@ -195,7 +197,7 @@ body {
 
 /* ===== Product & Rating ===== */
 .product-image { background: linear-gradient(45deg, #f0f0f0, #e0e0e0); }
-.star-rating { color: #fbbf24; }
+.star-rating { color: #fbbf24; } /* keep existing color */
 
 /* ===== Forms ===== */
 .input-field, .form-input {
@@ -291,7 +293,7 @@ body {
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
-.countdown { color: #667eea; font-weight: 600; }
+.countdown { color: #667eea; font-weight: 600; } /* keep existing */
 .notification { animation: slideIn 0.3s ease; }
 .message-bubble { max-width: 70%; word-wrap: break-word; }
 .truncate-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -362,6 +364,8 @@ body {
 }
 .online-indicator { animation: pulse 2s infinite; }
 .message-animation { animation: slideIn 0.3s ease-out; }
+
+/* keep original opacity pulse */
 @keyframes pulse {
     0%,100% { opacity: 1; }
     50% { opacity: 0.5; }
@@ -369,7 +373,7 @@ body {
 
 /* === Customer / Deliveries / Return fade-in === */
 .fade-in { animation: fadeIn 0.3s ease-in; }
-.modal-backdrop { backdrop-filter: blur(4px); }
+.modal-backdrop { backdrop-filter: blur(4px); } /* from snippet */
 
 /* === Home Menu === */
 .menu-item { transition: all 0.3s ease; }
@@ -384,6 +388,7 @@ body {
 .notification-badge { animation: pulse 2s infinite; }
 
 /* === Deliveries === */
+/* Reuse .fade-in from Customer */
 .hover-scale { transition: transform 0.2s ease; }
 .hover-scale:hover { transform: scale(1.02); }
 
@@ -453,3 +458,102 @@ body {
 .priority-high { border-left: 4px solid #ef4444; }
 .priority-medium { border-left: 4px solid #f59e0b; }
 .priority-low { border-left: 4px solid #10b981; }
+
+/* ============================================================
+   ADDITIONS FROM SNIPPETS (safe-merged, no overrides)
+   ============================================================ */
+
+/* --- Product cards & categories --- */
+.product-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+.category-icon { transition: transform 0.3s ease; }
+.category-icon:hover { transform: scale(1.1); }
+
+/* --- Tabs --- */
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.tab-button.active {
+    background-color: #3b82f6;
+    color: #fff;
+}
+
+/* --- Promotions / Flash sale --- */
+.promotion-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.promotion-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+.flash-sale { animation: flashPulse 2s infinite; }
+@keyframes flashPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+/* Avoid overriding existing .countdown; provide gradient variant */
+.countdown-gradient {
+    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+    color: #fff;
+}
+
+/* --- Reviews & rating --- */
+.star-rating {
+    display: flex;
+    gap: 4px;
+}
+.star {
+    cursor: pointer;
+    font-size: 24px;
+    color: #d1d5db;
+    transition: color 0.2s;
+}
+.star.active,
+.star.hover { color: #fbbf24; }
+.review-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.review-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+.progress-bar { transition: width 0.3s ease; }
+
+/* --- Dropdown (header menus) --- */
+.dropdown {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+.dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* --- Quantity buttons --- */
+.quantity-btn { transition: all 0.2s ease; }
+.quantity-btn:hover { transform: scale(1.1); }
+
+/* --- Chat bubbles & typing indicator --- */
+.chat-bubble { animation: chatSlide 0.3s ease-out; }
+@keyframes chatSlide {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.typing-indicator { animation: typingPulse 1.5s infinite; }
+@keyframes typingPulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+}
+
+/* --- Extra fade utility to keep both durations --- */
+.fade-in-lg { animation: fadeIn 0.5s ease-in; }
+
+/* --- Modal backdrop utility (separate from .modal-overlay) --- */
+.modal-backdrop { backdrop-filter: blur(4px); }
