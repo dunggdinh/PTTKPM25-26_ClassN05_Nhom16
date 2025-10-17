@@ -186,8 +186,9 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
-use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\auth\AuthController;
+
 
 
 // Nhóm route admin (gộp lại)
@@ -240,18 +241,49 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 
 // Nhóm route auth
+// Route::prefix('auth')->name('auth.')->group(function () {
+//     Route::get('/login', function () {
+//         return view('auth.login');
+//     })->name('login');
+
+//     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register.form');
+//     Route::post('/register', [AuthController::class, 'register'])->name('register');
+
+//     Route::get('/reset_password', function () {
+//         return view('auth.reset_password');
+//     })->name('reset_password');
+// });
+// Route::prefix('auth')->name('auth.')->group(function () {
+//     // LOGIN
+//     Route::get('/login',  [AuthController::class, 'showLoginForm'])->name('login');
+//     Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
+
+//     // REGISTER
+//     Route::get('/register',  [AuthController::class, 'showRegisterForm'])->name('register');
+//     Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
+
+//     Route::get('/reset_password', fn() => view('auth.reset_password'))->name('reset_password');
+//     Route::post('/logout', [AuthController::class,'logout'])->name('logout');
+// });
+
 Route::prefix('auth')->name('auth.')->group(function () {
-    Route::get('/login', function () {
-        return view('auth.login');
-    })->name('login');
+    // LOGIN
+    Route::get('/login',  [AuthController::class,'showLoginForm'])->name('login');
+    Route::post('/login', [AuthController::class,'login'])->name('login.submit');
 
-    Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register.form');
-    Route::post('/register', [AuthController::class, 'register'])->name('register');
+    // REGISTER
+    Route::get('/register',  [AuthController::class,'showRegisterForm'])->name('register');
+    Route::post('/register', [AuthController::class,'register'])->name('register.submit');
 
-    Route::get('/reset_password', function () {
-        return view('auth.reset_password');
-    })->name('reset_password');
+    // FORGOT PASSWORD 
+    Route::get('/reset_password',  [AuthController::class,'showResetForm'])->name('reset_password');
+    Route::post('/reset_password', [AuthController::class,'handleReset'])->name('reset_password.submit');
+
+    // LOGOUT (nếu có dùng)
+    Route::post('/logout', [AuthController::class,'logout'])->name('logout');
+
 });
+
 
 // Nhóm route customer
 Route::prefix('customer')->name('customer.')->group(function () {

@@ -70,11 +70,13 @@
 
                 <div class="flex items-center justify-between">
                     <label class="flex items-center">
-                        <!-- <input type="checkbox" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500"> -->
                         <input type="checkbox" name="remember" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                        <!-- <input type="checkbox" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500"> -->
+                        <!-- <input type="checkbox" name="remember" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500"> -->
                         <span class="ml-2 text-sm text-gray-600">Ghi nhớ đăng nhập</span>
                     </label>
-                    <a href="#" class="text-sm text-purple-600 hover:text-purple-800 font-medium">Quên mật khẩu?</a>
+                    <!-- <a href="#" class="text-sm text-purple-600 hover:text-purple-800 font-medium">Quên mật khẩu?</a> -->
+                    <a href="{{ route('auth.reset_password') }}" class="text-sm text-purple-600 hover:text-purple-800 font-medium">Quên mật khẩu?</a>
                 </div>
 
                 <button 
@@ -168,26 +170,10 @@
         const loginForm = document.getElementById('loginForm');
         const successModal = document.getElementById('successModal');
         const closeModal = document.getElementById('closeModal');
-
         // loginForm.addEventListener('submit', function(e) {
         //     e.preventDefault();
-            
-        //     const email = document.getElementById('email').value;
-        //     const password = document.getElementById('password').value;
-            
-        //     if (email && password) {
-        //         // Simulate login process
-        //         setTimeout(() => {
-        //             successModal.classList.add('open');
-        //         }, 500);
-        //     }
+        //     // ... show modal
         // });
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            // ... show modal
-        });
-
-
         closeModal.addEventListener('click', function() {
             successModal.classList.remove('open');
         });

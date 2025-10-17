@@ -1,146 +1,127 @@
 <?php
+namespace App\Http\Controllers\auth;
 
-// namespace App\Http\Controllers;
-
-// use Illuminate\Http\Request;
-// use App\Models\User;
-// use Illuminate\Support\Facades\Hash;
-// use Illuminate\Support\Str;
-// use Illuminate\Support\Facades\DB;
-
-// class AuthController extends Controller
-// {
-//     public function showRegisterForm()
-//     {
-//         return view('auth.register');
-//     }
-
-//     public function register(Request $request)
-//     {
-//         $data = $request->validate([
-//             'firstName'   => 'required|max:50',
-//             'lastName'    => 'required|max:50',
-//             'email'       => 'required|email|unique:users,email',
-//             'password'    => 'required|min:6|confirmed',
-//             'birth_date'  => 'nullable|date',
-//             'gender'      => 'nullable|in:Nam,Nữ,Khác',
-//             'phone'       => 'nullable|max:20',
-//             'address'     => 'nullable|max:255',
-//             'role'        => 'nullable|in:customer,admin', // thêm nếu form có chọn loại tài khoản
-//         ]);
-
-//         $fullName = trim($data['firstName'] . ' ' . $data['lastName']);
-//         $role = $data['role'] ?? 'customer'; // mặc định khách hàng
-
-//         // 🔹 Tiền tố
-//         $prefix = $role === 'admin' ? 'AD' : 'KH';
-
-//         // 🔹 Lấy số lớn nhất trong user_id hiện có với prefix đó
-//         $lastId = DB::table('users')
-//             ->where('user_id', 'LIKE', "{$prefix}_%")
-//             ->selectRaw("MAX(CAST(SUBSTRING(user_id, LOCATE('_', user_id) + 1) AS UNSIGNED)) AS max_num")
-//             ->value('max_num');
-
-//         $nextNumber = ($lastId ?? 0) + 1;
-
-//         // 🔹 Sinh ID theo định dạng
-//         $uid = $role === 'admin'
-//             ? sprintf('AD_%04d', $nextNumber)
-//             : sprintf('KH_%03d', $nextNumber);
-
-//         // 🔹 Tạo user mới
-//         User::create([
-//             'user_id'   => $uid,
-//             'name'      => $fullName,
-//             'email'     => $data['email'],
-//             'password'  => Hash::make($data['password']),
-//             'role'      => $role,
-//             'birth_date'=> $data['birth_date'] ?? null,
-//             'gender'    => $data['gender'] ?? null,
-//             'phone'     => $data['phone'] ?? null,
-//             'address'   => $data['address'] ?? null,
-//         ]);
-
-//         return redirect()->route('auth.login')->with('success', 'Đăng ký thành công!');
-//     }
-// }
-namespace App\Http\Controllers;
-
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-
+use Illuminate\Support\Str;
 class AuthController extends Controller
 {
+    // ======= VIEWS =======
     public function showRegisterForm() { return view('auth.register'); }
     public function showLoginForm()    { return view('auth.login'); }
+    public function showResetForm()    { return view('auth.reset_password'); }
 
-    // Đăng ký: lưu vào DB, sinh KH_00x, redirect -> login
+    // ======= RESET PASSWORD (demo điều hướng) =======
+    public function handleReset(Request $request)
+    {
+        $request->validate(['email'=>['required','email']]);
+        // TODO: tích hợp Password Broker để gửi email reset
+        return back()->with('status','Nếu email tồn tại, hệ thống sẽ gửi liên kết đặt lại mật khẩu.');
+    }
+
+    // ======= REGISTER =======
     public function register(Request $request)
     {
+    // 1) KHÔNG yêu cầu role nữa
         $data = $request->validate([
-            'firstName' => 'required|max:50',
-            'lastName'  => 'required|max:50',
-            'email'     => 'required|email:rfc,dns|unique:users,email',
-            'password'  => 'required|min:6|confirmed',
+            'firstName'   => ['required','string','max:100'],
+            'lastName'    => ['required','string','max:100'],
+            'email'       => ['required','email:rfc,dns','max:255','unique:users,email'],
+            'password'    => ['required','confirmed','min:6'],
+
+            // role bỏ đi để tự suy ra theo domain
+            'birth_date'  => ['required','date'],
+            'gender'      => ['required','in:Nam,Nữ,Khác'], // male/female/other hoặc Nam/Nữ/Khác
+            'phone'       => ['required','string','max:20'],
+            'address'     => ['required','string','max:255'],
         ]);
 
         $fullName = trim($data['firstName'].' '.$data['lastName']);
-        $prefix   = 'KH';   // sau này có admin thì prefix 'AD'
-        $role     = 'customer';
 
-        return DB::transaction(function () use ($fullName, $data, $prefix, $role) {
-            // Lấy số lớn nhất hiện có theo prefix an toàn cho concurrent
-            $last = DB::table('users')
-                ->where('user_id','LIKE', $prefix.'\_%')
-                ->selectRaw("MAX(CAST(SUBSTRING(user_id, LOCATE('_', user_id)+1) AS UNSIGNED)) AS max_num")
-                ->lockForUpdate() // tránh đụng độ khi 2 người đăng ký cùng lúc
-                ->value('max_num');
+        // 2) Map giới tính VN -> EN (giữ như bạn)
+        $g = mb_strtolower(trim($data['gender']));
+        $genderMap = ['nam'=>'male','nữ'=>'female','nu'=>'female','khác'=>'other','khac'=>'other'];
+        $gender = $genderMap[$g] ?? $g;
 
-            $next  = (int)($last ?? 0) + 1;
-            $uid   = sprintf('%s_%03d', $prefix, $next); // KH_001, KH_002,...
-
-            User::create([
-                'user_id'  => $uid,
-                'name'     => $fullName,
-                'email'    => $data['email'],
-                'password' => Hash::make($data['password']),
-                'role'     => $role,
-            ]);
-
-            return redirect()
-                ->route('auth.login')
-                ->with('success', 'Đăng ký thành công! Vui lòng đăng nhập.');
-        });
-    }
-
-    // Đăng nhập: kiểm tra & chuyển hướng
-    public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email'    => 'required|email:rfc,dns',
-            'password' => 'required'
-        ]);
-
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            $request->session()->regenerate();
-            // Có thể tách theo role:
-            // return Auth::user()->role === 'admin'
-            //     ? redirect()->route('admin.dashboard')
-            //     : redirect()->route('customer.home');
-            return redirect()->route('customer.home')->with('success', 'Đăng nhập thành công!');
+        // 3) TỰ GÁN role & prefix THEO DOMAIN EMAIL
+        $domain = Str::lower(Str::after($data['email'], '@')); // phần sau dấu @
+        if ($domain === 'ad.com') {
+            $role   = 'admin';
+            $prefix = 'AD';
+        } else {
+            $role   = 'customer';
+            $prefix = 'KH';
         }
 
-        return back()->withErrors(['email' => 'Sai email hoặc mật khẩu.'])->onlyInput('email');
+        // 4) Sinh user_id + lưu
+        return DB::transaction(function () use ($data, $fullName, $gender, $role, $prefix) {
+            $last = DB::table('users')
+                ->whereRaw("user_id LIKE ? ESCAPE '\\\\'", [$prefix.'\_%'])
+                ->selectRaw("MAX(CAST(SUBSTRING(user_id, 4) AS UNSIGNED)) AS max_num")
+                ->lockForUpdate()
+                ->value('max_num');
+
+            $next = (int)($last ?? 0) + 1;
+            $uid  = sprintf('%s_%03d', $prefix, $next); // AD_001 / KH_001
+
+            User::create([
+                'user_id'    => $uid,
+                'name'       => $fullName,
+                'email'      => $data['email'],
+                'password'   => Hash::make($data['password']),
+                'role'       => $role,            // <-- MỚI: auto theo domain
+                'birth_date' => $data['birth_date'],
+                'gender'     => $gender,
+                'phone'      => $data['phone'],
+                'address'    => $data['address'],
+            ]);
+
+            return redirect()->route('auth.login')
+                ->with('status','Đăng ký thành công! Hãy đăng nhập.');
+        });
+    }
+    // ======= LOGIN =======
+    public function login(Request $request)
+    {
+        // Validate email & password
+        $credentials = $request->validate([
+            'email'    => ['required','email'],
+            'password' => ['required'],
+        ]);
+        // Hỗ trợ "ghi nhớ đăng nhập" nếu form có <input type="checkbox" name="remember">
+        $remember = $request->boolean('remember');
+        if (Auth::attempt($credentials, $remember)) {
+            // Bảo vệ session fixation
+            $request->session()->regenerate();
+
+            // Tuỳ ý điều hướng theo role
+            $user = Auth::user();
+            if ($user && $user->role === 'admin') {
+                // đổi route theo dự án của bạn
+                return redirect()->intended('/admin/dashboard')->with('success','Đăng nhập thành công!');
+            }
+            // Khách hàng
+            return redirect()->intended('/')->with('success','Đăng nhập thành công!');
+        }
+
+        // Sai thông tin: quay lại form, giữ lại email cũ
+        return back()
+            ->withErrors(['email' => 'Email hoặc mật khẩu không đúng.'])
+            ->onlyInput('email');
     }
 
-    public function logout()
+    // ======= LOGOUT =======
+    public function logout(Request $request)
     {
         Auth::logout();
-        request()->session()->invalidate();
-        request()->session()->regenerateToken();
-        return redirect()->route('auth.login')->with('success', 'Đã đăng xuất.');
+        // Vô hiệu session hiện tại và CSRF token
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('auth.login')->with('status','Đã đăng xuất.');
     }
 }

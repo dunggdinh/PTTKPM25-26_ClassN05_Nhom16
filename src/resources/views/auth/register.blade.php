@@ -240,8 +240,9 @@
                         <label for="birthDate" class="block text-sm font-medium text-gray-700 mb-2">Ngày sinh</label>
                         <input 
                             type="date" 
-                            id="birthDate" 
-                            name="birthDate"
+                            id="birth_date" 
+                            name="birth_date"
+                            required
                             class="input-field w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
                         >
                     </div>
@@ -251,12 +252,14 @@
                         <select 
                             id="gender" 
                             name="gender"
+                            required
                             class="input-field w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
                         >
-                            <option value="">Chọn giới tính</option>
-                            <option value="male">Nam</option>
-                            <option value="female">Nữ</option>
-                            <option value="other">Khác</option>
+                        <!-- //giới tính tiếng việt -->
+                            <option value="">Chọn giới tính</option> 
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                            <option value="Khác">Khác</option>
                         </select>
                     </div>
                 </div>
@@ -296,6 +299,7 @@
                             id="address" 
                             name="address"
                             rows="3"
+                            requiredphp artisan route:clear
                             class="input-field w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none resize-none"
                             placeholder="Nhập địa chỉ của bạn"
                         ></textarea>
@@ -416,7 +420,8 @@
             <div class="mt-6 text-center">
                 <p class="text-gray-600">
                     Đã có tài khoản? 
-                    <a href="#" class="text-purple-600 hover:text-purple-800 font-medium">Đăng nhập ngay</a>
+                    <!-- <a href="#" class="text-purple-600 hover:text-purple-800 font-medium">Đăng nhập ngay</a> -->
+                    <a href="{{ route('auth.login') }}" class="text-purple-600 hover:text-purple-800 font-medium">Đăng nhập ngay</a>
                 </p>
             </div>
         </div>
@@ -627,12 +632,12 @@
             }
             // Nếu validate đúng, để form tự submit lên server
         });
-        registerForm.addEventListener('submit', function (e) {
-            const submitShown = document.getElementById('submitBtn')?.offsetParent !== null; // true nếu nút đang hiển thị
-            if (!submitShown || !validateStep(currentStep)) {
-                e.preventDefault();
-            }
-        });
+        // registerForm.addEventListener('submit', function (e) {
+        //     const submitShown = document.getElementById('submitBtn')?.offsetParent !== null; // true nếu nút đang hiển thị
+        //     if (!submitShown || !validateStep(currentStep)) {
+        //         e.preventDefault();
+        //     }
+        // });
         closeModal.addEventListener('click', function() {
             successModal.classList.remove('open');
         });

@@ -127,5 +127,5 @@ class User extends Authenticatable
         'birth_date','gender','phone','address',
     ];
 
-    protected $hidden = ['password'];
+    protected $hidden = ['password', 'remember_token'];
 }
