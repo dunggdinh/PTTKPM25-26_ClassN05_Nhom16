@@ -9,7 +9,8 @@
 </head>
 <body class="bg-gray-50 font-sans">
     <!-- Header Bar -->
-    <header class="fixed top-0 left-0 right-0 bg-white shadow-sm border-b border-gray-200 px-6 py-4 z-20">
+    <header class="fixed top-0 left-0 right-0 shadow-sm border-b border-gray-200 px-6 py-4 z-20 gradient-header">
+
         <div class="flex items-center justify-between">
             <!-- Left side - Menu toggle and App title -->
             <div class="flex items-center space-x-4">
@@ -154,7 +155,7 @@
     </header>
 
     <!-- Sidebar -->
-    <div class="fixed left-0 top-16 h-full w-64 bg-white shadow-lg z-10 transition-transform duration-300 ease-in-out" style="height: calc(100% - 4rem);">
+    <div class="sidebar transition-transform duration-300 ease-in-out">
 
         
         <!-- Menu Navigation -->
@@ -164,32 +165,32 @@
                 <span class="font-medium text-base">Trang chủ</span>
                 <div class="ml-auto w-2 h-2 bg-blue-600 rounded-full"></div>
             </div>
-            
+            <div class="menu-divider"></div>
             <div class="menu-item flex items-center px-6 py-4 text-gray-700 cursor-pointer">
                 <span class="mr-4 text-lg">🎯</span>
                 <span class="text-base">Khuyến mãi</span>
             </div>
-            
+            <div class="menu-divider"></div>
             <div class="menu-item flex items-center px-6 py-4 text-gray-700 cursor-pointer">
                 <span class="mr-4 text-lg">📦</span>
                 <span class="text-base">Sản phẩm</span>
             </div>
-            
+            <div class="menu-divider"></div>
             <div class="menu-item flex items-center px-6 py-4 text-gray-700 cursor-pointer">
                 <span class="mr-4 text-lg">🛒</span>
                 <span class="text-base">Giỏ hàng</span>
             </div>
-            
+            <div class="menu-divider"></div>
             <div class="menu-item flex items-center px-6 py-4 text-gray-700 cursor-pointer">
                 <span class="mr-4 text-lg">📋</span>
                 <span class="text-base">Đơn hàng</span>
             </div>
-            
+            <div class="menu-divider"></div>
             <div class="menu-item flex items-center px-6 py-4 text-gray-700 cursor-pointer">
                 <span class="mr-4 text-lg">⭐</span>
                 <span class="text-base">Đánh giá sản phẩm</span>
             </div>
-            
+            <div class="menu-divider"></div>
             <div class="menu-item flex items-center px-6 py-4 text-gray-700 cursor-pointer">
                 <span class="mr-4 text-lg">💬</span>
                 <span class="text-base">Hỗ trợ khách hàng</span>
@@ -291,15 +292,15 @@
         }
         
         function toggleSidebar() {
-            const sidebar = document.querySelector(\'.fixed.left-0.top-16\');
-            const mainContent = document.querySelector(\'.ml-64\');
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('#mainContent');
             
-            if (sidebar.style.transform === \'translateX(-100%)\') {
-                sidebar.style.transform = \'translateX(0)\';
-                mainContent.style.marginLeft = \'16rem\';
+            if (sidebar.style.transform === 'translateX(-100%)') {
+                sidebar.style.transform = 'translateX(0)';
+                mainContent.style.marginLeft = '16rem';
             } else {
-                sidebar.style.transform = \'translateX(-100%)\';
-                mainContent.style.marginLeft = \'0\';
+                sidebar.style.transform = 'translateX(-100%)';
+                mainContent.style.marginLeft = '0';
             }
         }
         
