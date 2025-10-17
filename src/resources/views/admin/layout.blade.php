@@ -149,25 +149,41 @@
     </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => updateMainContent('Dashboard'));
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPath = window.location.pathname;
+            const menuMap = {
+                '/admin/dashboard': 'Dashboard',
+                '/admin/customer': 'Quản lý người dùng',
+                '/admin/inventory': 'Quản lý kho',
+                '/admin/order': 'Quản lý đơn hàng',
+                '/admin/return': 'Đổi/Trả hàng',
+                '/admin/payment': 'Quản lý thanh toán',
+                '/admin/supplier': 'Quản lý nhà cung cấp',
+                '/admin/chat': 'Tin nhắn khách hàng',
+                '/admin/report': 'Báo cáo & thống kê',
+            };
+            const menuName = menuMap[currentPath] || 'Dashboard';
+            updateMainContent(menuName, false);
+        });
 
-        async function updateMainContent(menuName) {
+        async function updateMainContent(menuName, pushState = true) {
             const main = document.getElementById('mainContent');
-            let url = '';
+            const routes = {
+                'Dashboard': '/admin/dashboard',
+                'Quản lý người dùng': '/admin/customer',
+                'Quản lý kho': '/admin/inventory',
+                'Quản lý đơn hàng': '/admin/order',
+                'Đổi/Trả hàng': '/admin/return',
+                'Quản lý thanh toán': '/admin/payment',
+                'Quản lý nhà cung cấp': '/admin/supplier',
+                'Tin nhắn khách hàng': '/admin/chat',
+                'Báo cáo & thống kê': '/admin/report'
+            };
 
-            switch (menuName) {
-                case 'Dashboard': url = '/admin/dashboard'; break;
-                case 'Quản lý người dùng': url = '/admin/customer'; break;
-                case 'Quản lý kho': url = '/admin/inventory'; break;
-                case 'Quản lý đơn hàng': url = '/admin/order'; break;
-                case 'Đổi/Trả hàng': url = '/admin/return'; break;
-                case 'Quản lý thanh toán': url = '/admin/payment'; break;
-                case 'Quản lý nhà cung cấp': url = '/admin/supplier'; break;
-                case 'Tin nhắn khách hàng': url = '/admin/chat'; break;
-                case 'Báo cáo & thống kê': url = '/admin/report'; break;
-                default:
-                    main.innerHTML = '<div class="p-6 text-gray-500">Không tìm thấy nội dung.</div>';
-                    return;
+            const url = routes[menuName];
+            if (!url) {
+                main.innerHTML = '<div class="p-6 text-gray-500">Không tìm thấy nội dung.</div>';
+                return;
             }
 
             main.innerHTML = '<div class="text-center py-20 text-gray-500 animate-pulse">Đang tải...</div>';
@@ -176,22 +192,29 @@
                 const response = await fetch(url);
                 const html = await response.text();
                 main.innerHTML = html;
+                if (pushState) history.pushState({ menuName }, '', url);
             } catch {
                 main.innerHTML = '<div class="p-6 text-red-500">Lỗi tải nội dung.</div>';
             }
         }
 
         document.querySelectorAll('.menu-item').forEach(item => {
-            item.addEventListener('click', function() {
+            item.addEventListener('click', function () {
                 document.querySelectorAll('.menu-item').forEach(i => {
                     i.classList.remove('text-blue-600', 'active');
                     i.classList.add('text-gray-700');
                 });
                 this.classList.add('text-blue-600', 'active');
                 const menuText = this.querySelector('span').textContent.trim();
-                updateMainContent(menuText);
+                updateMainContent(menuText, true);
             });
         });
-    </script>
+
+        window.addEventListener('popstate', event => {
+            const menuName = event.state?.menuName || 'Dashboard';
+            updateMainContent(menuName, false);
+        });
+        </script>
+
 </body>
 </html>
