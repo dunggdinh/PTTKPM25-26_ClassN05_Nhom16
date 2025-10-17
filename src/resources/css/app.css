@@ -230,3 +230,29 @@ body {
 /* ===== Dropdown ===== */
 .dropdown { opacity:0; visibility:hidden; transform:translateY(-10px); transition: all 0.3s ease; }
 .dropdown.show { opacity:1; visibility:visible; transform:translateY(0); }
+
+/* ===== Order Status Colors (Tailwind-inspired) ===== */
+.status-pending {
+    background-color: #fef3c7; /* bg-yellow-100 */
+    color: #92400e; /* text-yellow-800 */
+}
+
+.status-processing {
+    background-color: #dbeafe; /* bg-blue-100 */
+    color: #1e3a8a; /* text-blue-800 */
+}
+
+.status-shipped {
+    background-color: #ede9fe; /* bg-purple-100 */
+    color: #5b21b6; /* text-purple-800 */
+}
+
+.status-delivered {
+    background-color: #d1fae5; /* bg-green-100 */
+    color: #065f46; /* text-green-800 */
+}
+
+.status-cancelled {
+    background-color: #fee2e2; /* bg-red-100 */
+    color: #991b1b; /* text-red-800 */
+}
