@@ -189,9 +189,6 @@ use Illuminate\Support\Facades\Response;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PaymentController;
 
-Route::get('/customer', function () {
-    return view('customer.home');   // resources/views/customer/home.blade.php
-});
 
 // Nhóm route admin (gộp lại)
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -293,7 +290,7 @@ Route::prefix('customer')->name('customer.')->group(function () {
 
 // Route test (có thể xóa nếu không cần)
 Route::get('/b', function () {
-    return view('customer.t');
+    return view('admin.a');
 });
 Route::get('/c', function () {
     return view('customer1.a');

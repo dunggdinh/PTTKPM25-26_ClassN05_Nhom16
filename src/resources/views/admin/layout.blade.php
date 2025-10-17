@@ -5,12 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ElectroStore Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url('css/app.css') }}">
 </head>
 
 <body class="bg-gray-50 font-sans h-full flex">
 
     <!-- SIDEBAR -->
-    <div class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg z-10 transition-transform duration-300 ease-in-out pt-10">
+    <div class="fixed left-0 top-16 h-[calc(100%-4rem)] w-64 bg-white shadow-lg z-10 pt-6 overflow-y-auto">
+
+
         <nav class="mt-6">
             <div class="menu-item active flex items-center px-6 py-3 text-blue-600 cursor-pointer">
                 <svg class="w-5 h-5 mr-3 text-black" viewBox="0 0 16 16">
@@ -86,9 +89,62 @@
             </div>
         </nav>
     </div>
+    <div class="ml-64 h-full transition-all duration-300 ease-in-out">
+            <!-- Header Bar -->
+            <header class="fixed top-0 left-0 right-0 z-20 bg-white shadow-sm border-b border-gray-200 px-6 py-4">
 
+                <div class="flex items-center justify-between">
+                    <!-- Left side - Menu Toggle & Title -->
+                    <div class="flex items-center space-x-4">
+                        <!-- Menu Toggle Button with Store Name -->
+                        <div class="flex items-center space-x-3">
+                            <button id="menuToggle" class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                                <div class="space-y-1">
+                                    <div class="w-5 h-0.5 bg-gray-600"></div>
+                                    <div class="w-5 h-0.5 bg-gray-600"></div>
+                                    <div class="w-5 h-0.5 bg-gray-600"></div>
+                                </div>
+                            </button>
+                            <h1 class="text-xl font-bold text-blue-600">ElectroStore</h1>
+                        </div>
+                        
+
+                    </div>
+                    
+                    <!-- Right side - Notifications & User -->
+                    <div class="flex items-center space-x-4">
+                        <!-- Notification Bell -->
+                        <div id="notificationBtn" class="relative cursor-pointer p-2 rounded-lg hover:bg-gray-100 transition-all duration-200">
+                            <svg class="w-6 h-6 text-gray-600 hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            </svg>
+                            <div class="notification-badge absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg">
+                                3
+                            </div>
+                        </div>
+                        
+                        <!-- User Info -->
+                        <div class="flex items-center space-x-3">
+                            <!-- Avatar -->
+                            <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+                                A
+                            </div>
+                            
+                            <!-- User Name -->
+                            <span class="text-gray-700 font-medium">Admin</span>
+                            
+                            <!-- Logout Button -->
+                            <button id="logoutBtn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                Đăng xuất
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+        </div>
     <!-- MAIN CONTENT -->
-    <main id="mainContent" class="ml-64 w-full min-h-screen p-8 transition-all">
+    <main id="mainContent" class="ml-64 w-[calc(100%-16rem)] min-h-screen p-8 pt-24 transition-all bg-gray-50">
+
         <div class="text-center py-20 text-gray-500">Đang tải Dashboard...</div>
     </main>
 
