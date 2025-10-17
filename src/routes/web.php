@@ -228,39 +228,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
         return view('admin.report');
     })->name('report');
 
-    Route::get('/returns', function () {
-        return view('admin.returns');
-    })->name('returns');
+    Route::get('/return', function () {
+        return view('admin.return');
+    })->name('return');
 
     Route::get('/warranties', function () {
         return view('admin.warranties');
     })->name('warranties');
 });
 
-<<<<<<< HEAD
-// tạm ẩn để xử lý sau
-// Route::prefix('auth')->name('auth.')->group(function () {
-//     Route::get('/login', function () {
-//         return view('auth.login');
-//     })->name('login');
-//     // đừng xóa vội
-//     // Route::get('/register', function () {
-//     //     return view('auth.register');
-//     // })->name('register');
-//     // tạm thời để vậy
-//     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register.form');
-//     Route::post('/register', [AuthController::class, 'register'])->name('register');
-
-//     Route::get('/reset_password', function () {
-//         return view('auth.reset_password');
-//     })->name('reset_password');
-// });
-
-Route::prefix('auth')->name('auth.')->group(function () {
-    // Register
-    Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
-    Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
-=======
 // Nhóm route auth
 Route::prefix('auth')->name('auth.')->group(function () {
     Route::get('/login', function () {
@@ -269,14 +245,10 @@ Route::prefix('auth')->name('auth.')->group(function () {
 
     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register.form');
     Route::post('/register', [AuthController::class, 'register'])->name('register');
->>>>>>> a1274ec5cb09e0aea0f5f3982f1aa42bad213afe
 
-    // Login
-    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
-
-    // Logout (tiện kiểm thử)
-    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/reset_password', function () {
+        return view('auth.reset_password');
+    })->name('reset_password');
 });
 
 // Nhóm route customer
