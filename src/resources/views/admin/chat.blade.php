@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Quản Lý Khách Hàng - Admin</title>
+    <title>Hỗ trợ khách hàng - Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ url('css/app.css') }}">
+
 </head>
-<body class="bg-gray-50 h-full">
+<body class="bg-gray-50 font-sans">
 
     <div class="flex h-full">
         <!-- Sidebar danh sách khách hàng -->

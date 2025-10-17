@@ -217,6 +217,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         return view('admin.inventory');
     })->name('inventory');
 
+    Route::get('/order', function () {
+        return view('admin.order');
+    })->name('order');
+
     Route::get('/payments_gateway', function () {
         return view('admin.payments_gateway');
     })->name('payments_gateway');
@@ -233,6 +237,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         return view('admin.warranties');
     })->name('warranties');
 });
+
 
 // Nhóm route auth
 Route::prefix('auth')->name('auth.')->group(function () {

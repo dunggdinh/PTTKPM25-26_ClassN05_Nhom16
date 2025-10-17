@@ -198,33 +198,82 @@
     </div>
     
     <!-- Main Content Area -->
-    <div class="ml-64 min-h-full transition-all duration-300 ease-in-out pt-16">
         
-        <!-- Main Content -->
-        <main class="p-6">
-            <div class="bg-white rounded-lg shadow-sm p-8 text-center">
-                <div class="text-6xl mb-4">🛍️</div>
-                <h3 class="text-2xl font-bold text-gray-800 mb-2">Chào mừng đến với ElectroStore!</h3>
-                <p class="text-gray-600 mb-6">Khám phá những sản phẩm điện tử tuyệt vời nhất với giá cả hợp lý</p>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                    <div class="bg-blue-50 p-6 rounded-lg">
-                        <div class="text-3xl mb-3">📱</div>
-                        <h4 class="font-semibold text-gray-800 mb-2">Điện thoại</h4>
-                        <p class="text-sm text-gray-600">Smartphone mới nhất</p>
-                    </div>
-                    <div class="bg-green-50 p-6 rounded-lg">
-                        <div class="text-3xl mb-3">💻</div>
-                        <h4 class="font-semibold text-gray-800 mb-2">Laptop</h4>
-                        <p class="text-sm text-gray-600">Máy tính xách tay</p>
-                    </div>
-                    <div class="bg-purple-50 p-6 rounded-lg">
-                        <div class="text-3xl mb-3">🎧</div>
-                        <h4 class="font-semibold text-gray-800 mb-2">Phụ kiện</h4>
-                        <p class="text-sm text-gray-600">Tai nghe, sạc, ốp lưng</p>
-                    </div>
-                </div>
-            </div>
-        </main>
+    <main id="mainContent" class="ml-64 w-[calc(100%-16rem)] min-h-screen p-8 pt-24 transition-all bg-gray-50">
+
+        <div class="text-center py-20 text-gray-500">Đang tải ...</div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPath = window.location.pathname;
+            const menuMap = {
+                '/customer/home': 'Trang chủ',
+                '/customer/promotion': 'Khuyến mãi',
+                '/customer/store': 'Sản phẩm',
+                '/customer/cart': 'Giỏ hàng',
+                '/customer/order': 'Đơn hàng',
+                '/customer/review': 'Đánh giá sản phẩm',
+                '/customer/support': 'Hỗ trợ khách hàng',
+                '/customer/profile': 'Hồ sơ của tôi'
+            };
+
+            const menuName = menuMap[currentPath] || 'Trang chủ';
+            updateMainContent(menuName, false);
+        });
+
+        async function updateMainContent(menuName, pushState = true) {
+            const main = document.getElementById('mainContent');
+            const routes = {
+                'Trang chủ': '/customer/home',
+                'Khuyến mãi': '/customer/promotion',
+                'Sản phẩm': '/customer/store',
+                'Giỏ hàng': '/customer/cart',
+                'Đơn hàng': '/customer/order',
+                'Đánh giá sản phẩm': '/customer/review',
+                'Hỗ trợ khách hàng': '/customer/support',
+                'Hồ sơ của tôi': '/customer/profile'
+            };
+
+            const url = routes[menuName];
+            if (!url) {
+                main.innerHTML = '<div class="p-6 text-gray-500">Không tìm thấy nội dung.</div>';
+                return;
+            }
+
+            main.innerHTML = '<div class="text-center py-20 text-gray-500 animate-pulse">Đang tải...</div>';
+
+            try {
+                const response = await fetch(url);
+                const html = await response.text();
+                main.innerHTML = html;
+                if (pushState) history.pushState({ menuName }, '', url);
+            } catch {
+                main.innerHTML = '<div class="p-6 text-red-500">Lỗi tải nội dung.</div>';
+            }
+        }
+
+        // Xử lý khi click menu
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function () {
+                document.querySelectorAll('.menu-item').forEach(i => {
+                    i.classList.remove('text-blue-600', 'active');
+                    i.classList.add('text-gray-700');
+                });
+                this.classList.add('text-blue-600', 'active');
+                const menuText = this.querySelector('span:last-child').textContent.trim();
+                updateMainContent(menuText, true);
+            });
+        });
+
+        window.addEventListener('popstate', event => {
+            const menuName = event.state?.menuName || 'Trang chủ';
+            updateMainContent(menuName, false);
+        });
+    </script>
+
+
+</body>
     </div>
     
     <script>
