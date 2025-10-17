@@ -201,9 +201,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         return view('admin.dashboard');
     })->name('dashboard');
 
-    Route::get('/chat', function () {
-        return view('admin.chat');
-    })->name('chat');
+    Route::get('/support', function () {
+        return view('admin.support');
+    })->name('support');
 
     Route::get('/customer', function () {
         return view('admin.customer');

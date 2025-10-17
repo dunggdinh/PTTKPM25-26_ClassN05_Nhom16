@@ -98,7 +98,6 @@
             <div class="menu-item active flex items-center px-6 py-4 text-blue-700 cursor-pointer">
                 <span class="mr-4 text-lg">📊</span>
                 <span class="font-medium text-base">Dashboard</span>
-                <div class="ml-auto w-2 h-2 bg-blue-600 rounded-full"></div>
             </div>
 
             <!-- Quản lý người dùng -->
@@ -131,13 +130,10 @@
                 <span class="text-base">Quản lý thanh toán</span>
             </div>
 
-            <!-- Tin nhắn khách hàng -->
+            <!-- Hỗ trợ khách hàng -->
             <div class="menu-item flex items-center px-6 py-4 text-gray-700 cursor-pointer">
                 <span class="mr-4 text-lg">💬</span>
                 <span class="text-base">Hỗ trợ khách hàng</span>
-                <div class="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                    5
-                </div>
             </div>
 
             <!-- Báo cáo & thống kê -->
@@ -165,7 +161,7 @@
                 '/admin/order': 'Quản lý đơn hàng',
                 '/admin/return': 'Đổi/Trả hàng',
                 '/admin/payments_gateway': 'Quản lý thanh toán', // ✅ sửa lại
-                '/admin/chat': 'Hỗ trợ khách hàng',
+                '/admin/support': 'Hỗ trợ khách hàng',
                 '/admin/report': 'Báo cáo & thống kê',
             };
 
@@ -183,7 +179,7 @@
                 'Quản lý đơn hàng': '/admin/order',
                 'Đổi/Trả hàng': '/admin/return',
                 'Quản lý thanh toán': '/admin/payments_gateway', // ✅ sửa ở đây
-                'Hỗ trợ khách hàng': '/admin/chat',
+                'Hỗ trợ khách hàng': '/admin/support',
                 'Báo cáo & thống kê': '/admin/report'
             };
 
