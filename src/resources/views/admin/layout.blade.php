@@ -130,6 +130,12 @@
                 <span class="text-base">Quản lý thanh toán</span>
             </div>
 
+            <!-- Quản lý lô hàng nhập -->
+            <div class="menu-item flex items-center px-6 py-4 text-gray-700 cursor-pointer">
+                <span class="mr-4 text-lg">🚚</span>
+                <span class="text-base">Quản lý lô hàng nhập</span>
+            </div>
+
             <!-- Hỗ trợ khách hàng -->
             <div class="menu-item flex items-center px-6 py-4 text-gray-700 cursor-pointer">
                 <span class="mr-4 text-lg">💬</span>
@@ -160,7 +166,8 @@
                 '/admin/inventory': 'Quản lý kho',
                 '/admin/order': 'Quản lý đơn hàng',
                 '/admin/return': 'Đổi/Trả hàng',
-                '/admin/payments_gateway': 'Quản lý thanh toán', // ✅ sửa lại
+                '/admin/payments_gateway': 'Quản lý thanh toán', 
+                '/admin/deliveries': 'Quản lý lô hàng nhập',
                 '/admin/support': 'Hỗ trợ khách hàng',
                 '/admin/report': 'Báo cáo & thống kê',
             };
@@ -178,7 +185,8 @@
                 'Quản lý kho': '/admin/inventory',
                 'Quản lý đơn hàng': '/admin/order',
                 'Đổi/Trả hàng': '/admin/return',
-                'Quản lý thanh toán': '/admin/payments_gateway', // ✅ sửa ở đây
+                'Quản lý thanh toán': '/admin/payments_gateway',
+                'Quản lý lô hàng nhập': '/admin/deliveries',
                 'Hỗ trợ khách hàng': '/admin/support',
                 'Báo cáo & thống kê': '/admin/report'
             };
