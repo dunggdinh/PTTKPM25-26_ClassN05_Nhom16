@@ -196,9 +196,9 @@ Route::get('/customer', function () {
 // Nhóm route admin (gộp lại)
 Route::prefix('admin')->name('admin.')->group(function () {
 
-    Route::get('/home', function () {
-        return view('admin.home');
-    })->name('home');
+    Route::get('/layout', function () {
+        return view('admin.layout');
+    })->name('layout');
 
     Route::get('/dashboard', function () {
         return view('admin.dashboard');

@@ -1,5 +1,5 @@
 /* ============================================================
-   APP.CSS + Global Snippets Merged
+   MERGED CSS: Global + App + Order Card
    ============================================================ */
 
 /* ===== Font Import ===== */
@@ -19,6 +19,7 @@ body {
 }
 
 /* ===== Cards ===== */
+.order-card,
 .register-card,
 .login-card,
 .reset-card,
@@ -44,6 +45,11 @@ body {
 .login-card,
 .reset-card { backdrop-filter: blur(10px); }
 
+.order-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
 .card-hover:hover,
 .product-card:hover,
 .review-card:hover,
@@ -57,7 +63,6 @@ body {
 .promotion-card:hover { box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
 
 /* ===== Product Cards & Category Icons ===== */
-.product-card:hover { transform: translateY(-4px); }
 .category-icon { transition: transform 0.3s ease; }
 .category-icon:hover { transform: scale(1.1); }
 
@@ -70,7 +75,6 @@ body {
 .star-rating { display: flex; gap: 4px; color: #fbbf24; }
 .star { cursor: pointer; font-size: 24px; color: #d1d5db; transition: color 0.2s; }
 .star.active, .star.hover { color: #fbbf24; }
-
 .review-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
 .progress-bar { transition: width 0.3s ease; }
 
@@ -126,7 +130,7 @@ body {
 .loading { animation: spin 1s linear infinite; }
 
 @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
-.notification-badge, .online-indicator { animation: pulse 2s infinite; }
+.status-badge, .notification-badge, .online-indicator { animation: pulse 2s infinite; }
 .pulse-warning { animation: pulseWarning 2s infinite; }
 @keyframes pulseWarning { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 
