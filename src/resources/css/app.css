@@ -1,5 +1,5 @@
 /* ============================================================
-   MERGED CSS: Global + App + Order Card
+   MERGED CSS: Global + App + Order Card + Header/Menu
    ============================================================ */
 
 /* ===== Font Import ===== */
@@ -16,6 +16,38 @@ body {
 .gradient-header,
 .banner-gradient {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+/* ===== Sidebar ===== */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 4rem; /* trừ header */
+    width: 16rem; /* 64 = 16rem */
+    height: calc(100% - 4rem);
+    background: linear-gradient(180deg, #667eea 0%, #764ba2 100%); /* gradient đẹp */
+    box-shadow: 2px 0 12px rgba(0,0,0,0.15);
+    z-index: 10;
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Menu item hover/active */
+.sidebar .menu-item {
+    transition: all 0.3s ease;
+    color: #e0e0e0;
+}
+.sidebar .menu-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateX(4px);
+}
+.sidebar .menu-item.active {
+    background: rgba(255, 255, 255, 0.25);
+    border-right: 4px solid #ffffff;
+    color: #ffffff;
+}
+.sidebar .menu-divider {
+    height: 2px;
+    margin: 0.5rem 0;
+    background-color: rgba(255,255,255,0.1);
 }
 
 /* ===== Cards ===== */
@@ -170,10 +202,21 @@ body {
 
 /* ===== Sidebar / Menu ===== */
 .sidebar-item, .nav-item, .menu-item { transition: all 0.3s ease; position:relative; }
-.sidebar-item:hover, .sidebar-item.active, .nav-item:hover { color:white; background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); transform:translateX(5px); box-shadow:2px 2px 10px rgba(0,0,0,0.1); }
+.sidebar-item:hover, .sidebar-item.active, .nav-item:hover { 
+    color:white; 
+    background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); 
+    transform:translateX(5px); 
+    box-shadow:2px 2px 10px rgba(0,0,0,0.1); 
+}
 .nav-item:hover i { color:white; }
-.menu-item:hover { background-color:#f0f9ff; transform:translateX(4px); }
-.menu-item.active { background-color:#dbeafe; border-right:4px solid #3b82f6; }
+.menu-item:hover { 
+    background-color: rgba(255, 255, 255, 0.15); 
+    transform:translateX(4px); 
+}
+.menu-item.active { 
+    background-color: rgba(255, 255, 255, 0.25); 
+    border-right: 4px solid #ffffff; 
+}
 
 /* ===== Quantity Buttons ===== */
 .quantity-btn { transition: all 0.2s ease; }
@@ -232,27 +275,12 @@ body {
 .dropdown.show { opacity:1; visibility:visible; transform:translateY(0); }
 
 /* ===== Order Status Colors (Tailwind-inspired) ===== */
-.status-pending {
-    background-color: #fef3c7; /* bg-yellow-100 */
-    color: #92400e; /* text-yellow-800 */
-}
+.status-pending { background-color: #fef3c7; color: #92400e; }
+.status-processing { background-color: #dbeafe; color: #1e3a8a; }
+.status-shipped { background-color: #ede9fe; color: #5b21b6; }
+.status-delivered { background-color: #d1fae5; color: #065f46; }
+.status-cancelled { background-color: #fee2e2; color: #991b1b; }
 
-.status-processing {
-    background-color: #dbeafe; /* bg-blue-100 */
-    color: #1e3a8a; /* text-blue-800 */
-}
-
-.status-shipped {
-    background-color: #ede9fe; /* bg-purple-100 */
-    color: #5b21b6; /* text-purple-800 */
-}
-
-.status-delivered {
-    background-color: #d1fae5; /* bg-green-100 */
-    color: #065f46; /* text-green-800 */
-}
-
-.status-cancelled {
-    background-color: #fee2e2; /* bg-red-100 */
-    color: #991b1b; /* text-red-800 */
-}
+/* ===== Notification Badge Pulse ===== */
+.notification-badge { animation: pulse 2s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
