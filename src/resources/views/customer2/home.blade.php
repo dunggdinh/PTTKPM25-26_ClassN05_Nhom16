@@ -1,5 +1,3 @@
-<?php
-echo '
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -7,27 +5,7 @@ echo '
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TechStore - Cửa hàng điện tử</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            box-sizing: border-box;
-        }
-        .product-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-        .banner-gradient {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .category-icon {
-            transition: transform 0.3s ease;
-        }
-        .category-icon:hover {
-            transform: scale(1.1);
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url('css/app.css') }}">
 </head>
 <body class="bg-gray-50">
     <main class="max-w-7xl mx-auto px-4 py-8">
@@ -352,5 +330,3 @@ echo '
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement(\'script\');d.innerHTML="window.__CF$cv$params={r:\'98f5adea973e0eeb\',t:\'MTc2MDU5ODAyOC4wMDAwMDA=\'};var a=document.createElement(\'script\');a.nonce=\'\';a.src=\'/cdn-cgi/challenge-platform/scripts/jsd/main.js\';document.getElementsByTagName(\'head\')[0].appendChild(a);";b.getElementsByTagName(\'head\')[0].appendChild(d)}}if(document.body){var a=document.createElement(\'iframe\');a.height=1;a.width=1;a.style.position=\'absolute\';a.style.top=0;a.style.left=0;a.style.border=\'none\';a.style.visibility=\'hidden\';document.body.appendChild(a);if(\'loading\'!==document.readyState)c();else if(window.addEventListener)document.addEventListener(\'DOMContentLoaded\',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);\'loading\'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
 
-';
-?>

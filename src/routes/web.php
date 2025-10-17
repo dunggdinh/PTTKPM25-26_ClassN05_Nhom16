@@ -195,6 +195,7 @@ Route::get('/customer', function () {
 
 // Nhóm route admin (gộp lại)
 Route::prefix('admin')->name('admin.')->group(function () {
+
     Route::get('/home', function () {
         return view('admin.home');
     })->name('home');
@@ -207,14 +208,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         return view('admin.chat');
     })->name('chat');
 
-    // Thêm route /customer để render admin.customer.blade.php
     Route::get('/customer', function () {
         return view('admin.customer');
     })->name('customer');
-
-    Route::get('/customers', function () {
-        return view('admin.customers'); // Nếu có file customers.blade.php riêng
-    })->name('customers');
 
     Route::get('/deliveries', function () {
         return view('admin.deliveries');
@@ -224,33 +220,21 @@ Route::prefix('admin')->name('admin.')->group(function () {
         return view('admin.inventory');
     })->name('inventory');
 
-    Route::get('/payments-gateway', function () {
+    Route::get('/payments_gateway', function () {
         return view('admin.payments_gateway');
     })->name('payments_gateway');
 
-    Route::get('/products', function () {
-        return view('admin.products');
-    })->name('products');
+    Route::get('/report', function () {
+        return view('admin.report');
+    })->name('report');
 
     Route::get('/returns', function () {
         return view('admin.returns');
     })->name('returns');
 
-    Route::get('/staff', function () {
-        return view('admin.staff');
-    })->name('staff');
-
-    Route::get('/stock-alerts', function () {
-        return view('admin.stock-alerts');
-    })->name('stock-alerts');
-
     Route::get('/warranties', function () {
         return view('admin.warranties');
     })->name('warranties');
-
-    Route::get('/report', function () {
-        return view('admin.report');
-    })->name('report');
 });
 
 // Nhóm route auth
@@ -268,42 +252,43 @@ Route::prefix('auth')->name('auth.')->group(function () {
 });
 
 // Nhóm route customer
-Route::prefix('customer')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('customer.dashboard');
-
-    Route::get('/cart', function () {
-        return view('cart');
-    })->name('customer.cart');
+Route::prefix('customer')->name('customer.')->group(function () {
 
     Route::get('/home', function () {
-        return view('home');
-    })->name('customer.home');
+        return view('customer2.home');
+    })->name('home');
 
-    Route::get('/orders', function () {
-        return view('order');
-    })->name('customer.orders');
+    Route::get('/cart', function () {
+        return view('customer.cart');
+    })->name('cart');
+
+    Route::get('/layout', function () {
+        return view('customer.layout');
+    })->name('layout');
+
+    Route::get('/order', function () {
+        return view('customer.order');
+    })->name('order');
 
     Route::get('/profile', function () {
-        return view('profile');
-    })->name('customer.profile');
+        return view('customer.profile');
+    })->name('profile');
 
     Route::get('/promotion', function () {
-        return view('promotion');
-    })->name('customer.promotion');
+        return view('customer.promotion');
+    })->name('promotion');
 
     Route::get('/review', function () {
-        return view('review');
-    })->name('customer.review');
+        return view('customer.review');
+    })->name('review');
 
     Route::get('/store', function () {
-        return view('store');
-    })->name('customer.store');
+        return view('customer.store');
+    })->name('store');
 
     Route::get('/support', function () {
-        return view('support');
-    })->name('customer.support');
+        return view('customer.support');
+    })->name('support');
 });
 
 // Route test (có thể xóa nếu không cần)
