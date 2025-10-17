@@ -255,7 +255,7 @@ Route::prefix('auth')->name('auth.')->group(function () {
 Route::prefix('customer')->name('customer.')->group(function () {
 
     Route::get('/home', function () {
-        return view('customer2.home');
+        return view('customer.home');
     })->name('home');
 
     Route::get('/cart', function () {

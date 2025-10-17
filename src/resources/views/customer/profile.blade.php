@@ -1,5 +1,3 @@
-<?php
-echo '
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -7,21 +5,7 @@ echo '
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hồ Sơ Cá Nhân - TechStore</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            box-sizing: border-box;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .tab-button.active {
-            background-color: #3b82f6;
-            color: white;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url('css/app.css') }}">
 </head>
 <body class="bg-gray-50 min-h-screen">
     <main class="max-w-6xl mx-auto p-6">
@@ -325,6 +309,3 @@ echo '
     </script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement(\'script\');d.innerHTML="window.__CF$cv$params={r:\'98f5dfeab2b50eeb\',t:\'MTc2MDYwMDA3Ni4wMDAwMDA=\'};var a=document.createElement(\'script\');a.nonce=\'\';a.src=\'/cdn-cgi/challenge-platform/scripts/jsd/main.js\';document.getElementsByTagName(\'head\')[0].appendChild(a);";b.getElementsByTagName(\'head\')[0].appendChild(d)}}if(document.body){var a=document.createElement(\'iframe\');a.height=1;a.width=1;a.style.position=\'absolute\';a.style.top=0;a.style.left=0;a.style.border=\'none\';a.style.visibility=\'hidden\';document.body.appendChild(a);if(\'loading\'!==document.readyState)c();else if(window.addEventListener)document.addEventListener(\'DOMContentLoaded\',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);\'loading\'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
-
-';
-?>
