@@ -6,6 +6,7 @@
     <title>ElectroStore - Amin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ url('css/app.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-50 font-sans">
     <!-- Header Bar -->
@@ -153,8 +154,7 @@
     <!-- Main Content Area -->
         
     <main id="mainContent" class="ml-64 w-[calc(100%-16rem)] min-h-screen p-8 pt-24 transition-all bg-gray-50">
-
-        <div class="text-center py-20 text-gray-500">Đang tải ...</div>
+        @yield('content')
     </main>
 
     <script>
