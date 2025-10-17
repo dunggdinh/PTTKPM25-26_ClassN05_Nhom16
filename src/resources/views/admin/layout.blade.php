@@ -170,7 +170,7 @@
         <!-- Main Content -->
         <main class="p-6 h-full pt-24">
         <!-- Dashboard Title -->
-            @include('admin.dashboard') 
+            @include('admin.customer') 
         </main>
     </div>
 
