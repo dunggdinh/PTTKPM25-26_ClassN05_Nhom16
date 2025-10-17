@@ -27,7 +27,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Tổng lô hàng</p>
-                        <p class="text-2xl font-semibold text-gray-900">156</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $totalDeliveries }}</p>
                     </div>
                 </div>
             </div>
@@ -41,7 +41,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Đã nhập kho</p>
-                        <p class="text-2xl font-semibold text-gray-900">142</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $completedDeliveries }}</p>
                     </div>
                 </div>
             </div>
@@ -55,7 +55,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Đang chờ</p>
-                        <p class="text-2xl font-semibold text-gray-900">14</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $pendingDeliveries }}</p>
                     </div>
                 </div>
             </div>
@@ -69,13 +69,21 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Tổng giá trị</p>
-                        <p class="text-2xl font-semibold text-gray-900">2.4B VNĐ</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ number_format($totalValue, 0, ',', '.') }} VNĐ</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Controls -->
+        // Them
+        <form id="exportForm" action="{{ route('admin.deliveries.export') }}" method="POST">
+            @csrf
+            <input type="hidden" name="selectedIds" id="selectedIds">
+            <input type="hidden" name="currentPageIds" id="currentPageIds" value="{{ $deliveries->pluck('id')->toJson() }}">
+        </form>
+        // Moi
+
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div class="flex flex-col sm:flex-row gap-4">
@@ -139,7 +147,36 @@
                         </tr>
                     </thead>
                     <tbody id="shipmentTable" class="bg-white divide-y divide-gray-200">
-                        <!-- Data will be populated by JavaScript -->
+                        @foreach($deliveries as $delivery)
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <input type="checkbox" class="shipment-checkbox text-blue-600 focus:ring-blue-500 w-4 h-4" value="{{ $delivery->id }}">
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $delivery->code }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $delivery->supplier }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $delivery->product }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $delivery->quantity }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ number_format($delivery->value, 0, ',', '.') }} VNĐ</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ \Carbon\Carbon::parse($delivery->date)->format('d/m/Y') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 py-1 text-xs rounded-full 
+                                        {{ $delivery->status == 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+                                        $delivery->status == 'completed' ? 'bg-green-100 text-green-800' : 
+                                        'bg-red-100 text-red-800' }}">
+                                        {{ $delivery->status == 'pending' ? 'Đang chờ' : 
+                                        $delivery->status == 'completed' ? 'Đã nhập kho' : 'Đã hủy' }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <a href="{{ route('admin.deliveries.edit', $delivery->id) }}" class="text-blue-600 hover:text-blue-800">Sửa</a>
+                                    <form action="{{ route('admin.deliveries.destroy', $delivery->id) }}" method="POST" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-600 hover:text-red-800 ml-3" onclick="return confirm('Bạn có chắc muốn xóa lô hàng này?')">Xóa</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>

@@ -189,6 +189,11 @@ use Illuminate\Support\Facades\Response;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PaymentController;
 
+use App\Http\Controllers\ShipmentController;
+use App\Http\Controllers\Admin\DeliveryController;
+use App\Http\Controllers\InventoryController;
+
+
 
 // Nhóm route admin (gộp lại)
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -330,3 +335,34 @@ Route::get('/checkout', function () {
 });
 Route::post('/vnpay-payment', [PaymentController::class, 'createPayment']);
 Route::get('/vnpay-return', [PaymentController::class, 'returnPayment']);
+
+
+// Shipment 
+Route::get('/deliveries', [ShipmentController::class, 'index'])->name('deliveries.index');
+Route::post('/shipments', [ShipmentController::class, 'store'])->name('shipments.store');
+Route::get('/shipments/{id}', [ShipmentController::class, 'show'])->name('shipments.show');
+Route::put('/shipments/{id}', [ShipmentController::class, 'update'])->name('shipments.update');
+Route::delete('/shipments/{id}', [ShipmentController::class, 'destroy'])->name('shipments.destroy');
+Route::post('/shipments/export', [ShipmentController::class, 'export'])->name('shipments.export');
+
+
+// Deli
+Route::prefix('admin')->group(function () {
+    Route::get('/deliveries', [DeliveryController::class, 'index'])->name('admin.deliveries.index');
+    Route::get('/deliveries/create', [DeliveryController::class, 'create'])->name('admin.deliveries.create');
+    Route::post('/deliveries', [DeliveryController::class, 'store'])->name('admin.deliveries.store');
+    Route::get('/deliveries/{id}/edit', [DeliveryController::class, 'edit'])->name('admin.deliveries.edit');
+    Route::put('/deliveries/{id}', [DeliveryController::class, 'update'])->name('admin.deliveries.update');
+    Route::delete('/deliveries/{id}', [DeliveryController::class, 'destroy'])->name('admin.deliveries.destroy');
+    Route::post('/deliveries/export', [DeliveryController::class, 'export'])->name('admin.deliveries.export');
+});
+
+
+// Inventory
+Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+Route::get('/api/inventory/products', [InventoryController::class, 'getProducts']);
+Route::get('/api/inventory/alerts', [InventoryController::class, 'getAlerts']);
+Route::get('/api/inventory/product/{id}', [InventoryController::class, 'getProductDetails']);
+Route::put('/api/inventory/product/{id}', [InventoryController::class, 'updateStock']);
+Route::delete('/api/inventory/product/{id}', [InventoryController::class, 'delete']);
+Route::post('/api/inventory/export', [InventoryController::class, 'export']);
