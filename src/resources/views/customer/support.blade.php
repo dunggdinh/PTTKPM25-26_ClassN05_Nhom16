@@ -2,29 +2,15 @@
 @section('title', 'Hỗ trợ khách hàng')
 
 @section('content')
-<body class="ml-64 w-[calc(100%-16rem)] min-h-screen p-8 pt-24 transition-all bg-gradient-to-br from-blue-50 to-indigo-100">
+<div class="bg-gradient-to-br from-blue-50 to-indigo-100">
     <main class="container mx-auto px-4 py-8 max-w-6xl">
         <!-- Header -->
         <header class="mb-8">
             <h1 class="text-3xl font-bold text-gray-800 mb-2">Trung Tâm Hỗ Trợ Khách Hàng</h1>
             <p class="text-gray-600">Chúng tôi luôn sẵn sàng hỗ trợ bạn 24/7</p>
+            <p class="text-gray-600 font-bold">Hotline: 0852541711</p>
         </header>
 
-        <!-- Tab Navigation -->
-        <nav class="flex bg-white rounded-xl shadow-lg mb-8 overflow-hidden border border-gray-100">
-            <button id="chatTab" class="flex-1 py-5 px-8 bg-blue-600 text-white font-semibold transition-all duration-300 hover:bg-blue-700 relative">
-                <span class="flex items-center justify-center space-x-2">
-                    <span>💬</span>
-                    <span>Chat Trực Tiếp</span>
-                </span>
-            </button>
-            <button id="requestTab" class="flex-1 py-5 px-8 bg-gray-50 text-gray-700 font-semibold hover:bg-gray-100 transition-all duration-300 relative">
-                <span class="flex items-center justify-center space-x-2">
-                    <span>📝</span>
-                    <span>Gửi Yêu Cầu</span>
-                </span>
-            </button>
-        </nav>
 
         <!-- Chat Section -->
         <section id="chatSection" class="bg-white rounded-xl shadow-xl border border-gray-100">
@@ -39,7 +25,7 @@
                                     <span class="text-xl">👨‍💼</span>
                                 </div>
                                 <div>
-                                    <h3 class="font-bold text-lg">Tư Vấn Viên Minh</h3>
+                                    <h3 class="font-bold text-lg">Tư Vấn Triệu Quân Sự</h3>
                                     <div class="flex items-center space-x-2">
                                         <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                                         <p class="text-sm text-blue-100">Đang trực tuyến</p>
@@ -82,61 +68,6 @@
                         </form>
                     </div>
                 </div>
-
-                <!-- Quick Actions Sidebar -->
-                <aside class="w-80 bg-gradient-to-b from-gray-50 to-gray-100 border-l border-gray-200 p-6">
-                    <h4 class="font-bold text-gray-800 mb-6 text-lg">Hỗ Trợ Nhanh</h4>
-                    <div class="space-y-3">
-                        <button class="quick-action w-full text-left p-4 bg-white rounded-xl shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-200 border border-gray-100" data-message="Tôi muốn kiểm tra tình trạng đơn hàng">
-                            <div class="flex items-center space-x-3">
-                                <span class="text-2xl">📦</span>
-                                <span class="font-medium">Kiểm tra đơn hàng</span>
-                            </div>
-                        </button>
-                        <button class="quick-action w-full text-left p-4 bg-white rounded-xl shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-200 border border-gray-100" data-message="Tôi cần hỗ trợ đổi trả sản phẩm">
-                            <div class="flex items-center space-x-3">
-                                <span class="text-2xl">🔄</span>
-                                <span class="font-medium">Đổi trả sản phẩm</span>
-                            </div>
-                        </button>
-                        <button class="quick-action w-full text-left p-4 bg-white rounded-xl shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-200 border border-gray-100" data-message="Tôi có vấn đề với thanh toán">
-                            <div class="flex items-center space-x-3">
-                                <span class="text-2xl">💳</span>
-                                <span class="font-medium">Vấn đề thanh toán</span>
-                            </div>
-                        </button>
-                        <button class="quick-action w-full text-left p-4 bg-white rounded-xl shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-200 border border-gray-100" data-message="Tôi cần tư vấn sản phẩm">
-                            <div class="flex items-center space-x-3">
-                                <span class="text-2xl">🛍️</span>
-                                <span class="font-medium">Tư vấn sản phẩm</span>
-                            </div>
-                        </button>
-                        <button class="quick-action w-full text-left p-4 bg-white rounded-xl shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-200 border border-gray-100" data-message="Tôi cần hỗ trợ kỹ thuật">
-                            <div class="flex items-center space-x-3">
-                                <span class="text-2xl">🔧</span>
-                                <span class="font-medium">Hỗ trợ kỹ thuật</span>
-                            </div>
-                        </button>
-                    </div>
-
-                    <div class="mt-8 p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
-                        <h5 class="font-bold text-blue-800 mb-4 text-lg">Liên Hệ Khác</h5>
-                        <div class="space-y-3 text-sm">
-                            <div class="flex items-center space-x-3 text-blue-700">
-                                <span class="text-lg">☎️</span>
-                                <span class="font-medium">Hotline: 1900-1234</span>
-                            </div>
-                            <div class="flex items-center space-x-3 text-blue-700">
-                                <span class="text-lg">📧</span>
-                                <span class="font-medium">Email: support@shop.com</span>
-                            </div>
-                            <div class="flex items-center space-x-3 text-blue-700">
-                                <span class="text-lg">🕒</span>
-                                <span class="font-medium">Giờ làm việc: 8:00 - 22:00</span>
-                            </div>
-                        </div>
-                    </div>
-                </aside>
             </div>
         </section>
 

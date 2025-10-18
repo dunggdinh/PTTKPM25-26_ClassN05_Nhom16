@@ -2,7 +2,7 @@
 @section('title', 'Đơn hàng')
 
 @section('content')
-<body class="ml-64 w-[calc(100%-16rem)] min-h-screen p-8 pt-24 transition-all bg-gradient-to-br from-blue-50 to-indigo-100">
+<div class="bg-gradient-to-br from-blue-50 to-indigo-100">
     <main class="container mx-auto px-4 py-8 max-w-6xl">
         <!-- Header -->
         <header class="mb-8">
@@ -259,9 +259,11 @@
             </div>
         </div>
     </main>
+</div>
 
-    <!-- Order Details Modal -->
-    <div id="orderModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+
+<!-- Order Details Modal -->
+<div id="orderModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div class="p-6 border-b border-gray-200">
                 <div class="flex items-center justify-between">
@@ -280,6 +282,18 @@
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add event listeners for modal
+            const modal = document.getElementById('orderModal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeModal();
+                    }
+                });
+            }
+        });
+
         function filterOrders(status) {
             const orders = document.querySelectorAll('.order-card');
             const filterBtns = document.querySelectorAll('.filter-btn');
@@ -315,6 +329,9 @@
         function viewOrderDetails(orderId) {
             const modal = document.getElementById('orderModal');
             const modalContent = document.getElementById('modalContent');
+            
+            modal.classList.remove('hidden');
+            modal.querySelector('.bg-white').classList.add('modal-show');
             
             // Sample order details
             const orderDetails = {
@@ -377,7 +394,16 @@
         }
 
         function closeModal() {
-            document.getElementById('orderModal').classList.add('hidden');
+            const modal = document.getElementById('orderModal');
+            const modalContent = modal.querySelector('.bg-white');
+            modalContent.classList.remove('modal-show');
+            modalContent.classList.add('modal-hide');
+            
+            // Wait for animation to finish before hiding modal
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modalContent.classList.remove('modal-hide');
+            }, 300);
         }
 
         function cancelOrder(orderId) {
@@ -399,13 +425,5 @@
             alert(`Đã thêm các sản phẩm từ đơn hàng ${orderId} vào giỏ hàng!`);
         }
 
-        // Close modal when clicking outside
-        document.getElementById('orderModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
-            }
-        });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98fbea43f7633d96',t:'MTc2MDY2MzQxNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
-</html>
 @endsection

@@ -2,71 +2,79 @@
 @section('title', 'Đánh giá sản phẩm')
 
 @section('content')
-<body class="ml-64 w-[calc(100%-16rem)] min-h-screen p-8 pt-24 transition-all bg-gradient-to-br from-blue-50 to-indigo-100">
+<div class="bg-gradient-to-br from-blue-50 to-indigo-100">
     <main class="container mx-auto px-4 py-8 max-w-6xl">
-        <!-- Header sản phẩm -->
-        <header class="bg-white rounded-xl shadow-lg p-6 mb-8">
-            <div class="flex flex-col md:flex-row gap-6">
-                <div class="w-full md:w-1/3">
-                    <div class="bg-gray-100 rounded-lg p-8 text-center">
-                        <div class="text-6xl mb-4">📱</div>
-                        <h2 class="text-xl font-semibold text-gray-800">iPhone 15 Pro Max</h2>
-                        <p class="text-gray-600 mt-2">256GB - Titan Tự Nhiên</p>
+        <!-- Sản phẩm chờ đánh giá -->
+        <section class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">📦 Sản phẩm đã mua</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="purchasedProducts">
+                <!-- iPhone 15 Pro Max -->
+                <div class="product-card bg-white rounded-lg border hover:shadow-lg transition-shadow p-4">
+                    <div class="relative">
+                        <div class="bg-gray-100 rounded-lg p-4 text-center mb-4">
+                            <div class="text-4xl mb-2">📱</div>
+                            <h3 class="text-lg font-semibold text-gray-800">iPhone 15 Pro Max</h3>
+                            <p class="text-sm text-gray-600">256GB - Titan Tự Nhiên</p>
+                        </div>
+                        <div class="absolute top-2 right-2">
+                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded-full">Đã nhận hàng</span>
+                        </div>
                     </div>
+                    <div class="text-sm text-gray-600 mb-4">
+                        <p>Đơn hàng: #DH001234</p>
+                        <p>Ngày mua: 15/10/2025</p>
+                    </div>
+                    <button onclick="showReviewForm(this)" data-product-id="1" data-product-name="iPhone 15 Pro Max" 
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                        ✍️ Viết đánh giá
+                    </button>
                 </div>
-                <div class="w-full md:w-2/3">
-                    <h1 class="text-3xl font-bold text-gray-800 mb-4">Đánh giá sản phẩm</h1>
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="flex items-center">
-                            <span class="text-3xl font-bold text-yellow-500 mr-2">4.5</span>
-                            <div class="flex text-yellow-400">
-                                ⭐⭐⭐⭐⭐
-                            </div>
+
+                <!-- MacBook Air M3 -->
+                <div class="product-card bg-white rounded-lg border hover:shadow-lg transition-shadow p-4">
+                    <div class="relative">
+                        <div class="bg-gray-100 rounded-lg p-4 text-center mb-4">
+                            <div class="text-4xl mb-2">💻</div>
+                            <h3 class="text-lg font-semibold text-gray-800">MacBook Air M3</h3>
+                            <p class="text-sm text-gray-600">8GB RAM - 256GB SSD</p>
                         </div>
-                        <span class="text-gray-600">(248 đánh giá)</span>
-                    </div>
-                    
-                    <!-- Biểu đồ đánh giá -->
-                    <div class="space-y-2">
-                        <div class="flex items-center gap-3">
-                            <span class="text-sm w-8">5⭐</span>
-                            <div class="flex-1 bg-gray-200 rounded-full h-2">
-                                <div class="progress-bar bg-yellow-400 h-2 rounded-full" style="width: 65%"></div>
-                            </div>
-                            <span class="text-sm text-gray-600 w-12">161</span>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-sm w-8">4⭐</span>
-                            <div class="flex-1 bg-gray-200 rounded-full h-2">
-                                <div class="progress-bar bg-yellow-400 h-2 rounded-full" style="width: 25%"></div>
-                            </div>
-                            <span class="text-sm text-gray-600 w-12">62</span>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-sm w-8">3⭐</span>
-                            <div class="flex-1 bg-gray-200 rounded-full h-2">
-                                <div class="progress-bar bg-yellow-400 h-2 rounded-full" style="width: 8%"></div>
-                            </div>
-                            <span class="text-sm text-gray-600 w-12">20</span>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-sm w-8">2⭐</span>
-                            <div class="flex-1 bg-gray-200 rounded-full h-2">
-                                <div class="progress-bar bg-yellow-400 h-2 rounded-full" style="width: 2%"></div>
-                            </div>
-                            <span class="text-sm text-gray-600 w-12">3</span>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-sm w-8">1⭐</span>
-                            <div class="flex-1 bg-gray-200 rounded-full h-2">
-                                <div class="progress-bar bg-yellow-400 h-2 rounded-full" style="width: 1%"></div>
-                            </div>
-                            <span class="text-sm text-gray-600 w-12">2</span>
+                        <div class="absolute top-2 right-2">
+                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded-full">Đã nhận hàng</span>
                         </div>
                     </div>
+                    <div class="text-sm text-gray-600 mb-4">
+                        <p>Đơn hàng: #DH001235</p>
+                        <p>Ngày mua: 16/10/2025</p>
+                    </div>
+                    <button onclick="showReviewForm(this)" data-product-id="2" data-product-name="MacBook Air M3"
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                        ✍️ Viết đánh giá
+                    </button>
+                </div>
+
+                <!-- AirPods Pro 2 -->
+                <div class="product-card bg-white rounded-lg border hover:shadow-lg transition-shadow p-4">
+                    <div class="relative">
+                        <div class="bg-gray-100 rounded-lg p-4 text-center mb-4">
+                            <div class="text-4xl mb-2">🎧</div>
+                            <h3 class="text-lg font-semibold text-gray-800">AirPods Pro 2</h3>
+                            <p class="text-sm text-gray-600">Trắng</p>
+                        </div>
+                        <div class="absolute top-2 right-2">
+                            <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-1 rounded-full">Đang giao</span>
+                        </div>
+                    </div>
+                    <div class="text-sm text-gray-600 mb-4">
+                        <p>Đơn hàng: #DH001236</p>
+                        <p>Ngày mua: 17/10/2025</p>
+                    </div>
+                    <button disabled
+                            class="w-full bg-gray-300 text-gray-500 font-medium py-2 px-4 rounded-lg cursor-not-allowed">
+                        ⏳ Chờ nhận hàng
+                    </button>
                 </div>
             </div>
-        </header>
+        </section>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Form viết đánh giá -->
@@ -244,8 +252,8 @@
         let selectedRating = 0;
         
         // Xử lý đánh giá sao
-        const stars = document.querySelectorAll(\'.star\');
-        const ratingText = document.getElementById(\'ratingText\');
+        const stars = document.querySelectorAll('.star');
+        const ratingText = document.getElementById('ratingText');
         
         const ratingLabels = {
             1: \'Rất tệ\',
@@ -291,41 +299,61 @@
         }
         
         // Xử lý form gửi đánh giá
-        document.getElementById(\'reviewForm\').addEventListener(\'submit\', (e) => {
+        document.getElementById('reviewForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const name = document.getElementById(\'customerName\').value;
-            const title = document.getElementById(\'reviewTitle\').value;
-            const content = document.getElementById(\'reviewContent\').value;
+            const name = document.getElementById('customerName').value.trim();
+            const title = document.getElementById('reviewTitle').value.trim();
+            const content = document.getElementById('reviewContent').value.trim();
             
             if (!name || !title || !content || selectedRating === 0) {
-                showNotification(\'Vui lòng điền đầy đủ thông tin và chọn số sao!\', \'error\');
+                showNotification('Vui lòng điền đầy đủ thông tin và chọn số sao!', 'error');
                 return;
             }
             
             // Tạo đánh giá mới
-            const newReview = createReviewElement(name, title, content, selectedRating);
-            const reviewsList = document.getElementById(\'reviewsList\');
-            reviewsList.insertBefore(newReview, reviewsList.firstChild);
-            
-            // Reset form
-            document.getElementById(\'reviewForm\').reset();
-            selectedRating = 0;
-            updateStars();
-            ratingText.textContent = \'Chọn số sao\';
-            
-            showNotification(\'Cảm ơn bạn đã gửi đánh giá! 🎉\', \'success\');
+            createReviewElement(name, title, content, selectedRating).then(newReview => {
+                const reviewsList = document.getElementById('reviewsList');
+                
+                // Add fade-in animation
+                newReview.style.opacity = '0';
+                newReview.style.transform = 'translateY(-20px)';
+                reviewsList.insertBefore(newReview, reviewsList.firstChild);
+                
+                // Trigger animation
+                requestAnimationFrame(() => {
+                    newReview.style.opacity = '1';
+                    newReview.style.transform = 'translateY(0)';
+                });
+                
+                // Reset form
+                this.reset();
+                selectedRating = 0;
+                updateStars();
+                ratingText.textContent = 'Chọn số sao';
+                
+                showNotification('Cảm ơn bạn đã gửi đánh giá! 🎉', 'success');
+            });
         });
         
-        function createReviewElement(name, title, content, rating) {
-            const reviewDiv = document.createElement(\'div\');
-            reviewDiv.className = \'review-card border border-gray-200 rounded-lg p-6\';
+        async function createReviewElement(name, title, content, rating) {
+            const reviewDiv = document.createElement('div');
+            reviewDiv.className = 'review-card border border-gray-200 rounded-lg p-6';
             reviewDiv.dataset.stars = rating;
+            reviewDiv.style.transition = 'all 0.3s ease-out';
             
-            const stars = \'⭐\'.repeat(rating);
+            const stars = '⭐'.repeat(rating);
             const initial = name.charAt(0).toUpperCase();
-            const colors = [\'bg-blue-500\', \'bg-pink-500\', \'bg-green-500\', \'bg-purple-500\', \'bg-red-500\'];
+            const colors = ['bg-blue-500', 'bg-pink-500', 'bg-green-500', 'bg-purple-500', 'bg-red-500'];
             const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            // Format current date
+            const now = new Date();
+            const formattedDate = now.toLocaleDateString('vi-VN', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
             
             reviewDiv.innerHTML = `
                 <div class="flex items-start justify-between mb-3">
@@ -357,19 +385,38 @@
             return reviewDiv;
         }
         
-        function showNotification(message, type) {
-            const notification = document.createElement(\'div\');
-            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white font-semibold z-50 transform transition-all duration-300 ${
-                type === \'success\' ? \'bg-green-500\' : \'bg-red-500\'
-            }`;
-            notification.textContent = message;
+        function showNotification(message, type = 'success') {
+            // Remove existing notifications
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(notif => notif.remove());
+            
+            const notification = document.createElement('div');
+            notification.className = `notification fixed top-4 right-4 px-6 py-3 rounded-lg text-white font-semibold z-50 transform transition-all duration-300 ${
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            } translate-x-full`;
+            
+            // Add icon based on type
+            const icon = type === 'success' ? '✅' : '❌';
+            notification.innerHTML = `<div class="flex items-center gap-2">
+                <span>${icon}</span>
+                <span>${message}</span>
+            </div>`;
             
             document.body.appendChild(notification);
             
+            // Slide in
+            requestAnimationFrame(() => {
+                notification.style.transform = 'translateX(0)';
+            });
+            
+            // Slide out and remove
             setTimeout(() => {
-                notification.style.transform = \'translateX(100%)\';
+                notification.style.transform = 'translateX(100%)';
+                notification.style.opacity = '0';
                 setTimeout(() => {
-                    document.body.removeChild(notification);
+                    if (notification.parentNode) {
+                        document.body.removeChild(notification);
+                    }
                 }, 300);
             }, 3000);
         }
@@ -396,11 +443,23 @@
             // Đếm số đánh giá hiển thị
             const visibleReviews = reviews.filter(review => review.style.display !== \'none\').length;
             const filterText = filterValue === \'all\' ? \'tất cả đánh giá\' : `đánh giá ${filterValue} sao`;
-            showNotification(`Hiển thị ${visibleReviews} ${filterText}! ⭐`, \'success\');
+            showNotification(`Hiển thị ${visibleReviews} ${filterText}! ⭐`, 'success');
+            
+            // Animate filtered reviews
+            reviews.forEach(review => {
+                if (review.style.display === 'block') {
+                    review.style.opacity = '0';
+                    review.style.transform = 'translateY(20px)';
+                    setTimeout(() => {
+                        review.style.opacity = '1';
+                        review.style.transform = 'translateY(0)';
+                    }, 100);
+                }
+            });
         });
 
         // Xử lý sắp xếp đánh giá
-        document.getElementById(\'sortSelect\').addEventListener(\'change\', (e) => {
+        document.getElementById('sortSelect').addEventListener('change', (e) => {
             const sortType = e.target.value;
             const reviewsList = document.getElementById(\'reviewsList\');
             const reviews = Array.from(reviewsList.children).filter(review => review.style.display !== \'none\');

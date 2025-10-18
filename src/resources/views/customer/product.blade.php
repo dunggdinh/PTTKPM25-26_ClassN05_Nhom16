@@ -2,88 +2,55 @@
 @section('title', 'Sản phẩm')
 
 @section('content')
-<body class="ml-64 w-[calc(100%-16rem)] min-h-screen p-8 pt-24 transition-all bg-gray-50">
-    <!-- Main Layout with Sidebar -->
-    <div class="flex min-h-screen bg-gray-50">
-        <!-- Sidebar -->
-        <aside class="w-80 bg-white shadow-lg">
-            <div class="p-6">
-
-
-                <!-- Search -->
-                <div class="mb-6">
-                    <div class="relative">
-                        <input type="text" id="search-input" placeholder="Tìm kiếm sản phẩm..." 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                               onkeyup="searchProducts(event)">
-                        <button onclick="performSearch()" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-600 text-lg">
-                            🔍
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Cart -->
-                <div class="mb-6">
-                    <button onclick="showCart()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2">
-                        <span>🛒</span>
-                        <span>Giỏ hàng (<span id="cart-count">0</span>)</span>
+    <!-- Category Navigation Bar -->
+    <div class="bg-white shadow-sm mb-6">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between py-4">
+                <!-- Categories -->
+                <div class="flex space-x-6">
+                    <button data-category="all" class="category-nav-btn text-gray-600 hover:text-blue-600 font-medium flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-all">
+                        <span class="text-xl">📋</span>
+                        <span>Tất cả</span>
+                    </button>
+                    <button data-category="phone" class="category-nav-btn text-gray-600 hover:text-blue-600 font-medium flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-all">
+                        <span class="text-xl">📱</span>
+                        <span>Điện thoại</span>
+                    </button>
+                    <button data-category="laptop" class="category-nav-btn text-gray-600 hover:text-blue-600 font-medium flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-all">
+                        <span class="text-xl">💻</span>
+                        <span>Laptop</span>
+                    </button>
+                    <button data-category="tablet" class="category-nav-btn text-gray-600 hover:text-blue-600 font-medium flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-all">
+                        <span class="text-xl">📱</span>
+                        <span>Tablet</span>
+                    </button>
+                    <button data-category="accessory" class="category-nav-btn text-gray-600 hover:text-blue-600 font-medium flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-all">
+                        <span class="text-xl">🎧</span>
+                        <span>Phụ kiện</span>
+                    </button>
+                    <button data-category="watch" class="category-nav-btn text-gray-600 hover:text-blue-600 font-medium flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-all">
+                        <span class="text-xl">⌚</span>
+                        <span>Đồng hồ</span>
                     </button>
                 </div>
 
-                <h2 class="text-xl font-bold text-gray-800 mb-6">Danh mục sản phẩm</h2>
-                <nav class="space-y-2">
-                    <button onclick="showProductList()" class="w-full text-left px-4 py-3 bg-blue-50 text-blue-600 rounded-lg font-medium border-l-4 border-blue-600">
-                        📋 Tất cả sản phẩm
+                <!-- Search Bar -->
+                <div class="relative w-72">
+                    <input type="text" 
+                           id="nav-search-input"
+                           placeholder="Tìm kiếm sản phẩm..." 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                    >
+                    <button id="nav-search-btn" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-600">
+                        🔍
                     </button>
-                    <button onclick="filterByCategory(\'phone\')" class="w-full text-left px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-lg font-medium transition-colors">
-                        📱 Điện thoại
-                    </button>
-                    <button onclick="filterByCategory(\'laptop\')" class="w-full text-left px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-lg font-medium transition-colors">
-                        💻 Laptop
-                    </button>
-                    <button onclick="filterByCategory(\'accessory\')" class="w-full text-left px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-lg font-medium transition-colors">
-                        🎧 Phụ kiện
-                    </button>
-                </nav>
-                
-                <div class="mt-8">
-                    <h3 class="font-bold text-gray-800 mb-4">Lọc theo giá</h3>
-                    <div class="space-y-2">
-                        <label class="flex items-center">
-                            <input type="checkbox" class="mr-2" onchange="filterByPrice(\'under-10m\')">
-                            <span class="text-sm">Dưới 10 triệu</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" class="mr-2" onchange="filterByPrice(\'10m-20m\')">
-                            <span class="text-sm">10 - 20 triệu</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" class="mr-2" onchange="filterByPrice(\'over-20m\')">
-                            <span class="text-sm">Trên 20 triệu</span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="mt-8">
-                    <h3 class="font-bold text-gray-800 mb-4">Thương hiệu</h3>
-                    <div class="space-y-2">
-                        <label class="flex items-center">
-                            <input type="checkbox" class="mr-2" onchange="filterByBrand(\'apple\')">
-                            <span class="text-sm">Apple</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" class="mr-2" onchange="filterByBrand(\'samsung\')">
-                            <span class="text-sm">Samsung</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" class="mr-2" onchange="filterByBrand(\'xiaomi\')">
-                            <span class="text-sm">Xiaomi</span>
-                        </label>
-                    </div>
                 </div>
             </div>
-        </aside>
+        </div>
+    </div>
 
+    <!-- Main Layout with Sidebar -->
+    <div class="flex min-h-screen bg-gray-50">
         <!-- Main Content -->
         <main class="flex-1 p-8">
         <!-- Product List View -->
@@ -91,7 +58,7 @@
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-3xl font-bold text-gray-800">Sản phẩm nổi bật</h2>
                 <div class="flex items-center space-x-4">
-                    <select onchange="sortProducts(this.value)" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300">
+                    <select id="sort-select" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300">
                         <option value="default">Sắp xếp theo giá</option>
                         <option value="price-low">Giá thấp đến cao</option>
                         <option value="price-high">Giá cao đến thấp</option>
@@ -102,7 +69,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 <!-- Product Card 1 -->
-                <div class="product-card bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="product-card bg-white rounded-xl shadow-md overflow-hidden" data-product-id="1" data-category="phone" data-brand="apple" data-price="29990000">
                     <div class="relative">
                         <div class="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                             <span class="text-6xl">📱</span>
@@ -124,7 +91,7 @@
                             </div>
                             <span class="text-sm text-gray-600 ml-2">(128 đánh giá)</span>
                         </div>
-                        <button onclick="showProductDetail(1)" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition-colors">
+                        <button class="view-detail-btn w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition-colors">
                             Xem chi tiết
                         </button>
                     </div>
@@ -295,13 +262,27 @@
                             </div>
                         </div>
 
-                        <div class="space-y-3 mb-6">
-                            <button onclick="addToCart()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold text-lg transition-colors">
-                                Thêm vào giỏ hàng
+                        <div class="space-y-4 mb-6">
+                            <button onclick="purchaseNow()" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-4 rounded-lg font-bold text-lg transition-colors flex items-center justify-center gap-2">
+                                <span>🛒</span> Mua ngay
                             </button>
-                            <button class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-bold text-lg transition-colors">
-                                Mua ngay
-                            </button>
+                            <div class="grid grid-cols-2 gap-4">
+                                <button onclick="addToCartAndContinue()" class="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold transition-colors flex items-center justify-center gap-2">
+                                    <span>➕</span> Thêm vào giỏ
+                                </button>
+                                <button onclick="addToCartAndCheckout()" class="bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold transition-colors flex items-center justify-center gap-2">
+                                    <span>✓</span> Thêm và thanh toán
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Purchase Success Modal -->
+                        <div id="purchaseModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                            <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 relative">
+                                <div id="purchaseModalContent" class="text-center">
+                                    <!-- Content will be set by JavaScript -->
+                                </div>
+                            </div>
                         </div>
 
                         <div class="border-t pt-6">
@@ -433,12 +414,157 @@
         </div>
     </footer>
 
-    <script>
-        let cartCount = 0;
-        let currentQuantity = 1;
-        let currentFilter = \'all\';
-        let currentPriceFilters = [];
-        let currentBrandFilters = [];
+    <script defer>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Initializing product page...');
+            initializePage();
+        });
+
+        // Core functionality
+        function initializePage() {
+            setupCategoryNavigation();
+            setupSearch();
+            setupProductCards();
+        }
+
+        // Category Navigation
+        function setupCategoryNavigation() {
+            const categoryButtons = document.querySelectorAll('.category-nav-btn');
+            categoryButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const category = button.dataset.category;
+                    setActiveCategory(button);
+                    filterProductsByCategory(category);
+                });
+            });
+        }
+
+        function setActiveCategory(selectedButton) {
+            // Remove active state from all buttons
+            document.querySelectorAll('.category-nav-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-50', 'text-blue-600');
+                btn.classList.add('text-gray-600');
+            });
+
+            // Add active state to selected button
+            selectedButton.classList.add('bg-blue-50', 'text-blue-600');
+            selectedButton.classList.remove('text-gray-600');
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing...');
+            initializeProducts();
+            setupEventListeners();
+            setupNavigationBar();
+        });
+
+        // Product filtering and display
+        function filterProductsByCategory(category) {
+            const productCards = document.querySelectorAll('.product-card');
+            const fadeOut = [
+                { opacity: 1, transform: 'translateY(0)' },
+                { opacity: 0, transform: 'translateY(-10px)' }
+            ];
+            const fadeIn = [
+                { opacity: 0, transform: 'translateY(-10px)' },
+                { opacity: 1, transform: 'translateY(0)' }
+            ];
+            const animationTiming = { duration: 300, easing: 'ease-out' };
+
+            productCards.forEach(card => {
+                if (category === 'all' || card.dataset.category === category) {
+                    card.style.display = 'block';
+                    card.animate(fadeIn, animationTiming);
+                } else {
+                    const animation = card.animate(fadeOut, animationTiming);
+                    animation.onfinish = () => {
+                        card.style.display = 'none';
+                    };
+                }
+            });
+        }
+
+        // Purchase functionality
+        function showPurchaseModal(title, message, type = 'success') {
+            const modal = document.getElementById('purchaseModal');
+            const content = document.getElementById('purchaseModalContent');
+            
+            let icon = type === 'success' ? '✅' : type === 'info' ? 'ℹ️' : '❌';
+            let color = type === 'success' ? 'text-green-600' : type === 'info' ? 'text-blue-600' : 'text-red-600';
+            
+            content.innerHTML = `
+                <div class="text-4xl mb-4">${icon}</div>
+                <h3 class="text-xl font-bold ${color} mb-2">${title}</h3>
+                <p class="text-gray-600 mb-6">${message}</p>
+                <div class="flex gap-3">
+                    <button onclick="hidePurchaseModal()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg transition-colors">
+                        Đóng
+                    </button>
+                    ${type === 'success' ? `
+                    <button onclick="window.location.href='/checkout'" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors">
+                        Đến giỏ hàng
+                    </button>
+                    ` : ''}
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+            
+            // Close modal when clicking outside
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    hidePurchaseModal();
+                }
+            });
+        }
+
+        function hidePurchaseModal() {
+            const modal = document.getElementById('purchaseModal');
+            modal.classList.add('hidden');
+        }
+
+        function purchaseNow() {
+            const productTitle = document.querySelector('#detail-title').textContent;
+            const quantity = document.querySelector('#quantity').textContent;
+            showPurchaseModal(
+                'Đặt hàng thành công!',
+                `Bạn đã đặt mua ${quantity} ${productTitle}. Chúng tôi sẽ liên hệ với bạn để xác nhận đơn hàng.`,
+                'success'
+            );
+        }
+
+        function addToCartAndContinue() {
+            const productTitle = document.querySelector('#detail-title').textContent;
+            showPurchaseModal(
+                'Đã thêm vào giỏ hàng',
+                `${productTitle} đã được thêm vào giỏ hàng của bạn.`,
+                'info'
+            );
+        }
+
+        function addToCartAndCheckout() {
+            const productTitle = document.querySelector('#detail-title').textContent;
+            showPurchaseModal(
+                'Đã thêm vào giỏ hàng',
+                `${productTitle} đã được thêm vào giỏ hàng. Bạn có thể tiến hành thanh toán ngay bây giờ.`,
+                'success'
+            );
+        }
+
+        // Product cards functionality
+        function setupProductCards() {
+            const productCards = document.querySelectorAll('.product-card');
+            productCards.forEach(card => {
+                const viewDetailBtn = card.querySelector('.view-detail-btn');
+                if (viewDetailBtn) {
+                    viewDetailBtn.addEventListener('click', () => {
+                        const productId = card.dataset.productId;
+                        showProductDetail(productId);
+                    });
+                }
+            });
+        }
 
         const products = {
             1: {
@@ -487,9 +613,153 @@
             }
         };
 
+        function setupNavigationBar() {
+            // Category navigation
+            $$('.category-nav-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const category = btn.dataset.category;
+                    filterByCategory(category);
+                    setActiveCategory(category);
+                });
+            });
+
+            // Navigation search
+            $('#nav-search-input')?.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    performNavSearch();
+                }
+            });
+
+            $('#nav-search-btn')?.addEventListener('click', () => {
+                performNavSearch();
+            });
+        }
+
+        function performNavSearch() {
+            const searchTerm = $('#nav-search-input')?.value.toLowerCase() || '';
+            const productCards = $$('.product-card');
+
+            let hasResults = false;
+            productCards.forEach(card => {
+                const title = card.querySelector('h3')?.textContent.toLowerCase() || '';
+                const description = card.querySelector('p')?.textContent.toLowerCase() || '';
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm) || searchTerm === '') {
+                    card.style.display = 'block';
+                    hasResults = true;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Show/hide no results message
+            const noResults = $('#no-results');
+            if (noResults) {
+                noResults.style.display = hasResults ? 'none' : 'block';
+            }
+
+            // Reset category filters
+            if (searchTerm) {
+                setActiveCategory('all');
+            }
+        }
+
+        function setupEventListeners() {
+            console.log('Setting up event listeners...');
+            
+            // Category filters in sidebar
+            $$('.sidebar-category').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const category = button.dataset.category;
+                    filterByCategory(category);
+                    setActiveCategory(category);
+                    console.log('Category filter clicked:', category);
+                });
+            });
+
+            // Price filters
+            $$('[data-price-range]').forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    const range = checkbox.dataset.priceRange;
+                    filterByPrice(range);
+                    console.log('Price filter changed:', range);
+                });
+            });
+
+            // Brand filters
+            $$('[data-brand]').forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    const brand = checkbox.dataset.brand;
+                    filterByBrand(brand);
+                    console.log('Brand filter changed:', brand);
+                });
+            });
+
+            // Search functionality
+            const searchInput = $('#search-input');
+            if (searchInput) {
+                searchInput.addEventListener('keyup', (e) => {
+                    if (e.key === 'Enter') {
+                        performSearch();
+                    }
+                });
+            }
+
+            // Product cards click handlers
+            $$('.product-card').forEach(card => {
+                const productId = card.dataset.productId;
+                if (productId) {
+                    card.querySelector('.view-detail-btn')?.addEventListener('click', () => {
+                        showProductDetail(productId);
+                    });
+                }
+            });
+
+            // Quantity buttons
+            setupQuantityControls();
+            
+            // Sort dropdown
+            $('#sort-select')?.addEventListener('change', (e) => {
+                sortProducts(e.target.value);
+            });
+        }
+
+        function initializeProducts() {
+            console.log('Initializing products...');
+
+            // Initialize search
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.addEventListener('keyup', searchProducts);
+            }
+
+            // Initialize quantity buttons
+            const quantityBtns = document.querySelectorAll('.quantity-btn');
+            quantityBtns.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (this.textContent === '+') {
+                        increaseQuantity();
+                    } else {
+                        decreaseQuantity();
+                    }
+                });
+            });
+
+            // Show initial product list
+            showProductList();
+        }
+
         function showProductList() {
-            document.getElementById(\'product-list\').classList.remove(\'hidden\');
-            document.getElementById(\'product-detail\').classList.add(\'hidden\');
+            const productList = document.getElementById('product-list');
+            const productDetail = document.getElementById('product-detail');
+            
+            if (productList && productDetail) {
+                productList.classList.remove('hidden');
+                productDetail.classList.add('hidden');
+            }
         }
 
         function showProductDetail(productId) {
@@ -612,9 +882,28 @@
         }
 
         function filterProducts() {
-            const productCards = document.querySelectorAll(\'.product-card\');
-            
-            productCards.forEach((card, index) => {
+            try {
+                const productCards = document.querySelectorAll('.product-card');
+                if (!productCards.length) {
+                    console.error('No product cards found');
+                    return;
+                }
+
+                let hasVisibleProducts = false;
+                
+                // Animation setup
+                const fadeOut = [
+                    { opacity: 1, transform: 'translateY(0)' },
+                    { opacity: 0, transform: 'translateY(-10px)' }
+                ];
+                const fadeIn = [
+                    { opacity: 0, transform: 'translateY(-10px)' },
+                    { opacity: 1, transform: 'translateY(0)' }
+                ];
+                const animationTiming = {
+                    duration: 300,
+                    easing: 'ease-out'
+                };            productCards.forEach((card, index) => {
                 const productId = index + 1;
                 const product = products[productId];
                 let shouldShow = true;
@@ -634,24 +923,38 @@
                     shouldShow = false;
                 }
 
-                // Show/hide product
+                // Show/hide product with animation
                 if (shouldShow) {
-                    card.style.display = \'block\';
+                    card.style.display = 'block';
+                    card.animate(fadeIn, animationTiming);
                 } else {
-                    card.style.display = \'none\';
+                    card.animate(fadeOut, animationTiming).onfinish = () => {
+                        card.style.display = 'none';
+                    };
                 }
             });
         }
 
         function searchProducts(event) {
-            if (event.key === \'Enter\') {
-                performSearch();
+            try {
+                if (event.key === 'Enter') {
+                    performSearch();
+                }
+            } catch (error) {
+                console.error('Error in search products:', error);
             }
         }
 
         function performSearch() {
-            const searchTerm = document.getElementById(\'search-input\').value.toLowerCase();
-            const productCards = document.querySelectorAll(\'.product-card\');
+            try {
+                const searchInput = document.getElementById('search-input');
+                if (!searchInput) {
+                    console.error('Search input not found');
+                    return;
+                }
+
+                const searchTerm = searchInput.value.toLowerCase();
+                const productCards = document.querySelectorAll('.product-card');
             
             productCards.forEach((card, index) => {
                 const productId = index + 1;
@@ -755,6 +1058,4 @@
             });
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement(\'script\');d.innerHTML="window.__CF$cv$params={r:\'98f5da33e04a0eeb\',t:\'MTc2MDU5OTg0Mi4wMDAwMDA=\'};var a=document.createElement(\'script\');a.nonce=\'\';a.src=\'/cdn-cgi/challenge-platform/scripts/jsd/main.js\';document.getElementsByTagName(\'head\')[0].appendChild(a);";b.getElementsByTagName(\'head\')[0].appendChild(d)}}if(document.body){var a=document.createElement(\'iframe\');a.height=1;a.width=1;a.style.position=\'absolute\';a.style.top=0;a.style.left=0;a.style.border=\'none\';a.style.visibility=\'hidden\';document.body.appendChild(a);if(\'loading\'!==document.readyState)c();else if(window.addEventListener)document.addEventListener(\'DOMContentLoaded\',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);\'loading\'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
-</html>
 @endsection

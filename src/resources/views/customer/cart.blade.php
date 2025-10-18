@@ -1,7 +1,7 @@
 @extends('customer.layout')
 @section('title', 'Giỏ Hàng')
 @section('content')
-<body class="ml-64 w-[calc(100%-16rem)] min-h-screen p-8 pt-24 transition-all bg-gradient-to-br from-blue-50 to-indigo-100">
+<div class="bg-gradient-to-br from-blue-50 to-indigo-100">
     <main class="container mx-auto px-4 py-8 max-w-7xl">
         <div class="grid lg:grid-cols-3 gap-8">
             <!-- Cart Items Section -->
@@ -21,19 +21,8 @@
                             <p class="text-blue-600 font-semibold mt-1">29.990.000₫</p>
                         </div>
                         <div class="flex items-center space-x-3">
-                            <button onclick="updateQuantity(\'item1\', -1)" class="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors">
-                                <span class="text-gray-600">−</span>
-                            </button>
                             <span id="qty-item1" class="w-8 text-center font-semibold">1</span>
-                            <button onclick="updateQuantity(\'item1\', 1)" class="w-8 h-8 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center transition-colors">
-                                <span>+</span>
-                            </button>
                         </div>
-                        <button onclick="removeItem(\'item1\')" class="ml-4 text-red-500 hover:text-red-700 transition-colors">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                            </svg>
-                        </button>
                     </div>
 
                     <!-- Cart Item 2 -->
@@ -48,19 +37,8 @@
                             <p class="text-blue-600 font-semibold mt-1">32.990.000₫</p>
                         </div>
                         <div class="flex items-center space-x-3">
-                            <button onclick="updateQuantity(\'item2\', -1)" class="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors">
-                                <span class="text-gray-600">−</span>
-                            </button>
-                            <span id="qty-item2" class="w-8 text-center font-semibold">1</span>
-                            <button onclick="updateQuantity(\'item2\', 1)" class="w-8 h-8 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center transition-colors">
-                                <span>+</span>
-                            </button>
+                            <span id="qty-item1" class="w-8 text-center font-semibold">1</span>
                         </div>
-                        <button onclick="removeItem(\'item2\')" class="ml-4 text-red-500 hover:text-red-700 transition-colors">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                            </svg>
-                        </button>
                     </div>
 
                     <!-- Cart Item 3 -->
@@ -75,19 +53,8 @@
                             <p class="text-blue-600 font-semibold mt-1">6.990.000₫</p>
                         </div>
                         <div class="flex items-center space-x-3">
-                            <button onclick="updateQuantity(\'item3\', -1)" class="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors">
-                                <span class="text-gray-600">−</span>
-                            </button>
-                            <span id="qty-item3" class="w-8 text-center font-semibold">2</span>
-                            <button onclick="updateQuantity(\'item3\', 1)" class="w-8 h-8 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center transition-colors">
-                                <span>+</span>
-                            </button>
+                            <span id="qty-item1" class="w-8 text-center font-semibold">1</span>
                         </div>
-                        <button onclick="removeItem(\'item3\')" class="ml-4 text-red-500 hover:text-red-700 transition-colors">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                            </svg>
-                        </button>
                     </div>
                 </div>
             </div>
@@ -190,14 +157,29 @@
             </div>
         </div>
     </main>
+</div>
 
-    <script>
-        // Cart data
-        let cartItems = {
-            item1: { name: \'iPhone 15 Pro Max\', price: 29990000, quantity: 1, selected: true },
-            item2: { name: \'MacBook Air M3\', price: 32990000, quantity: 1, selected: true },
-            item3: { name: \'AirPods Pro (Gen 3)\', price: 6990000, quantity: 2, selected: true }
-        };
+<style>
+    @keyframes fadeOut {
+        from { opacity: 1; transform: translateX(0); }
+        to { opacity: 0; transform: translateX(-100%); }
+    }
+    .fade-in {
+        animation: fadeIn 0.3s ease-in-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<script>
+    // Cart data
+    let cartItems = {
+        item1: { name: "iPhone 15 Pro Max", price: 29990000, quantity: 1, selected: true },
+        item2: { name: "MacBook Air M3", price: 32990000, quantity: 1, selected: true },
+        item3: { name: "AirPods Pro (Gen 3)", price: 6990000, quantity: 2, selected: true }
+    };
 
         let appliedDiscount = { type: \'\', amount: 0 };
 
@@ -223,7 +205,7 @@
 
         // Remove item
         function removeItem(itemId) {
-            const itemElement = document.getElementById(`qty-${itemId}`).closest(\'.flex.items-center.border-b, .flex.items-center\').parentElement;
+            const itemElement = document.getElementById(`qty-${itemId}`).closest(".flex.items-center.border-b, .flex.items-center").parentElement;
             itemElement.style.animation = \'fadeOut 0.3s ease-out\';
             setTimeout(() => {
                 delete cartItems[itemId];
@@ -279,10 +261,10 @@
 
         // Format currency
         function formatCurrency(amount) {
-            return new Intl.NumberFormat(\'vi-VN\', {
-                style: \'currency\',
-                currency: \'VND\'
-            }).format(amount).replace(\'₫\', \'₫\');
+            return new Intl.NumberFormat("vi-VN", {
+                style: "currency",
+                currency: "VND"
+            }).format(amount).replace("₫", "₫");
         }
 
         // Apply promo code
@@ -299,15 +281,15 @@
 
         // Apply custom promo code
         function applyCustomPromo() {
-            const customCode = document.getElementById(\'custom-promo\').value.trim().toUpperCase();
+            const customCode = document.getElementById("custom-promo").value.trim().toUpperCase();
             
             if (!customCode) {
-                showNotification(\'Vui lòng nhập mã giảm giá\', \'error\');
+                showNotification("Vui lòng nhập mã giảm giá", "error");
                 return;
             }
             
             // Clear dropdown selection when using custom input
-            document.getElementById(\'promo-code\').value = \'\';
+            document.getElementById("promo-code").value = "";
             
             applyPromoCode(customCode);
         }
@@ -318,35 +300,35 @@
             appliedDiscount = { type: \'\', amount: 0 };
             
             switch (promoCode) {
-                case \'GIAM10\':
-                    appliedDiscount = { type: \'percentage\', amount: 10 };
-                    showNotification(\'Áp dụng mã giảm giá thành công! Giảm 10%\', \'success\');
+                case "GIAM10":
+                    appliedDiscount = { type: "percentage", amount: 10 };
+                    showNotification("Áp dụng mã giảm giá thành công! Giảm 10%", "success");
                     break;
-                case \'GIAM50K\':
-                    appliedDiscount = { type: \'fixed\', amount: 50000 };
-                    showNotification(\'Áp dụng mã giảm giá thành công! Giảm 50.000₫\', \'success\');
+                case "GIAM50K":
+                    appliedDiscount = { type: "fixed", amount: 50000 };
+                    showNotification("Áp dụng mã giảm giá thành công! Giảm 50.000₫", "success");
                     break;
-                case \'FREESHIP\':
-                    showNotification(\'Áp dụng mã miễn phí vận chuyển thành công!\', \'success\');
+                case "FREESHIP":
+                    showNotification("Áp dụng mã miễn phí vận chuyển thành công!", "success");
                     break;
-                case \'NEWUSER\':
-                    appliedDiscount = { type: \'percentage\', amount: 15 };
-                    showNotification(\'Áp dụng mã giảm giá thành công! Giảm 15% cho khách mới\', \'success\');
+                case "NEWUSER":
+                    appliedDiscount = { type: "percentage", amount: 15 };
+                    showNotification("Áp dụng mã giảm giá thành công! Giảm 15% cho khách mới", "success");
                     break;
-                case \'SAVE20\':
-                    appliedDiscount = { type: \'percentage\', amount: 20 };
-                    showNotification(\'Áp dụng mã giảm giá thành công! Giảm 20%\', \'success\');
+                case "SAVE20":
+                    appliedDiscount = { type: "percentage", amount: 20 };
+                    showNotification("Áp dụng mã giảm giá thành công! Giảm 20%", "success");
                     break;
-                case \'GIAM100K\':
-                    appliedDiscount = { type: \'fixed\', amount: 100000 };
-                    showNotification(\'Áp dụng mã giảm giá thành công! Giảm 100.000₫\', \'success\');
+                case "GIAM100K":
+                    appliedDiscount = { type: "fixed", amount: 100000 };
+                    showNotification("Áp dụng mã giảm giá thành công! Giảm 100.000₫", "success");
                     break;
-                case \'\':
-                    showNotification(\'Đã bỏ áp dụng mã giảm giá\', \'success\');
+                case "":
+                    showNotification("Đã bỏ áp dụng mã giảm giá", "success");
                     break;
                 default:
                     if (promoCode) {
-                        showNotification(\'Mã giảm giá không hợp lệ\', \'error\');
+                        showNotification("Mã giảm giá không hợp lệ", "error");
                     }
                     break;
             }
@@ -356,40 +338,38 @@
 
         // Show notification
         function showNotification(message, type) {
-            const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 fade-in ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+            const notification = document.createElement("div");
+            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 fade-in ${type === "success" ? "bg-green-500" : "bg-red-500"}`;
             notification.textContent = message;
-            (document.body || document.documentElement).appendChild(notification);
+            document.body.appendChild(notification);
 
             setTimeout(() => {
                 notification.remove();
             }, 3000);
         }
 
-
         // Proceed to checkout
         function proceedToCheckout() {
-            const selectedPayment = document.querySelector(\'input[name="payment"]:checked\').value;
-            document.getElementById(\'success-message\').classList.remove(\'hidden\');
+            const selectedPayment = document.querySelector("input[name='payment']:checked").value;
+            document.getElementById("success-message").classList.remove("hidden");
         }
 
         // Close success message
         function closeSuccess() {
-            document.getElementById(\'success-message\').classList.add(\'hidden\');
+            document.getElementById("success-message").classList.add("hidden");
         }
 
-        // Add fadeOut animation
-        const style = document.createElement(\'style\');
-        style.textContent = `
-            @keyframes fadeOut {
-                from { opacity: 1; transform: translateX(0); }
-                to { opacity: 0; transform: translateX(-100%); }
-            }
-        `;
-        document.head.appendChild(style);
+        // Initialize when DOM is loaded
+        document.addEventListener("DOMContentLoaded", function() {
+            // Initialize totals
+            updateTotals();
 
-        // Initialize totals
-        updateTotals();
+            // Handle form submit
+            const form = document.querySelector("form");
+            if (form) {
+                form.addEventListener("submit", handleNewsletter);
+            }
+        });
     </script>
 </body>
 @endsection

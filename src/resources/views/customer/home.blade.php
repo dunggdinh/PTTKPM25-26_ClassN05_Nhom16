@@ -2,7 +2,7 @@
 @section('title', 'Trang Chủ')
 
 @section('content')
-<body class="ml-64 w-[calc(100%-16rem)] min-h-screen p-8 pt-24 transition-all bg-gradient-to-br from-blue-50 to-indigo-100">
+<div class="bg-gradient-to-br from-blue-50 to-indigo-100">
     <main class="container mx-auto px-4 py-8 max-w-7xl">
         <!-- Hero Banner -->
         <section class="banner-gradient rounded-2xl text-white p-8 mb-12 relative overflow-hidden">
@@ -217,35 +217,38 @@
             </form>
         </section>
     </main>
+</div>
 
-    <script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Đăng ký newsletter
         function handleNewsletter(event) {
             event.preventDefault();
             const email = event.target.email.value;
             
-            // Show success message
+            // Hiển thị thông báo thành công
             const form = event.target;
-            const successMsg = document.createElement(\'div\');
-            successMsg.className = \'mt-4 p-4 bg-green-100 text-green-700 rounded-lg\';
-            successMsg.textContent = \'Cảm ơn bạn đã đăng ký! Chúng tôi sẽ gửi thông tin khuyến mãi đến email của bạn.\';
+            const successMsg = document.createElement("div");
+            successMsg.className = "mt-4 p-4 bg-green-100 text-green-700 rounded-lg";
+            successMsg.textContent = "Cảm ơn bạn đã đăng ký! Chúng tôi sẽ gửi thông tin khuyến mãi đến email của bạn.";
             
             form.appendChild(successMsg);
-            form.email.value = \'\';
+            form.email.value = "";
             
-            // Remove message after 3 seconds
+            // Xóa thông báo sau 3 giây
             setTimeout(() => {
                 successMsg.remove();
             }, 3000);
         }
 
-        // Add click handlers for category icons
-        document.querySelectorAll(\'.category-icon\').forEach(icon => {
-            icon.addEventListener(\'click\', function() {
-                const category = this.querySelector(\'p\').textContent;
+        // Click vào danh mục
+        document.querySelectorAll('.category-icon').forEach(icon => {
+            icon.addEventListener('click', function() {
+                const category = this.querySelector('p').textContent;
                 
-                // Create and show notification
-                const notification = document.createElement(\'div\');
-                notification.className = \'fixed top-4 right-4 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg z-50\';
+                // Tạo và hiển thị thông báo
+                const notification = document.createElement("div");
+                notification.className = "fixed top-4 right-4 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg z-50";
                 notification.textContent = `Đang tải danh mục ${category}...`;
                 document.body.appendChild(notification);
                 
@@ -255,16 +258,16 @@
             });
         });
 
-        // Add click handlers for product cards
-        document.querySelectorAll(\'.product-card\').forEach(card => {
-            card.addEventListener(\'click\', function(e) {
-                if (e.target.tagName === \'BUTTON\') return;
+        // Click vào sản phẩm
+        document.querySelectorAll('.product-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (e.target.tagName === 'BUTTON') return;
                 
-                const productName = this.querySelector(\'h3\').textContent;
+                const productName = this.querySelector('h3').textContent;
                 
-                // Create and show notification
-                const notification = document.createElement(\'div\');
-                notification.className = \'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50\';
+                // Tạo và hiển thị thông báo
+                const notification = document.createElement("div");
+                notification.className = "fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50";
                 notification.textContent = `Đang xem chi tiết ${productName}...`;
                 document.body.appendChild(notification);
                 
@@ -274,16 +277,16 @@
             });
         });
 
-        // Add to cart functionality
-        document.querySelectorAll(\'.product-card button\').forEach(button => {
-            button.addEventListener(\'click\', function(e) {
+        // Thêm vào giỏ hàng
+        document.querySelectorAll('.product-card button').forEach(button => {
+            button.addEventListener('click', function(e) {
                 e.stopPropagation();
                 
-                const productName = this.closest(\'.product-card\').querySelector(\'h3\').textContent;
+                const productName = this.closest('.product-card').querySelector('h3').textContent;
                 
-                // Create and show notification
-                const notification = document.createElement(\'div\');
-                notification.className = \'fixed top-4 right-4 bg-orange-600 text-white px-6 py-3 rounded-lg shadow-lg z-50\';
+                // Tạo và hiển thị thông báo
+                const notification = document.createElement("div");
+                notification.className = "fixed top-4 right-4 bg-orange-600 text-white px-6 py-3 rounded-lg shadow-lg z-50";
                 notification.textContent = `Đã thêm ${productName} vào giỏ hàng!`;
                 document.body.appendChild(notification);
                 
@@ -293,13 +296,13 @@
             });
         });
 
-        // Countdown timer for flash sale
+        // Đếm ngược flash sale
         function updateCountdown() {
-            const hours = document.querySelector(\'.bg-gradient-to-r .text-lg\');
+            const hours = document.querySelector('.bg-gradient-to-r .text-lg');
             if (hours) {
                 let currentHours = parseInt(hours.textContent);
-                let currentMinutes = parseInt(hours.parentElement.nextElementSibling.querySelector(\'.text-lg\').textContent);
-                let currentSeconds = parseInt(hours.parentElement.nextElementSibling.nextElementSibling.querySelector(\'.text-lg\').textContent);
+                let currentMinutes = parseInt(hours.parentElement.nextElementSibling.querySelector('.text-lg').textContent);
+                let currentSeconds = parseInt(hours.parentElement.nextElementSibling.nextElementSibling.querySelector('.text-lg').textContent);
                 
                 currentSeconds--;
                 if (currentSeconds < 0) {
@@ -314,13 +317,19 @@
                     }
                 }
                 
-                hours.textContent = currentHours.toString().padStart(2, \'0\');
-                hours.parentElement.nextElementSibling.querySelector(\'.text-lg\').textContent = currentMinutes.toString().padStart(2, \'0\');
-                hours.parentElement.nextElementSibling.nextElementSibling.querySelector(\'.text-lg\').textContent = currentSeconds.toString().padStart(2, \'0\');
+                hours.textContent = currentHours.toString().padStart(2, "0");
+                hours.parentElement.nextElementSibling.querySelector('.text-lg').textContent = currentMinutes.toString().padStart(2, "0");
+                hours.parentElement.nextElementSibling.nextElementSibling.querySelector('.text-lg').textContent = currentSeconds.toString().padStart(2, "0");
             }
         }
         
         setInterval(updateCountdown, 1000);
-    </script>
-</body>
+    });
+
+    // Gán sự kiện cho form newsletter
+    const newsletterForm = document.querySelector('form');
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', handleNewsletter);
+    }
+</script>
 @endsection

@@ -2,12 +2,12 @@
 @section('title', 'Hồ sơ cá nhân')
 
 @section('content')
-<body class="ml-64 w-[calc(100%-16rem)] min-h-screen p-8 pt-24 transition-all bg-gray-50">
-    <main class="max-w-6xl mx-auto p-6">
+<div class="bg-gradient-to-br from-blue-50 to-indigo-100">
+    <main class="container mx-auto px-4 py-8 max-w-7xl">
         <!-- Header -->
         <header class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Tài Khoản Của Tôi</h1>
-            <p class="text-gray-600">Quản lý thông tin cá nhân và cài đặt tài khoản</p>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Hồ sơ của tôi</h1>
+            <p class="text-gray-600">Thông tin cá nhân</p>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -20,36 +20,35 @@
                         </div>
                         <div class="ml-4">
                             <h3 class="font-semibold text-gray-800">Nguyễn Văn A</h3>
-                            <p class="text-sm text-gray-600">Khách hàng VIP</p>
                         </div>
                     </div>
                     
                     <nav class="space-y-2">
-                        <button onclick="showTab(\'profile\')" class="tab-button active w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors flex items-center">
+                        <a href="/customer/profile" class="tab-button active w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors flex items-center">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                             </svg>
                             Hồ Sơ Cá Nhân
-                        </button>
-                        <button onclick="showTab(\'password\')" class="tab-button w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors flex items-center">
+                        </a>
+                        <a href="/auth/reset_password" class="tab-button w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors flex items-center">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                             </svg>
                             Đổi Mật Khẩu
-                        </button>
-                        <button onclick="showTab(\'orders\')" class="tab-button w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors flex items-center">
+                        </a>
+                        <a href="/customer/order" class="tab-button w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors flex items-center">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                             </svg>
                             Đơn Hàng
-                        </button>
-                        <button onclick="showTab(\'addresses\')" class="tab-button w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors flex items-center">
+                        </a>
+                        <a href="#" onclick="showTab('addresses'); return false;" class="tab-button w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors flex items-center">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
                             Địa Chỉ
-                        </button>
+                        </a>
                     </nav>
                 </div>
             </aside>
@@ -191,7 +190,7 @@
                     <div class="bg-white rounded-lg shadow-md p-6">
                         <div class="flex justify-between items-center mb-6">
                             <h2 class="text-2xl font-bold text-gray-800">Địa Chỉ Giao Hàng</h2>
-                            <button onclick="showAddAddressForm()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                            <button onclick="showAddressForm()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
                                 + Thêm Địa Chỉ
                             </button>
                         </div>
@@ -235,63 +234,191 @@
     </main>
 
     <script>
-        function showTab(tabName) {
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hide all tab contents except profile by default
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // Show profile tab by default
+            document.getElementById('profile').style.display = 'block';
+            
+            // Handle URL path to show orders if on orders page
+            if (window.location.pathname === '/customer/order') {
+                showTab('orders');
+            }
+        });
+
+        function showTab(tabId) {
             // Hide all tab contents
-            const tabContents = document.querySelectorAll(\'.tab-content\');
-            tabContents.forEach(content => content.classList.remove(\'active\'));
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
             
             // Remove active class from all tab buttons
-            const tabButtons = document.querySelectorAll(\'.tab-button\');
-            tabButtons.forEach(button => button.classList.remove(\'active\'));
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
             
-            // Show selected tab content
-            document.getElementById(tabName).classList.add(\'active\');
+            // Show selected tab
+            document.getElementById(tabId).style.display = 'block';
             
-            // Add active class to clicked button
-            event.target.classList.add(\'active\');
+            // Add active class to selected tab button
+            document.querySelector(`[onclick*="${tabId}"]`).classList.add('active');
         }
 
-        function updateProfile(event) {
-            event.preventDefault();
+        function showAddressForm(existingAddress = null) {
+            // Create modal for address form
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.id = 'addressModal';
             
-            // Show success message
-            showNotification(\'Thông tin cá nhân đã được cập nhật thành công!\', \'success\');
-        }
-
-        function changePassword(event) {
-            event.preventDefault();
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">Thêm Địa Chỉ Mới</h3>
+                        <button onclick="closeAddressModal()" class="text-gray-500 hover:text-gray-700">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <form onsubmit="saveAddress(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tên địa chỉ</label>
+                            <input type="text" name="address_name" required placeholder="Ví dụ: Nhà riêng, Công ty" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" ${existingAddress ? `value="${existingAddress.address_name}"` : ''}>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Địa chỉ chi tiết</label>
+                            <input type="text" name="address_detail" required placeholder="Số nhà, tên đường" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" ${existingAddress ? `value="${existingAddress.address_detail}"` : ''}>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Quận/Huyện</label>
+                                <input type="text" name="district" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" ${existingAddress ? `value="${existingAddress.district}"` : ''}>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Tỉnh/Thành phố</label>
+                                <input type="text" name="city" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" ${existingAddress ? `value="${existingAddress.city}"` : ''}>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Số điện thoại</label>
+                            <input type="tel" name="phone" required pattern="[0-9]{10}" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" ${existingAddress ? `value="${existingAddress.phone}"` : ''}>
+                            <p class="text-sm text-gray-500 mt-1">Vui lòng nhập số điện thoại 10 chữ số</p>
+                        </div>
+                        
+                        <label class="flex items-center">
+                            <input type="checkbox" name="is_default" class="form-checkbox h-4 w-4 text-blue-600" ${existingAddress && existingAddress.is_default ? 'checked' : ''}>
+                            <span class="ml-2 text-sm text-gray-600">Đặt làm địa chỉ mặc định</span>
+                        </label>
+                        
+                        <div class="flex justify-end space-x-3 pt-4">
+                            <button type="button" onclick="closeAddressModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                                Hủy
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                Lưu địa chỉ
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
             
-            const newPassword = document.getElementById(\'newPassword\').value;
-            const confirmPassword = document.getElementById(\'confirmPassword\').value;
-            
-            if (newPassword !== confirmPassword) {
-                showNotification(\'Mật khẩu xác nhận không khớp!\', \'error\');
-                return;
+            // Remove existing modal if any
+            const existingModal = document.getElementById('addressModal');
+            if (existingModal) {
+                existingModal.remove();
             }
             
-            if (newPassword.length < 8) {
-                showNotification(\'Mật khẩu phải có ít nhất 8 ký tự!\', \'error\');
-                return;
-            }
-            
-            // Clear form
-            document.getElementById(\'currentPassword\').value = \'\';
-            document.getElementById(\'newPassword\').value = \'\';
-            document.getElementById(\'confirmPassword\').value = \'\';
-            
-            showNotification(\'Mật khẩu đã được thay đổi thành công!\', \'success\');
+            document.body.appendChild(modal);
         }
 
-        function showAddAddressForm() {
-            showNotification(\'Chức năng thêm địa chỉ sẽ được triển khai!\', \'info\');
+        function closeAddressModal() {
+            const modal = document.getElementById('addressModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function saveAddress(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            
+            // Create a new address element
+            const addressesContainer = document.querySelector('#addresses .space-y-4');
+            const newAddress = document.createElement('div');
+            newAddress.className = 'border border-gray-200 rounded-lg p-4';
+            
+            newAddress.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-semibold text-gray-800 mb-1">${formData.get('address_name')}</h3>
+                        <p class="text-gray-600">${formData.get('address_detail')}</p>
+                        <p class="text-gray-600">${formData.get('district')}, ${formData.get('city')}</p>
+                        <p class="text-gray-600">SĐT: ${formData.get('phone')}</p>
+                        ${formData.get('is_default') ? '<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium mt-2 inline-block">Mặc định</span>' : ''}
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="editAddress(this)" class="text-blue-600 hover:text-blue-800 text-sm">Sửa</button>
+                        <button onclick="deleteAddress(this)" class="text-red-600 hover:text-red-800 text-sm">Xóa</button>
+                    </div>
+                </div>
+            `;
+            
+            // If this is the default address, remove default status from other addresses
+            if (formData.get('is_default')) {
+                const defaultLabels = addressesContainer.querySelectorAll('.bg-green-100');
+                defaultLabels.forEach(label => label.remove());
+            }
+            
+            // Add the new address to the container
+            addressesContainer.insertBefore(newAddress, addressesContainer.firstChild);
+            
+            // Here you would typically send this data to your backend
+            showNotification('Địa chỉ đã được lưu thành công!', 'success');
+            closeAddressModal();
+        }
+
+        function editAddress(button) {
+            const addressDiv = button.closest('.border');
+            const addressName = addressDiv.querySelector('h3').textContent;
+            const [addressDetail, location, phone] = addressDiv.querySelectorAll('p');
+            const [district, city] = location.textContent.split(', ');
+            const isDefault = addressDiv.querySelector('.bg-green-100') !== null;
+            
+            // Show the form with pre-filled data
+            showAddressForm({
+                address_name: addressName,
+                address_detail: addressDetail.textContent,
+                district: district,
+                city: city,
+                phone: phone.textContent.replace('SĐT: ', ''),
+                is_default: isDefault
+            });
+            
+            // Remove the old address
+            addressDiv.remove();
+        }
+
+        function deleteAddress(button) {
+            if (confirm('Bạn có chắc chắn muốn xóa địa chỉ này không?')) {
+                const addressDiv = button.closest('.border');
+                addressDiv.remove();
+                showNotification('Đã xóa địa chỉ thành công!', 'success');
+            }
         }
 
         function showNotification(message, type) {
-            const notification = document.createElement(\'div\');
+            const notification = document.createElement('div');
             notification.className = `fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg z-50 ${
-                type === \'success\' ? \'bg-green-500 text-white\' :
-                type === \'error\' ? \'bg-red-500 text-white\' :
-                \'bg-blue-500 text-white\'
+                type === 'success' ? 'bg-green-500 text-white' :
+                type === 'error' ? 'bg-red-500 text-white' :
+                'bg-blue-500 text-white'
             }`;
             notification.textContent = message;
             
@@ -302,6 +429,6 @@
             }, 3000);
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement(\'script\');d.innerHTML="window.__CF$cv$params={r:\'98f5dfeab2b50eeb\',t:\'MTc2MDYwMDA3Ni4wMDAwMDA=\'};var a=document.createElement(\'script\');a.nonce=\'\';a.src=\'/cdn-cgi/challenge-platform/scripts/jsd/main.js\';document.getElementsByTagName(\'head\')[0].appendChild(a);";b.getElementsByTagName(\'head\')[0].appendChild(d)}}if(document.body){var a=document.createElement(\'iframe\');a.height=1;a.width=1;a.style.position=\'absolute\';a.style.top=0;a.style.left=0;a.style.border=\'none\';a.style.visibility=\'hidden\';document.body.appendChild(a);if(\'loading\'!==document.readyState)c();else if(window.addEventListener)document.addEventListener(\'DOMContentLoaded\',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);\'loading\'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</div>
 </html>
 @endsection

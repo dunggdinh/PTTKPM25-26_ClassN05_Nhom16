@@ -2,8 +2,8 @@
 @section('title', 'Khuyến mãi')
 
 @section('content')
-<body class="ml-64 w-[calc(100%-16rem)] min-h-screen p-8 pt-24 transition-all bg-gray-50">
-    <main class="container mx-auto px-4 py-8">
+<div class="bg-gradient-to-br from-blue-50 to-indigo-100">
+    <main class="container mx-auto px-4 py-8 max-w-6xl">
         <!-- Header Section -->
         <header class="text-center mb-12">
             <h1 class="text-4xl font-bold text-gray-800 mb-4">🎉 Chương Trình Khuyến Mãi Hot</h1>
@@ -11,24 +11,24 @@
         </header>
 
         <!-- Flash Sale Banner -->
-        <section class="countdown text-white rounded-2xl p-8 mb-8 text-center">
+        <section class="countdown bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-2xl p-8 mb-8 text-center">
             <div class="flash-sale">
                 <h2 class="text-3xl font-bold mb-4">⚡ FLASH SALE - Chỉ còn</h2>
                 <div class="flex justify-center space-x-4 mb-4">
-                    <div class="bg-white bg-opacity-20 rounded-lg p-3">
-                        <div class="text-2xl font-bold" id="hours">12</div>
+                    <div class="bg-black bg-opacity-30 backdrop-blur-sm rounded-lg p-4 min-w-[80px]">
+                        <div class="text-3xl font-bold" id="hours">12</div>
                         <div class="text-sm">Giờ</div>
                     </div>
-                    <div class="bg-white bg-opacity-20 rounded-lg p-3">
-                        <div class="text-2xl font-bold" id="minutes">34</div>
+                    <div class="bg-black bg-opacity-30 backdrop-blur-sm rounded-lg p-4 min-w-[80px]">
+                        <div class="text-3xl font-bold" id="minutes">34</div>
                         <div class="text-sm">Phút</div>
                     </div>
-                    <div class="bg-white bg-opacity-20 rounded-lg p-3">
-                        <div class="text-2xl font-bold" id="seconds">56</div>
+                    <div class="bg-black bg-opacity-30 backdrop-blur-sm rounded-lg p-4 min-w-[80px]">
+                        <div class="text-3xl font-bold" id="seconds">56</div>
                         <div class="text-sm">Giây</div>
                     </div>
                 </div>
-                <p class="text-xl">Giảm đến 70% cho tất cả sản phẩm!</p>
+                <p class="text-xl font-semibold">Giảm đến 70% cho tất cả sản phẩm!</p>
             </div>
         </section>
 
@@ -242,107 +242,159 @@
     </main>
 
     <script>
-        // Countdown timer functionality
-        function updateCountdown() {
-            const hours = document.getElementById(\'hours\');
-            const minutes = document.getElementById(\'minutes\');
-            const seconds = document.getElementById(\'seconds\');
-            
-            let h = parseInt(hours.textContent);
-            let m = parseInt(minutes.textContent);
-            let s = parseInt(seconds.textContent);
-            
-            s--;
-            if (s < 0) {
-                s = 59;
-                m--;
-                if (m < 0) {
-                    m = 59;
-                    h--;
-                    if (h < 0) {
-                        h = 23;
-                    }
-                }
-            }
-            
-            hours.textContent = h.toString().padStart(2, \'0\');
-            minutes.textContent = m.toString().padStart(2, \'0\');
-            seconds.textContent = s.toString().padStart(2, \'0\');
-        }
-        
-        setInterval(updateCountdown, 1000);
-        
-        // Category filtering functionality
-        const categoryButtons = document.querySelectorAll(\'.category-btn\');
-        const promotionCards = document.querySelectorAll(\'.promotion-card\');
-        
-        categoryButtons.forEach(button => {
-            button.addEventListener(\'click\', function() {
-                const category = this.getAttribute(\'data-category\');
-                
-                // Update active button
-                categoryButtons.forEach(btn => {
-                    btn.classList.remove(\'bg-blue-600\', \'text-white\');
-                    btn.classList.add(\'bg-gray-200\', \'text-gray-700\');
-                });
-                this.classList.remove(\'bg-gray-200\', \'text-gray-700\');
-                this.classList.add(\'bg-blue-600\', \'text-white\');
-                
-                // Filter cards
-                promotionCards.forEach(card => {
-                    if (category === \'all\' || card.getAttribute(\'data-category\') === category) {
-                        card.style.display = \'block\';
-                        setTimeout(() => {
-                            card.style.opacity = \'1\';
-                            card.style.transform = \'translateY(0)\';
-                        }, 100);
-                    } else {
-                        card.style.opacity = \'0\';
-                        card.style.transform = \'translateY(20px)\';
-                        setTimeout(() => {
-                            card.style.display = \'none\';
-                        }, 300);
-                    }
-                });
-            });
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize countdown timer
+            initializeCountdown();
+            // Initialize category filters
+            initializeCategoryFilters();
+            // Initialize buy buttons
+            initializeBuyButtons();
         });
-        
-        // Add to cart functionality for all buy buttons
-        const buyButtons = document.querySelectorAll(\'button:contains("Mua ngay")\');
-        document.querySelectorAll(\'button\').forEach(button => {
-            if (button.textContent.includes(\'Mua ngay\')) {
-                button.addEventListener(\'click\', function() {
-                    const card = this.closest(\'.promotion-card\');
-                    const productName = card.querySelector(\'h3\').textContent;
+
+        // Countdown timer functionality
+        function initializeCountdown() {
+            const hours = document.getElementById('hours');
+            const minutes = document.getElementById('minutes');
+            const seconds = document.getElementById('seconds');
+            
+            if (hours && minutes && seconds) {
+                // Set initial time (2 hours)
+                hours.textContent = '02';
+                minutes.textContent = '00';
+                seconds.textContent = '00';
+                
+                // Add transition styles for smooth animations
+                [hours, minutes, seconds].forEach(el => {
+                    el.style.transition = 'all 0.2s ease-in-out';
+                });
+
+                function updateCountdown() {
+                    let h = parseInt(hours.textContent);
+                    let m = parseInt(minutes.textContent);
+                    let s = parseInt(seconds.textContent);
                     
-                    // Visual feedback
-                    this.textContent = \'Đã thêm vào giỏ! ✓\';
-                    this.classList.add(\'bg-green-500\');
+                    s--;
+                    if (s < 0) {
+                        s = 59;
+                        m--;
+                        if (m < 0) {
+                            m = 59;
+                            h--;
+                            if (h < 0) {
+                                // Reset to 2 hours when countdown reaches 0
+                                h = 2;
+                                m = 0;
+                                s = 0;
+                            }
+                        }
+                    }
+                    
+                    // Apply animation effect
+                    seconds.style.transform = 'scale(1.1)';
+                    seconds.style.color = '#fde047';
                     
                     setTimeout(() => {
-                        this.textContent = \'Mua ngay\';
-                        this.classList.remove(\'bg-green-500\');
-                    }, 2000);
+                        seconds.style.transform = 'scale(1)';
+                        seconds.style.color = 'white';
+                    }, 200);
                     
-                    // Show success message
-                    showNotification(`Đã thêm ${productName} vào giỏ hàng!`);
-                });
+                    // Update display
+                    hours.textContent = h.toString().padStart(2, '0');
+                    minutes.textContent = m.toString().padStart(2, '0');
+                    seconds.textContent = s.toString().padStart(2, '0');
+                }
+                
+                // Start the countdown
+                setInterval(updateCountdown, 1000);
             }
-        });
-        
+        }
+
+        // Category filtering functionality
+        function initializeCategoryFilters() {
+            const categoryButtons = document.querySelectorAll('.category-btn');
+            const promotionCards = document.querySelectorAll('.promotion-card');
+            
+            // Add transition styles to cards
+            promotionCards.forEach(card => {
+                card.style.transition = 'all 0.3s ease-in-out';
+            });
+            
+            categoryButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const category = this.dataset.category;
+                    
+                    // Update active button styles
+                    categoryButtons.forEach(btn => {
+                        if (btn === this) {
+                            btn.classList.remove('bg-gray-200', 'text-gray-700');
+                            btn.classList.add('bg-blue-600', 'text-white');
+                        } else {
+                            btn.classList.remove('bg-blue-600', 'text-white');
+                            btn.classList.add('bg-gray-200', 'text-gray-700');
+                        }
+                    });
+                    
+                    // Filter cards with animation
+                    promotionCards.forEach(card => {
+                        if (category === 'all' || card.dataset.category === category) {
+                            card.style.display = 'block';
+                            requestAnimationFrame(() => {
+                                card.style.opacity = '1';
+                                card.style.transform = 'translateY(0)';
+                            });
+                        } else {
+                            card.style.opacity = '0';
+                            card.style.transform = 'translateY(20px)';
+                            setTimeout(() => {
+                                card.style.display = 'none';
+                            }, 300);
+                        }
+                    });
+                });
+            });
+        }
+
+        // Buy button functionality
+        function initializeBuyButtons() {
+            document.querySelectorAll('button').forEach(button => {
+                if (button.textContent.trim() === 'Mua ngay') {
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const card = this.closest('.promotion-card');
+                        const productName = card.querySelector('h3').textContent;
+                        const originalText = this.textContent;
+                        const originalClasses = [...this.classList];
+                        
+                        // Visual feedback
+                        this.textContent = 'Đã thêm vào giỏ! ✓';
+                        this.classList.add('bg-green-500', 'hover:bg-green-600');
+                        
+                        setTimeout(() => {
+                            this.textContent = originalText;
+                            this.classList.remove('bg-green-500', 'hover:bg-green-600');
+                        }, 2000);
+                        
+                        showNotification(`Đã thêm ${productName} vào giỏ hàng!`);
+                    });
+                }
+            });
+        }
+
         // Notification system
         function showNotification(message) {
-            const notification = document.createElement(\'div\');
-            notification.className = \'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300\';
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 ease-in-out transform translate-x-full';
             notification.textContent = message;
+            
             document.body.appendChild(notification);
             
-            setTimeout(() => {
-                notification.classList.remove(\'translate-x-full\');
-            }, 100);
+            // Trigger animation
+            requestAnimationFrame(() => {
+                notification.style.transform = 'translateX(0)';
+            });
             
             setTimeout(() => {
-                notification.classList.add(\'translate-x-full\');
+                notification.style.transform = 'translateX(100%)';
                 setTimeout(() => {
                     document.body.removeChild(notification);
                 }, 300);

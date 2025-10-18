@@ -82,18 +82,6 @@
                 <!-- Thêm yêu cầu khác tại đây -->
             </div>
 
-            <div class="mt-6">
-                <h4 class="font-bold text-gray-800 mb-3 text-lg">Hành Động Nhanh</h4>
-                <button class="w-full text-left p-3 bg-white rounded-xl shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-200 border border-gray-100 mb-2" data-message="Xử lý đơn hàng mới">
-                    📦 Xử lý đơn hàng
-                </button>
-                <button class="w-full text-left p-3 bg-white rounded-xl shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-200 border border-gray-100 mb-2" data-message="Hỗ trợ thanh toán">
-                    💳 Hỗ trợ thanh toán
-                </button>
-                <button class="w-full text-left p-3 bg-white rounded-xl shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-200 border border-gray-100 mb-2" data-message="Hỗ trợ kỹ thuật">
-                    🔧 Hỗ trợ kỹ thuật
-                </button>
-            </div>
         </aside>
     </div>
 
