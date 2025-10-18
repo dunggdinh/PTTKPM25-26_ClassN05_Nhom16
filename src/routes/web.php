@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\auth\AuthController;
-
+use App\Http\Controllers\Admin\CustomerController;
 
 use App\Http\Controllers\ShipmentController;
 use App\Http\Controllers\Admin\DeliveryController;
@@ -17,11 +17,16 @@ Route::get('/tracking/{trackingId}', [TrackingController::class, 'show']);
 
 
 // Nhóm route admin 
-// Route::prefix('admin')->name('admin.')->group(function () {
-Route::prefix('admin')->name('admin.')->middleware(['auth','ensure.admin'])->group(function () {
+#Route::prefix('admin')->name('admin.')->middleware(['auth','ensure.admin'])->group(function () {
+Route::prefix('admin')->name('admin.')->group(function () {
     Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
     Route::view('/support', 'admin.support')->name('support');
-    Route::view('/customer', 'admin.customer')->name('customer');
+
+    Route::get('/customer', [CustomerController::class, 'index'])->name('customer'); // danh sách
+    Route::get('/customer/export', [CustomerController::class, 'exportExcel'])->name('customer.export'); // xuất Excel
+    Route::get('/customer/{id}', [CustomerController::class, 'show'])->name('customer.show'); // xem chi tiết
+    Route::delete('/customer/{id}', [CustomerController::class, 'destroy'])->name('customer.destroy'); // xóa
+
     Route::view('/deliveries', 'admin.deliveries')->name('deliveries');
     Route::view('/inventory', 'admin.inventory')->name('inventory');
     Route::view('/order', 'admin.order')->name('order');

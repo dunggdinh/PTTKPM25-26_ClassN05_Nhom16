@@ -1,123 +1,84 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\admin;
+
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Customer;
+use App\Models\admin\Customer;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\CustomerExport;
-use Illuminate\Support\Facades\DB;
 
 class CustomerController extends Controller
 {
     /**
-     * Hiển thị trang quản lý khách hàng
+     * Hiển thị danh sách khách hàng với phân trang, tìm kiếm và thống kê
      */
-    public function index()
-    {
-        $totalCustomers = Customer::count();
-        $activeCustomers = Customer::where('status', 'active')->count();
-        $inactiveCustomers = Customer::where('status', 'inactive')->count();
-        $highValueCustomers = Customer::where('total_orders', '>', 5)->count(); // Giả định khách hàng giá trị cao
-
-        return view('customer', compact('totalCustomers', 'activeCustomers', 'inactiveCustomers', 'highValueCustomers'));
-    }
-
-    /**
-     * API: Lấy danh sách khách hàng với bộ lọc
-     */
-    public function getCustomers(Request $request)
+    public function index(Request $request)
     {
         $query = Customer::query();
 
-        if ($search = $request->input('search')) {
-            $query->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%");
+        // Tìm kiếm theo tên hoặc email
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
         }
 
-        if ($status = $request->input('status')) {
-            $query->where('status', $status);
+        // Lấy danh sách khách hàng phân trang 10 bản ghi/trang
+        $customers = $query->orderBy('name', 'asc')->paginate(10)->withQueryString();
+
+        // Thống kê nhanh
+        $totalCustomers = Customer::where('role', 'customer')->count();
+        $totalAdmins = Customer::where('role', 'admin')->count();
+        $newToday = Customer::whereDate('created_at', now()->toDateString())->count();
+        $newYesterday = Customer::whereDate('created_at', now()->subDay()->toDateString())->count();
+
+        // Tính tăng trưởng so với hôm qua
+        if ($newYesterday == 0) {
+            $growth = $newToday > 0 ? '+100%' : '0%';
+        } else {
+            $growthValue = (($newToday - $newYesterday) / $newYesterday) * 100;
+            $growth = ($growthValue >= 0 ? '+' : '') . number_format($growthValue, 1) . '%';
         }
 
-        $customers = $query->get();
-
-        return response()->json($customers);
+        // Trả dữ liệu ra view
+        return view('admin.customer', compact(
+            'customers',
+            'totalCustomers',
+            'totalAdmins',
+            'newToday',
+            'growth'
+        ));
     }
 
     /**
-     * API: Lấy danh sách cảnh báo (ví dụ: khách hàng không hoạt động lâu)
+     * Xuất danh sách khách hàng ra Excel
      */
-    public function getAlerts()
+    public function exportExcel()
     {
-        $alerts = Customer::where('status', 'inactive')
-                         ->orWhere('last_order_date', '<', now()->subMonths(6))
-                         ->get();
-
-        return response()->json($alerts);
+        return Excel::download(new CustomerExport, 'customer.xlsx');
     }
 
     /**
-     * API: Lấy chi tiết khách hàng
+     * Xem chi tiết khách hàng
      */
-    public function getCustomerDetails($id)
-    {
-        $customer = Customer::findOrFail($id);
-        return response()->json($customer);
-    }
-
-    /**
-     * API: Cập nhật thông tin khách hàng
-     */
-    public function updateCustomer(Request $request, $id)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:customers,email,' . $id,
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string',
-            'status' => 'required|in:active,inactive',
-            'total_orders' => 'nullable|integer|min:0',
-            'last_order_date' => 'nullable|date',
-            'notes' => 'nullable|string',
-        ]);
-
-        $customer = Customer::findOrFail($id);
-        $customer->update($request->all());
-
-        return response()->json(['message' => 'Cập nhật khách hàng thành công', 'customer' => $customer]);
-    }
-
-    /**
-     * API: Xóa khách hàng
-     */
-    public function delete($id)
+    public function show($id)
     {
         $customer = Customer::findOrFail($id);
-        $customerName = $customer->name;
+        return view('admin.customer_detail', compact('customer'));
+    }
+
+    /**
+     * Xóa khách hàng
+     */
+    public function destroy($id)
+    {
+        $customer = Customer::findOrFail($id);
         $customer->delete();
 
-        return response()->json(['message' => "Xóa khách hàng '$customerName' thành công"]);
-    }
-
-    /**
-     * API: Xuất dữ liệu ra Excel/CSV
-     */
-    public function export(Request $request)
-    {
-        $request->validate([
-            'range' => 'required|in:all,current,selected',
-            'format' => 'required|in:xlsx,csv',
-            'file_name' => 'required|string|max:255',
-            'include_headers' => 'boolean',
-            'include_timestamp' => 'boolean',
-            'include_stats' => 'boolean',
-            'statuses' => 'array',
-            'columns' => 'array',
-            'selected_ids' => 'array|required_if:range,selected',
-        ]);
-
-        $fileName = $request->file_name . '-' . now()->format('Y-m-d') . '.' . $request->format;
-
-        return Excel::download(new CustomerExport($request->all()), $fileName);
+        return redirect()->route('admin.customer')
+                         ->with('success', 'Khách hàng đã được xóa thành công!');
     }
 }
