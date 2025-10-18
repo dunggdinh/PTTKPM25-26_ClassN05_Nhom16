@@ -6,6 +6,30 @@
     <title>@yield('title', 'Cửa Hàng Điện Tử')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ url('css/app.css') }}">
+    <style>
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 16rem;
+            background-color: white;
+            box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+            margin-top: 65px;
+        }
+        .menu-divider {
+            height: 1px;
+            background-color: #e5e7eb;
+            margin: 0 24px;
+        }
+        .gradient-header {
+            background-color: white;
+        }
+        .menu-item.active {
+            font-weight: 700;
+            color: #1d4ed8;
+        }
+    </style>
 </head>
 <body class="bg-gray-50 font-sans">
     <!-- Header Bar -->
@@ -160,12 +184,12 @@
         
         <!-- Menu Navigation -->
         <nav class="pt-6">
-            <a href="/customer/home" class="menu-item flex items-center px-6 py-4 text-gray-700 hover:bg-gray-100">
+            <a href="/customer/home" class="menu-item flex items-center px-6 py-4 text-gray-600 hover:bg-gray-100">
                 <span class="mr-4 text-lg">🏠</span>
                 <span class="text-base">Trang chủ</span>
             </a>
             <div class="menu-divider"></div>
-            <a href="/customer/promotion" class="menu-item flex items-center px-6 py-4 text-gray-700 hover:bg-gray-100">
+            <a href="/customer/promotion" class="menu-item flex items-center px-6 py-4 text-gray-600 hover:bg-gray-100">
                 <span class="mr-4 text-lg">🎯</span>
                 <span class="text-base">Khuyến mãi</span>
             </a>
@@ -245,20 +269,14 @@
             
             // Remove active state from all menu items first
             document.querySelectorAll('.menu-item').forEach(item => {
-                item.classList.remove('font-bold', 'bg-gray-100');
+                item.classList.remove('active');
             });
             
             // Find and activate current menu item
             document.querySelectorAll('.menu-item').forEach(item => {
-                const menuText = item.querySelector('span:last-child').textContent.trim();
-                const url = routes[menuText];
-                
-                if (currentPath.includes(url)) {
-                    // Add active styling with softer background
-                    item.classList.add('font-bold', 'bg-gray-100');
-                    
-                    // Update subtitle text
-                    pageSubtitle.textContent = menuText;
+                if (item.getAttribute('href') === currentPath) {
+                    item.classList.add('active');
+                    pageSubtitle.textContent = item.querySelector('span:last-child').textContent.trim();
                 }
             });
         }
