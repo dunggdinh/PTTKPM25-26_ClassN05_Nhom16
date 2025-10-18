@@ -282,6 +282,112 @@
     </div>
 
     <script>
+
+        // ==== SAMPLE ORDER DATA (để demo "Xem chi tiết" & "Mua lại") ====
+        const ORDER_DETAILS = {
+            'DH001234': {
+                id: 'DH001234',
+                date: '15/12/2024',
+                status: 'Đang xử lý',
+                total: '2.450.000₫',
+                address: '123 Nguyễn Văn Linh, Quận 7, TP.HCM',
+                phone: '0901234567',
+                items: [
+                { name: 'iPhone 15 Pro 256GB', price: '29.990.000₫', qty: 1, variant: {color: 'Titan Tự Nhiên'} },
+                { name: 'AirPods Pro (Gen 2)',  price: '6.490.000₫',  qty: 1, variant: {color: 'Trắng'} }
+                ]
+            },
+            'DH001235': {
+                id: 'DH001235',
+                date: '12/12/2024',
+                status: 'Đang giao hàng',
+                total: '1.890.000₫',
+                address: '12 Lý Thường Kiệt, Q10, TP.HCM',
+                phone: '0900000001',
+                items: [
+                { name: 'MacBook Air M2 13" 256GB', price: '27.990.000₫', qty: 1, variant: {color: 'Xám Không Gian'} }
+                ]
+            },
+            'DH001236': {
+                id: 'DH001236',
+                date: '10/12/2024',
+                status: 'Đang giao hàng',
+                total: '850.000₫',
+                address: '78 Đinh Tiên Hoàng, Q1, TP.HCM',
+                phone: '0900000002',
+                items: [
+                { name: 'Apple Watch Series 9', price: '10.990.000₫', qty: 1, variant: {color:'Hồng'} },
+                { name: 'Sạc MagSafe 15W',     price: '1.290.000₫',  qty: 1, variant: {color:'Trắng'} }
+                ]
+            },
+            'DH001237': {
+                id: 'DH001237',
+                date: '05/12/2024',
+                status: 'Đã giao hàng',
+                total: '1.200.000₫',
+                address: '45 Võ Văn Ngân, TP. Thủ Đức',
+                phone: '0900000003',
+                items: [
+                { name: 'iPad Air 10.9" 64GB WiFi', price: '13.990.000₫', qty: 1, variant: {color:'Xanh Dương'} }
+                ]
+            },
+        };
+
+        // ==== CART HELPERS (đồng bộ với trang giỏ) ====
+        function parseVND(str) {
+            if (typeof str === 'number') return str;
+                return Number(String(str).replace(/[^\d]/g, '')) || 0;
+            }
+
+        function slugify(str='') {
+            return String(str)
+                .normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        }
+        function buildSkuKey(name, variant = {}) {
+            const n = slugify(name||'');
+            const storage = slugify(variant?.storage||'');
+            const color = slugify(variant?.color||'');
+            return [n, storage, color].join('|');
+        }
+
+        function getCartArray() {
+            try { return JSON.parse(localStorage.getItem('cart')||'[]'); } catch { return []; }
+        }
+        function saveCartArray(arr) {
+            localStorage.setItem('cart', JSON.stringify(arr));
+        }
+
+        // Hợp nhất item vào mảng cart (gộp theo SKU)
+        function upsertCartItem(cartArr, {name, price, qty=1, variant={}, image='default'}) {
+            const key = buildSkuKey(name, variant);
+            const idx = cartArr.findIndex(x => buildSkuKey(x.name, x.variant||{}) === key);
+            if (idx === -1) {
+                cartArr.push({
+                id: key,
+                name,
+                price: Number(price) || 0,
+                quantity: Number(qty) || 1,
+                image,
+                selected: true,
+                variant: { storage: variant?.storage||'', color: variant?.color||'' }
+                });
+            } else {
+                cartArr[idx].quantity = Number(cartArr[idx].quantity||0) + (Number(qty)||1);
+                cartArr[idx].price = Number(price) || cartArr[idx].price; // giữ giá mới nhất
+                cartArr[idx].selected = true;
+            }
+        }
+
+        function toast(msg, type='success') {
+            const el = document.createElement('div');
+            el.className = `fixed top-4 right-4 z-[9999] px-4 py-2 rounded-lg text-white ${type==='success'?'bg-green-500':'bg-red-500'}`;
+            el.textContent = msg;
+            document.body.appendChild(el);
+            setTimeout(()=>el.remove(), 2500);
+        }
+
+
         document.addEventListener('DOMContentLoaded', function() {
             // Add event listeners for modal
             const modal = document.getElementById('orderModal');
@@ -329,69 +435,57 @@
         function viewOrderDetails(orderId) {
             const modal = document.getElementById('orderModal');
             const modalContent = document.getElementById('modalContent');
-            
+            const order = ORDER_DETAILS[orderId] || ORDER_DETAILS['DH001234'];
+
+            const computedTotal = formatVND(sumOrderItems(order));
+
             modal.classList.remove('hidden');
-            modal.querySelector('.bg-white').classList.add('modal-show');
-            
-            // Sample order details
-            const orderDetails = {
-                'DH001234': {
-                    id: 'DH001234',
-                    date: '15/12/2024',
-                    status: 'Đang xử lý',
-                    total: '2.450.000₫',
-                    address: '123 Nguyễn Văn Linh, Quận 7, TP.HCM',
-                    phone: '0901234567',
-                    items: [
-                        { name: 'iPhone 15 Pro 256GB', price: '29.990.000₫', qty: 1 },
-                        { name: 'AirPods Pro (Gen 2)', price: '6.490.000₫', qty: 1 }
-                    ]
-                }
-            };
-            
-            const order = orderDetails[orderId] || orderDetails['DH001234'];
-            
             modalContent.innerHTML = `
                 <div class="space-y-6">
-                    <div class="grid md:grid-cols-2 gap-6">
-                        <div>
-                            <h3 class="font-semibold text-gray-800 mb-3">Thông tin đơn hàng</h3>
-                            <div class="space-y-2 text-sm">
-                                <p><span class="text-gray-500">Mã đơn hàng:</span> ${order.id}</p>
-                                <p><span class="text-gray-500">Ngày đặt:</span> ${order.date}</p>
-                                <p><span class="text-gray-500">Trạng thái:</span> <span class="text-blue-600 font-medium">${order.status}</span></p>
-                                <p><span class="text-gray-500">Tổng tiền:</span> <span class="font-bold text-lg">${order.total}</span></p>
-                            </div>
-                        </div>
-                        <div>
-                            <h3 class="font-semibold text-gray-800 mb-3">Thông tin giao hàng</h3>
-                            <div class="space-y-2 text-sm">
-                                <p><span class="text-gray-500">Địa chỉ:</span> ${order.address}</p>
-                                <p><span class="text-gray-500">Số điện thoại:</span> ${order.phone}</p>
-                                <p><span class="text-gray-500">Phương thức:</span> Giao hàng tiêu chuẩn</p>
-                            </div>
-                        </div>
-                    </div>
-                    
+                <div class="grid md:grid-cols-2 gap-6">
                     <div>
-                        <h3 class="font-semibold text-gray-800 mb-3">Sản phẩm đã đặt</h3>
-                        <div class="space-y-3">
-                            ${order.items.map(item => `
-                                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                    <div>
-                                        <p class="font-medium">${item.name}</p>
-                                        <p class="text-sm text-gray-500">Số lượng: ${item.qty}</p>
-                                    </div>
-                                    <p class="font-medium">${item.price}</p>
-                                </div>
-                            `).join('')}
-                        </div>
+                    <h3 class="font-semibold text-gray-800 mb-3">Thông tin đơn hàng</h3>
+                    <div class="space-y-2 text-sm">
+                        <p><span class="text-gray-500">Mã đơn hàng:</span> ${order.id}</p>
+                        <p><span class="text-gray-500">Ngày đặt:</span> ${order.date}</p>
+                        <p><span class="text-gray-500">Trạng thái:</span> <span class="text-blue-600 font-medium">${order.status}</span></p>
+                        <p><span class="text-gray-500">Tổng tiền:</span> <span class="font-bold text-lg">${computedTotal}</span></p>
+                    </div>
+                    </div>
+                    <div>
+                    <h3 class="font-semibold text-gray-800 mb-3">Thông tin giao hàng</h3>
+                    <div class="space-y-2 text-sm">
+                        <p><span class="text-gray-500">Địa chỉ:</span> ${order.address}</p>
+                        <p><span class="text-gray-500">Số điện thoại:</span> ${order.phone}</p>
+                        <p><span class="text-gray-500">Phương thức:</span> Giao hàng tiêu chuẩn</p>
+                    </div>
                     </div>
                 </div>
+
+                <div>
+                    <h3 class="font-semibold text-gray-800 mb-3">Sản phẩm đã đặt</h3>
+                    <div class="space-y-3">
+                    ${order.items.map(item => `
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <div>
+                            <p class="font-medium">${item.name}</p>
+                            <p class="text-sm text-gray-500">
+                            Số lượng: ${item.qty}
+                            ${item?.variant?.color ? ` • Màu: ${item.variant.color}` : ''}
+                            </p>
+                        </div>
+                        <p class="font-medium">${formatVND(parseVND(item.price))}</p>
+                        </div>
+                    `).join('')}
+                    </div>
+                </div>
+                </div>
             `;
-            
-            modal.classList.remove('hidden');
-        }
+
+            // Sau khi mở modal cũng sync lại card ngoài (phòng khi dữ liệu đã đổi)
+            syncOrderCardFromDetails(order.id);
+            }
+
 
         function closeModal() {
             const modal = document.getElementById('orderModal');
@@ -407,23 +501,211 @@
         }
 
         function cancelOrder(orderId) {
-            if (confirm(`Bạn có chắc chắn muốn hủy đơn hàng ${orderId}?`)) {
-                alert(`Đơn hàng ${orderId} đã được hủy thành công!`);
-                // In real app, this would make an API call
+            if (!confirm(`Bạn có chắc chắn muốn xóa (ẩn) đơn hàng ${orderId}?`)) return;
+
+            // Cập nhật UI thẻ đơn tương ứng
+            const card = [...document.querySelectorAll('.order-card')]
+                .find(el => el.querySelector('h3')?.textContent?.includes(`#${orderId}`));
+            if (!card) { alert('Không tìm thấy thẻ đơn hàng trên trang.'); return; }
+
+            // Đổi badge trạng thái
+            const badge = card.querySelector('.status-badge');
+            if (badge) {
+                badge.textContent = '🗑️ Đã xoá';
+                badge.className = 'status-badge px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-600';
+            }
+
+            // Áp class mờ toàn card + vô hiệu nút "Hủy đơn hàng"
+            card.classList.add('order-deleted');
+            const cancelBtn = [...card.querySelectorAll('button')].find(b=>b.textContent?.trim().includes('Hủy đơn hàng'));
+            if (cancelBtn) {
+                cancelBtn.disabled = true;
+                cancelBtn.classList.add('opacity-60','cursor-not-allowed');
+            }
+
+            toast(`Đơn hàng ${orderId} đã được xoá (ẩn).`, 'success');
+        }
+
+
+        function trackOrder(trackingId) {
+            // mở/scroll tới panel theo dõi và đảm bảo đã bật realtime
+            startLiveTracking(trackingId);
+            // cuộn đến card chứa trackingId
+            const card = [...document.querySelectorAll('.order-card')]
+                .find(el => el.innerText.includes(trackingId));
+            if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+
+        // ==== BASE URL trang review (Blade sẽ render URL đúng) ====
+        const REVIEW_URL_BASE = "{{ url('/customer/review') }}";
+
+        // Giữ nguyên các hàm slugify/buildSkuKey bạn đang có
+        function slugify(str='') {
+            return String(str)
+                .normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        }
+        function buildSkuKey(name, variant = {}) {
+            const n = slugify(name||'');
+            const storage = slugify(variant?.storage||'');
+            const color = slugify(variant?.color||'');
+            return [n, storage, color].join('|');
+        }
+
+        // === Tạo URL để nhảy sang review và focus đúng sản phẩm ===
+        function buildReviewUrl(item, orderId) {
+            const sku = buildSkuKey(item?.name || '', item?.variant || {});
+            const params = new URLSearchParams({
+                order: orderId,
+                sku: sku,
+                name: item?.name || '',
+                color: item?.variant?.color || ''
+            });
+            return `${REVIEW_URL_BASE}?${params.toString()}`;
+        }
+
+        // === Chỉ cho review nếu đơn đã "Đã giao hàng" & điều hướng đúng sản phẩm ===
+        function reviewProduct(orderId) {
+            const order = ORDER_DETAILS[orderId];
+            if (!order) {
+                alert(`Không tìm thấy đơn ${orderId}.`); return;
+            }
+            // Chỉ cho đánh giá khi đã giao
+            if ((order.status || '').toLowerCase().includes('đã giao') === false) {
+                alert('Đơn này chưa giao xong, chưa thể đánh giá sản phẩm.');
+                return;
+            }
+
+            // 1 sản phẩm -> nhảy thẳng
+            if (order.items?.length === 1) {
+                const url = buildReviewUrl(order.items[0], orderId);
+                window.location.href = url;
+                return;
+            }
+
+            // Nhiều sản phẩm -> mở modal chọn và mỗi nút "⭐ Đánh giá" sẽ build URL riêng
+            const modal = document.getElementById('orderModal');
+            const modalContent = document.getElementById('modalContent');
+            modal.classList.remove('hidden');
+
+            modalContent.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-800">Chọn sản phẩm để đánh giá</h3>
+                        <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="space-y-3">
+                        ${order.items.map(it => {
+                            const url = buildReviewUrl(it, orderId);
+                            return `
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div>
+                                        <p class="font-medium">${it.name}</p>
+                                        <p class="text-sm text-gray-500">
+                                            Số lượng: ${it.qty || 1}
+                                            ${it?.variant?.color ? `• Màu: ${it.variant.color}` : ''}
+                                        </p>
+                                    </div>
+                                    <a href="${url}"
+                                    class="px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-sm font-medium">
+                                        ⭐ Đánh giá
+                                    </a>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+
+        function reorderProduct(orderId) {
+            const order = ORDER_DETAILS[orderId];
+            if (!order || !Array.isArray(order.items) || order.items.length === 0) {
+                alert(`Không tìm thấy sản phẩm của đơn ${orderId}.`);
+                return;
+            }
+            const cart = getCartArray();
+            order.items.forEach(it => {
+                upsertCartItem(cart, {
+                name: it.name,
+                price: parseVND(it.price),
+                qty: it.qty || 1,
+                variant: it.variant || {},
+                image: 'default'
+                });
+            });
+            saveCartArray(cart);
+            toast(`Đã thêm ${order.items.length} sản phẩm từ đơn ${orderId} vào giỏ hàng!`, 'success');
+        }
+
+        /* ========== FIX: Đồng bộ card ngoài với “Xem chi tiết” ========== */
+        function parseVND(str) {
+            if (typeof str === 'number') return str;
+            return Number(String(str).replace(/[^\d]/g, '')) || 0;
+        }
+        function formatVND(n) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
+                .format(Number(n) || 0).replace('₫','₫');
+        }
+        function sumOrderItems(order) {
+            if (!order?.items?.length) return 0;
+            return order.items.reduce((s, it) => s + (parseVND(it.price) * (Number(it.qty)||1)), 0);
+        }
+        function findOrderCard(orderId) {
+            // Tìm card theo tiêu đề h3 chứa “#<ID>”
+            const cards = document.querySelectorAll('.order-card');
+            for (const card of cards) {
+                const h3 = card.querySelector('h3');
+                if (h3 && h3.textContent.includes(`#${orderId}`)) return card;
+            }
+            return null;
+        }
+        function syncOrderCardFromDetails(orderId) {
+            const order = ORDER_DETAILS?.[orderId];
+            if (!order) return;
+            const card = findOrderCard(orderId);
+            if (!card) return;
+
+            // 1) Tính lại total từ items
+            const computedTotal = sumOrderItems(order);
+
+            // 2) Cập nhật số tiền hiển thị ngoài card (span tổng tiền)
+            const totalSpan = card.querySelector('.text-lg.font-bold, .text-lg.font-bold.text-gray-800');
+            if (totalSpan) totalSpan.textContent = formatVND(computedTotal);
+
+            // 3) Đồng bộ trạng thái (nếu muốn chặt chẽ hơn)
+            const badge = card.querySelector('.status-badge') || card.querySelector('span.bg-green-100, span.bg-blue-100, span.bg-yellow-100');
+            if (badge) {
+                const st = (order.status || '').toLowerCase();
+                if (st.includes('giao')) {           // Đã giao hàng
+                    badge.textContent = '✅ Đã giao hàng';
+                    badge.className = 'status-badge bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium';
+                    card.dataset.status = 'delivered';
+                } else if (st.includes('đang giao')) {
+                    badge.textContent = '🚚 Đang giao hàng';
+                    badge.className = 'status-badge bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium';
+                    card.dataset.status = 'shipping';
+                } else if (st.includes('xử lý')) {
+                    badge.textContent = '🔄 Đang xử lý';
+                    badge.className = 'status-badge bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium';
+                    card.dataset.status = 'processing';
+                }
             }
         }
 
-        function trackOrder(trackingId) {
-            alert(`Theo dõi đơn hàng với mã vận đơn: ${trackingId}\n\nTrạng thái: Đang vận chuyển\nVị trí hiện tại: Kho phân phối TP.HCM\nDự kiến giao: 17/12/2024`);
-        }
-
-        function reviewProduct(orderId) {
-            alert(`Chức năng đánh giá sản phẩm cho đơn hàng ${orderId} sẽ được mở trong trang mới.`);
-        }
-
-        function reorderProduct(orderId) {
-            alert(`Đã thêm các sản phẩm từ đơn hàng ${orderId} vào giỏ hàng!`);
-        }
+        /* Gọi đồng bộ cho tất cả đơn có trong ORDER_DETAILS khi trang tải xong */
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof ORDER_DETAILS === 'object') {
+                Object.keys(ORDER_DETAILS).forEach(syncOrderCardFromDetails);
+            }
+        });
 
     </script>
 @endsection

@@ -3,51 +3,83 @@
 
 @section('content')
     <!-- Category Navigation Bar -->
-    <div class="bg-white shadow-sm mb-6">
-        <div class="container mx-auto px-4">
-            <div class="flex items-center justify-between py-4">
+        <!-- Top Navigation Bar -->
+        <header class="bg-white shadow-lg">
+            <div class="container mx-auto px-4 py-6">
                 <!-- Categories -->
-                <div class="flex space-x-6">
-                    <button data-category="all" class="category-nav-btn text-gray-600 hover:text-blue-600 font-medium flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-all">
-                        <span class="text-xl">📋</span>
-                        <span>Tất cả</span>
+                <div class="mb-6">
+                <nav class="flex flex-wrap justify-center gap-3">
+                    <button onclick="filterByCategory('all')" class="px-6 py-3 bg-blue-50 text-blue-600 rounded-lg font-medium border-2 border-blue-600">
+                        📋 Tất cả sản phẩm
                     </button>
-                    <button data-category="phone" class="category-nav-btn text-gray-600 hover:text-blue-600 font-medium flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-all">
-                        <span class="text-xl">📱</span>
-                        <span>Điện thoại</span>
+                    <button onclick="filterByCategory('phone')" class="px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-lg font-medium border-2 border-gray-300 transition-colors">
+                        📱 Điện thoại
                     </button>
-                    <button data-category="laptop" class="category-nav-btn text-gray-600 hover:text-blue-600 font-medium flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-all">
-                        <span class="text-xl">💻</span>
-                        <span>Laptop</span>
+                    <button onclick="filterByCategory('laptop')" class="px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-lg font-medium border-2 border-gray-300 transition-colors">
+                        💻 Laptop
                     </button>
-                    <button data-category="tablet" class="category-nav-btn text-gray-600 hover:text-blue-600 font-medium flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-all">
-                        <span class="text-xl">📱</span>
-                        <span>Tablet</span>
+                    <button onclick="filterByCategory('accessory')" class="px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-lg font-medium border-2 border-gray-300 transition-colors">
+                        🎧 Phụ kiện
                     </button>
-                    <button data-category="accessory" class="category-nav-btn text-gray-600 hover:text-blue-600 font-medium flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-all">
-                        <span class="text-xl">🎧</span>
-                        <span>Phụ kiện</span>
+                    <button onclick="filterByCategory('table')" class="px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-lg font-medium border-2 border-gray-300 transition-colors">
+                        📱 Table
                     </button>
-                    <button data-category="watch" class="category-nav-btn text-gray-600 hover:text-blue-600 font-medium flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-all">
-                        <span class="text-xl">⌚</span>
-                        <span>Đồng hồ</span>
+                    <button onclick="filterByCategory('watch')" class="px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-lg font-medium border-2 border-gray-300 transition-colors">
+                        ⌚ Đồng hồ
                     </button>
-                </div>
+                </nav>
+            </div>
 
                 <!-- Search Bar -->
-                <div class="relative w-72">
-                    <input type="text" 
-                           id="nav-search-input"
-                           placeholder="Tìm kiếm sản phẩm..." 
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                    >
-                    <button id="nav-search-btn" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-600">
+                <div class="relative  ">
+                    <input type="text" id="search-input" placeholder="Tìm kiếm sản phẩm..." 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                        onkeyup="searchProducts(event)">
+                    <button onclick="performSearch()" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-600 text-lg">
                         🔍
                     </button>
                 </div>
+            
+                <!-- Filters -->
+                <div class="flex flex-wrap justify-center gap-8">
+                    <div>
+                        <h3 class="font-bold text-gray-800 mb-3 text-center">Lọc theo giá</h3>
+                        <div class="flex flex-wrap gap-4 justify-center">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2" onchange="filterByPrice('under-10m')">
+                                <span class="text-sm">Dưới 10 triệu</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2" onchange="filterByPrice('10m-20m')">
+                                <span class="text-sm">10 - 20 triệu</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2" onchange="filterByPrice('over-20m')">
+                                <span class="text-sm">Trên 20 triệu</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="font-bold text-gray-800 mb-3 text-center">Thương hiệu</h3>
+                        <div class="flex flex-wrap gap-4 justify-center">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2" onchange="filterByBrand('apple')">
+                                <span class="text-sm">Apple</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2" onchange="filterByBrand('samsung')">
+                                <span class="text-sm">Samsung</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2" onchange="filterByBrand('xiaomi')">
+                                <span class="text-sm">Xiaomi</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
+        </header>
 
     <!-- Main Layout with Sidebar -->
     <div class="flex min-h-screen bg-gray-50">
@@ -58,7 +90,7 @@
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-3xl font-bold text-gray-800">Sản phẩm nổi bật</h2>
                 <div class="flex items-center space-x-4">
-                    <select id="sort-select" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300">
+                    <select onchange="sortProducts(this.value)" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300">
                         <option value="default">Sắp xếp theo giá</option>
                         <option value="price-low">Giá thấp đến cao</option>
                         <option value="price-high">Giá cao đến thấp</option>
@@ -91,7 +123,7 @@
                             </div>
                             <span class="text-sm text-gray-600 ml-2">(128 đánh giá)</span>
                         </div>
-                        <button class="view-detail-btn w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition-colors">
+                        <button onclick="showProductDetail(1)" class="view-detail-btn w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition-colors">
                             Xem chi tiết
                         </button>
                     </div>
@@ -234,24 +266,26 @@
                             <p class="text-green-600 font-medium">✓ Còn hàng - Giao hàng miễn phí</p>
                         </div>
 
-                        <div class="mb-6">
-                            <h3 class="font-bold text-lg mb-3">Màu sắc:</h3>
-                            <div class="flex space-x-3">
-                                <button class="w-12 h-12 rounded-full bg-gray-800 border-4 border-blue-500"></button>
-                                <button class="w-12 h-12 rounded-full bg-blue-600 border-2 border-gray-300"></button>
-                                <button class="w-12 h-12 rounded-full bg-purple-600 border-2 border-gray-300"></button>
-                                <button class="w-12 h-12 rounded-full bg-yellow-400 border-2 border-gray-300"></button>
-                            </div>
+                        <!-- Màu sắc -->
+                    <div class="mb-6">
+                        <h3 class="font-bold text-lg mb-3">Màu sắc:</h3>
+                        <div class="flex space-x-3" id="color-options">
+                            <button type="button" class="option-color w-12 h-12 rounded-full bg-gray-800 border-2 border-gray-300" data-color="Đen"></button>
+                            <button type="button" class="option-color w-12 h-12 rounded-full bg-blue-600 border-2 border-gray-300" data-color="Xanh"></button>
+                            <button type="button" class="option-color w-12 h-12 rounded-full bg-purple-600 border-2 border-gray-300" data-color="Tím"></button>
+                            <button type="button" class="option-color w-12 h-12 rounded-full bg-yellow-400 border-2 border-gray-300" data-color="Vàng"></button>
                         </div>
+                    </div>
 
-                        <div class="mb-6">
-                            <h3 class="font-bold text-lg mb-3">Dung lượng:</h3>
-                            <div class="flex space-x-3">
-                                <button class="px-4 py-2 border-2 border-blue-500 bg-blue-50 text-blue-600 rounded-lg font-medium">256GB</button>
-                                <button class="px-4 py-2 border-2 border-gray-300 text-gray-600 rounded-lg font-medium hover:border-blue-500">512GB</button>
-                                <button class="px-4 py-2 border-2 border-gray-300 text-gray-600 rounded-lg font-medium hover:border-blue-500">1TB</button>
-                            </div>
+                    <!-- Dung lượng -->
+                    <div class="mb-6">
+                        <h3 class="font-bold text-lg mb-3">Dung lượng:</h3>
+                        <div class="flex space-x-3" id="storage-options">
+                            <button type="button" class="option-storage px-4 py-2 border-2 border-gray-300 text-gray-600 rounded-lg font-medium hover:border-blue-500" data-storage="256GB">256GB</button>
+                            <button type="button" class="option-storage px-4 py-2 border-2 border-gray-300 text-gray-600 rounded-lg font-medium hover:border-blue-500" data-storage="512GB">512GB</button>
+                            <button type="button" class="option-storage px-4 py-2 border-2 border-gray-300 text-gray-600 rounded-lg font-medium hover:border-blue-500" data-storage="1TB">1TB</button>
                         </div>
+                    </div>
 
                         <div class="mb-6">
                             <h3 class="font-bold text-lg mb-3">Số lượng:</h3>
@@ -262,27 +296,13 @@
                             </div>
                         </div>
 
-                        <div class="space-y-4 mb-6">
-                            <button onclick="purchaseNow()" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-4 rounded-lg font-bold text-lg transition-colors flex items-center justify-center gap-2">
-                                <span>🛒</span> Mua ngay
+                        <div class="space-y-3 mb-6">
+                            <button onclick="addToCart(document.getElementById('detail-title').textContent, parsePrice(document.getElementById('detail-price').textContent), { storage: selectedStorage, color: selectedColor }, parseInt(document.getElementById('quantity').textContent,10))" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold text-lg transition-colors">
+                                Thêm vào giỏ hàng
                             </button>
-                            <div class="grid grid-cols-2 gap-4">
-                                <button onclick="addToCartAndContinue()" class="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold transition-colors flex items-center justify-center gap-2">
-                                    <span>➕</span> Thêm vào giỏ
-                                </button>
-                                <button onclick="addToCartAndCheckout()" class="bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold transition-colors flex items-center justify-center gap-2">
-                                    <span>✓</span> Thêm và thanh toán
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Purchase Success Modal -->
-                        <div id="purchaseModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                            <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 relative">
-                                <div id="purchaseModalContent" class="text-center">
-                                    <!-- Content will be set by JavaScript -->
-                                </div>
-                            </div>
+                            <button class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-bold text-lg transition-colors">
+                                Mua ngay
+                            </button>
                         </div>
 
                         <div class="border-t pt-6">
@@ -299,6 +319,7 @@
                     </div>
                 </div>
             </div>
+
 
             <!-- Product Tabs -->
             <div class="mt-8 bg-white rounded-xl shadow-lg overflow-hidden">
@@ -414,157 +435,11 @@
         </div>
     </footer>
 
-    <script defer>
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Initializing product page...');
-            initializePage();
-        });
-
-        // Core functionality
-        function initializePage() {
-            setupCategoryNavigation();
-            setupSearch();
-            setupProductCards();
-        }
-
-        // Category Navigation
-        function setupCategoryNavigation() {
-            const categoryButtons = document.querySelectorAll('.category-nav-btn');
-            categoryButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const category = button.dataset.category;
-                    setActiveCategory(button);
-                    filterProductsByCategory(category);
-                });
-            });
-        }
-
-        function setActiveCategory(selectedButton) {
-            // Remove active state from all buttons
-            document.querySelectorAll('.category-nav-btn').forEach(btn => {
-                btn.classList.remove('bg-blue-50', 'text-blue-600');
-                btn.classList.add('text-gray-600');
-            });
-
-            // Add active state to selected button
-            selectedButton.classList.add('bg-blue-50', 'text-blue-600');
-            selectedButton.classList.remove('text-gray-600');
-        }
-
-        // Initialize when DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, initializing...');
-            initializeProducts();
-            setupEventListeners();
-            setupNavigationBar();
-        });
-
-        // Product filtering and display
-        function filterProductsByCategory(category) {
-            const productCards = document.querySelectorAll('.product-card');
-            const fadeOut = [
-                { opacity: 1, transform: 'translateY(0)' },
-                { opacity: 0, transform: 'translateY(-10px)' }
-            ];
-            const fadeIn = [
-                { opacity: 0, transform: 'translateY(-10px)' },
-                { opacity: 1, transform: 'translateY(0)' }
-            ];
-            const animationTiming = { duration: 300, easing: 'ease-out' };
-
-            productCards.forEach(card => {
-                if (category === 'all' || card.dataset.category === category) {
-                    card.style.display = 'block';
-                    card.animate(fadeIn, animationTiming);
-                } else {
-                    const animation = card.animate(fadeOut, animationTiming);
-                    animation.onfinish = () => {
-                        card.style.display = 'none';
-                    };
-                }
-            });
-        }
-
-        // Purchase functionality
-        function showPurchaseModal(title, message, type = 'success') {
-            const modal = document.getElementById('purchaseModal');
-            const content = document.getElementById('purchaseModalContent');
-            
-            let icon = type === 'success' ? '✅' : type === 'info' ? 'ℹ️' : '❌';
-            let color = type === 'success' ? 'text-green-600' : type === 'info' ? 'text-blue-600' : 'text-red-600';
-            
-            content.innerHTML = `
-                <div class="text-4xl mb-4">${icon}</div>
-                <h3 class="text-xl font-bold ${color} mb-2">${title}</h3>
-                <p class="text-gray-600 mb-6">${message}</p>
-                <div class="flex gap-3">
-                    <button onclick="hidePurchaseModal()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg transition-colors">
-                        Đóng
-                    </button>
-                    ${type === 'success' ? `
-                    <button onclick="window.location.href='/checkout'" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors">
-                        Đến giỏ hàng
-                    </button>
-                    ` : ''}
-                </div>
-            `;
-            
-            modal.classList.remove('hidden');
-            
-            // Close modal when clicking outside
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    hidePurchaseModal();
-                }
-            });
-        }
-
-        function hidePurchaseModal() {
-            const modal = document.getElementById('purchaseModal');
-            modal.classList.add('hidden');
-        }
-
-        function purchaseNow() {
-            const productTitle = document.querySelector('#detail-title').textContent;
-            const quantity = document.querySelector('#quantity').textContent;
-            showPurchaseModal(
-                'Đặt hàng thành công!',
-                `Bạn đã đặt mua ${quantity} ${productTitle}. Chúng tôi sẽ liên hệ với bạn để xác nhận đơn hàng.`,
-                'success'
-            );
-        }
-
-        function addToCartAndContinue() {
-            const productTitle = document.querySelector('#detail-title').textContent;
-            showPurchaseModal(
-                'Đã thêm vào giỏ hàng',
-                `${productTitle} đã được thêm vào giỏ hàng của bạn.`,
-                'info'
-            );
-        }
-
-        function addToCartAndCheckout() {
-            const productTitle = document.querySelector('#detail-title').textContent;
-            showPurchaseModal(
-                'Đã thêm vào giỏ hàng',
-                `${productTitle} đã được thêm vào giỏ hàng. Bạn có thể tiến hành thanh toán ngay bây giờ.`,
-                'success'
-            );
-        }
-
-        // Product cards functionality
-        function setupProductCards() {
-            const productCards = document.querySelectorAll('.product-card');
-            productCards.forEach(card => {
-                const viewDetailBtn = card.querySelector('.view-detail-btn');
-                if (viewDetailBtn) {
-                    viewDetailBtn.addEventListener('click', () => {
-                        const productId = card.dataset.productId;
-                        showProductDetail(productId);
-                    });
-                }
-            });
-        }
+    <script>
+        let currentQuantity = 1;
+        let currentFilter = 'all';
+        let currentPriceFilters = [];
+        let currentBrandFilters = [];
 
         const products = {
             1: {
@@ -576,7 +451,7 @@
                 category: "phone",
                 brand: "apple",
                 priceRange: "over-20m",
-                releaseDate: new Date(\'2023-09-22\')
+                releaseDate: new Date('2023-09-22')
             },
             2: {
                 title: "MacBook Air M3",
@@ -587,7 +462,7 @@
                 category: "laptop",
                 brand: "apple",
                 priceRange: "over-20m",
-                releaseDate: new Date(\'2024-03-08\')
+                releaseDate: new Date('2024-03-08')
             },
             3: {
                 title: "AirPods Pro 2",
@@ -598,7 +473,7 @@
                 category: "accessory",
                 brand: "apple",
                 priceRange: "under-10m",
-                releaseDate: new Date(\'2022-09-23\')
+                releaseDate: new Date('2022-09-23')
             },
             4: {
                 title: "Apple Watch Series 9",
@@ -609,233 +484,243 @@
                 category: "accessory",
                 brand: "apple",
                 priceRange: "under-10m",
-                releaseDate: new Date(\'2023-09-22\')
+                releaseDate: new Date('2023-09-22')
             }
         };
 
-        function setupNavigationBar() {
-            // Category navigation
-            $$('.category-nav-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const category = btn.dataset.category;
-                    filterByCategory(category);
-                    setActiveCategory(category);
-                });
-            });
-
-            // Navigation search
-            $('#nav-search-input')?.addEventListener('keyup', (e) => {
-                if (e.key === 'Enter') {
-                    performNavSearch();
-                }
-            });
-
-            $('#nav-search-btn')?.addEventListener('click', () => {
-                performNavSearch();
-            });
-        }
-
-        function performNavSearch() {
-            const searchTerm = $('#nav-search-input')?.value.toLowerCase() || '';
-            const productCards = $$('.product-card');
-
-            let hasResults = false;
-            productCards.forEach(card => {
-                const title = card.querySelector('h3')?.textContent.toLowerCase() || '';
-                const description = card.querySelector('p')?.textContent.toLowerCase() || '';
-                
-                if (title.includes(searchTerm) || description.includes(searchTerm) || searchTerm === '') {
-                    card.style.display = 'block';
-                    hasResults = true;
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-
-            // Show/hide no results message
-            const noResults = $('#no-results');
-            if (noResults) {
-                noResults.style.display = hasResults ? 'none' : 'block';
-            }
-
-            // Reset category filters
-            if (searchTerm) {
-                setActiveCategory('all');
-            }
-        }
-
-        function setupEventListeners() {
-            console.log('Setting up event listeners...');
-            
-            // Category filters in sidebar
-            $$('.sidebar-category').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const category = button.dataset.category;
-                    filterByCategory(category);
-                    setActiveCategory(category);
-                    console.log('Category filter clicked:', category);
-                });
-            });
-
-            // Price filters
-            $$('[data-price-range]').forEach(checkbox => {
-                checkbox.addEventListener('change', (e) => {
-                    const range = checkbox.dataset.priceRange;
-                    filterByPrice(range);
-                    console.log('Price filter changed:', range);
-                });
-            });
-
-            // Brand filters
-            $$('[data-brand]').forEach(checkbox => {
-                checkbox.addEventListener('change', (e) => {
-                    const brand = checkbox.dataset.brand;
-                    filterByBrand(brand);
-                    console.log('Brand filter changed:', brand);
-                });
-            });
-
-            // Search functionality
-            const searchInput = $('#search-input');
-            if (searchInput) {
-                searchInput.addEventListener('keyup', (e) => {
-                    if (e.key === 'Enter') {
-                        performSearch();
-                    }
-                });
-            }
-
-            // Product cards click handlers
-            $$('.product-card').forEach(card => {
-                const productId = card.dataset.productId;
-                if (productId) {
-                    card.querySelector('.view-detail-btn')?.addEventListener('click', () => {
-                        showProductDetail(productId);
-                    });
-                }
-            });
-
-            // Quantity buttons
-            setupQuantityControls();
-            
-            // Sort dropdown
-            $('#sort-select')?.addEventListener('change', (e) => {
-                sortProducts(e.target.value);
-            });
-        }
-
-        function initializeProducts() {
-            console.log('Initializing products...');
-
-            // Initialize search
-            const searchInput = document.getElementById('search-input');
-            if (searchInput) {
-                searchInput.addEventListener('keyup', searchProducts);
-            }
-
-            // Initialize quantity buttons
-            const quantityBtns = document.querySelectorAll('.quantity-btn');
-            quantityBtns.forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    if (this.textContent === '+') {
-                        increaseQuantity();
-                    } else {
-                        decreaseQuantity();
-                    }
-                });
-            });
-
-            // Show initial product list
-            showProductList();
-        }
-
         function showProductList() {
-            const productList = document.getElementById('product-list');
-            const productDetail = document.getElementById('product-detail');
-            
-            if (productList && productDetail) {
-                productList.classList.remove('hidden');
-                productDetail.classList.add('hidden');
-            }
+            document.getElementById('product-list').classList.remove('hidden');
+            document.getElementById('product-detail').classList.add('hidden');
         }
 
         function showProductDetail(productId) {
             const product = products[productId];
             
-            document.getElementById(\'detail-title\').textContent = product.title;
-            document.getElementById(\'detail-price\').textContent = product.price;
-            document.getElementById(\'main-image\').innerHTML = `<span class="text-8xl">${product.emoji}</span>`;
+            document.getElementById('detail-title').textContent = product.title;
+            document.getElementById('detail-price').textContent = product.price;
+            document.getElementById('main-image').innerHTML = `<span class="text-8xl">${product.emoji}</span>`;
             
-            const oldPriceElement = document.getElementById(\'detail-old-price\');
+            const oldPriceElement = document.getElementById('detail-old-price');
             if (product.oldPrice) {
                 oldPriceElement.textContent = product.oldPrice;
-                oldPriceElement.classList.remove(\'hidden\');
+                oldPriceElement.classList.remove('hidden');
             } else {
-                oldPriceElement.classList.add(\'hidden\');
+                oldPriceElement.classList.add('hidden');
             }
             
-            document.getElementById(\'product-list\').classList.add(\'hidden\');
-            document.getElementById(\'product-detail\').classList.remove(\'hidden\');
+            document.getElementById('product-list').classList.add('hidden');
+            document.getElementById('product-detail').classList.remove('hidden');
             
             // Reset quantity
             currentQuantity = 1;
-            document.getElementById(\'quantity\').textContent = currentQuantity;
+            document.getElementById('quantity').textContent = currentQuantity;
         }
 
         function increaseQuantity() {
             if (currentQuantity < 10) {
                 currentQuantity++;
-                document.getElementById(\'quantity\').textContent = currentQuantity;
+                document.getElementById('quantity').textContent = currentQuantity;
             }
         }
 
         function decreaseQuantity() {
             if (currentQuantity > 1) {
                 currentQuantity--;
-                document.getElementById(\'quantity\').textContent = currentQuantity;
+                document.getElementById('quantity').textContent = currentQuantity;
             }
         }
+        // Trạng thái lựa chọn
+        let selectedColor = null;
+        let selectedStorage = null;
 
-        function addToCart() {
-            cartCount += currentQuantity;
-            document.getElementById(\'cart-count\').textContent = cartCount;
-            
-            // Show success message
-            const button = event.target;
-            const originalText = button.textContent;
-            button.textContent = \'Đã thêm vào giỏ hàng!\';
-            button.classList.add(\'bg-green-600\');
-            button.classList.remove(\'bg-blue-600\');
-            
-            setTimeout(() => {
-                button.textContent = originalText;
-                button.classList.remove(\'bg-green-600\');
-                button.classList.add(\'bg-blue-600\');
-            }, 2000);
+        // Tăng giá theo dung lượng (tuỳ chỉnh theo shop)
+        const storagePriceDelta = {
+        '256GB': 0,
+        '512GB': 3000000, // +3 triệu
+        '1TB'  : 6000000  // +6 triệu
+        };
+
+        // Khởi tạo handlers cho options (gọi 1 lần khi load trang)
+        initOptionHandlers();
+        function initOptionHandlers() {
+        // Chọn màu
+        document.getElementById('color-options')?.addEventListener('click', (e) => {
+            const btn = e.target.closest('.option-color');
+            if (!btn) return;
+            // Bỏ chọn tất cả
+            document.querySelectorAll('.option-color').forEach(b => {
+            b.classList.remove('ring-4','ring-blue-500','border-blue-500');
+            b.classList.add('border-gray-300');
+            b.setAttribute('aria-pressed', 'false');
+            });
+            // Chọn 1
+            btn.classList.add('ring-4','ring-blue-500','border-blue-500');
+            btn.classList.remove('border-gray-300');
+            btn.setAttribute('aria-pressed', 'true');
+            selectedColor = btn.getAttribute('data-color');
+        });
+
+        // Chọn dung lượng
+        document.getElementById('storage-options')?.addEventListener('click', (e) => {
+            const btn = e.target.closest('.option-storage');
+            if (!btn) return;
+            // Bỏ chọn tất cả
+            document.querySelectorAll('.option-storage').forEach(b => {
+            b.classList.remove('border-blue-500','bg-blue-50','text-blue-600');
+            b.classList.add('border-gray-300','text-gray-600');
+            b.setAttribute('aria-pressed', 'false');
+            });
+            // Chọn 1
+            btn.classList.add('border-blue-500','bg-blue-50','text-blue-600');
+            btn.classList.remove('border-gray-300','text-gray-600');
+            btn.setAttribute('aria-pressed', 'true');
+            selectedStorage = btn.getAttribute('data-storage');
+
+            // Cập nhật giá hiển thị theo dung lượng
+            const base = productsByTitle(document.getElementById('detail-title')?.textContent)?.priceValue
+                        || parsePrice(document.getElementById('detail-price')?.textContent || '0');
+            const newPrice = base + (storagePriceDelta[selectedStorage] || 0);
+            if (!Number.isNaN(newPrice)) {
+            document.getElementById('detail-price').textContent = formatVND(newPrice);
+            }
+        });
         }
+
+        // Hàm tìm sản phẩm theo title (để lấy base priceValue)
+        function productsByTitle(title) {
+        if (!title) return null;
+        const ids = Object.keys(products);
+        for (const id of ids) {
+            if (products[id].title === title) return products[id];
+        }
+        return null;
+        }
+
+        function formatVND(n) {
+        // hiển thị dạng 29.990.000₫
+        return n.toLocaleString('vi-VN') + '₫';
+        }
+
+        // Gọi lại khi chuyển sản phẩm chi tiết để reset lựa chọn
+        const _origShowProductDetail = showProductDetail;
+        showProductDetail = function(productId){
+        _origShowProductDetail(productId);
+
+        // Reset lựa chọn + style
+        selectedColor = null;
+        selectedStorage = null;
+
+        document.querySelectorAll('.option-color').forEach(b => {
+            b.classList.remove('ring-4','ring-blue-500','border-blue-500');
+            b.classList.add('border-gray-300');
+            b.setAttribute('aria-pressed','false');
+        });
+
+        document.querySelectorAll('.option-storage').forEach(b => {
+            b.classList.remove('border-blue-500','bg-blue-50','text-blue-600');
+            b.classList.add('border-gray-300','text-gray-600');
+            b.setAttribute('aria-pressed','false');
+        });
+
+        // Khôi phục giá gốc của sản phẩm khi vừa vào chi tiết
+        const p = products[productId];
+        if (p?.priceValue) {
+            document.getElementById('detail-price').textContent = formatVND(p.priceValue);
+        }
+        };
+
+        // Bọc lại addToCart để kiểm tra đã chọn đủ chưa và đưa biến thể vào cart
+        const _origAddToCart = addToCart;
+        addToCart = function(productName, price){
+        // Nếu người dùng đã chọn dung lượng, cập nhật price theo delta (đảm bảo giỏ đúng giá)
+        let finalPrice = price;
+        if (selectedStorage && Number.isFinite(price)) {
+            finalPrice = price + (storagePriceDelta[selectedStorage] || 0);
+        }
+
+        // Bắt buộc chọn màu + dung lượng (tuỳ policy của bạn)
+        if (!selectedColor || !selectedStorage) {
+            showToast('Vui lòng chọn Màu sắc và Dung lượng trước khi thêm vào giỏ!', 'error');
+            return;
+        }
+
+        // Gọi hàm gốc (đã có quantity)
+        _origAddToCart(productName, finalPrice);
+
+        // Ghi đè item cuối vừa thêm để kèm biến thể (color/storage)
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        if (cart.length) {
+            cart[cart.length - 1].variant = {
+            color: selectedColor,
+            storage: selectedStorage
+            };
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        // Thông báo thành công kèm biến thể
+        showToast(`Đã thêm ${productName} (${selectedStorage}, ${selectedColor}) vào giỏ hàng!`, 'success');
+        };
+
+        // Toast helper (success/error)
+        function showToast(message, type='success'){
+        const el = document.createElement('div');
+        el.className = `fixed top-4 right-4 ${type==='success' ? 'bg-green-600' : 'bg-red-600'} text-white px-6 py-3 rounded-lg shadow-lg z-50`;
+        el.textContent = message;
+        document.body.appendChild(el);
+        setTimeout(()=>el.remove(), 2200);
+        }
+
+        // parsePrice bạn đã thêm ở trước đó:
+        function parsePrice(text){
+        const num = text.replace(/[^\d]/g,'');
+        return Number(num);
+        }
+
+
+        function addToCart(productName, price) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+            const qty = parseInt(document.getElementById('quantity')?.textContent, 10) || 1;
+
+            const product = {
+                id: Date.now(),
+                name: productName,
+                price: price,
+                quantity: qty,
+                image: 'default'
+            };
+
+            cart.push(product);
+            localStorage.setItem('cart', JSON.stringify(cart));
+
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            notification.textContent = `Đã thêm ${productName} (x${qty}) vào giỏ hàng!`;
+            document.body.appendChild(notification);
+
+            setTimeout(() => notification.remove(), 2000);
+        }
+
 
         function showTab(tabName) {
             // Hide all tab contents
-            document.getElementById(\'tab-content-description\').classList.add(\'hidden\');
-            document.getElementById(\'tab-content-specs\').classList.add(\'hidden\');
-            document.getElementById(\'tab-content-reviews\').classList.add(\'hidden\');
+            document.getElementById('tab-content-description').classList.add('hidden');
+            document.getElementById('tab-content-specs').classList.add('hidden');
+            document.getElementById('tab-content-reviews').classList.add('hidden');
             
             // Remove active state from all tabs
-            document.getElementById(\'tab-description\').classList.remove(\'border-blue-600\', \'text-blue-600\');
-            document.getElementById(\'tab-specs\').classList.remove(\'border-blue-600\', \'text-blue-600\');
-            document.getElementById(\'tab-reviews\').classList.remove(\'border-blue-600\', \'text-blue-600\');
+            document.getElementById('tab-description').classList.remove('border-blue-600', 'text-blue-600');
+            document.getElementById('tab-specs').classList.remove('border-blue-600', 'text-blue-600');
+            document.getElementById('tab-reviews').classList.remove('border-blue-600', 'text-blue-600');
             
-            document.getElementById(\'tab-description\').classList.add(\'text-gray-600\');
-            document.getElementById(\'tab-specs\').classList.add(\'text-gray-600\');
-            document.getElementById(\'tab-reviews\').classList.add(\'text-gray-600\');
+            document.getElementById('tab-description').classList.add('text-gray-600');
+            document.getElementById('tab-specs').classList.add('text-gray-600');
+            document.getElementById('tab-reviews').classList.add('text-gray-600');
             
             // Show selected tab content and activate tab
-            document.getElementById(\'tab-content-\' + tabName).classList.remove(\'hidden\');
-            document.getElementById(\'tab-\' + tabName).classList.add(\'border-blue-600\', \'text-blue-600\');
-            document.getElementById(\'tab-\' + tabName).classList.remove(\'text-gray-600\');
+            document.getElementById('tab-content-' + tabName).classList.remove('hidden');
+            document.getElementById('tab-' + tabName).classList.add('border-blue-600', 'text-blue-600');
+            document.getElementById('tab-' + tabName).classList.remove('text-gray-600');
         }
 
         function filterByCategory(category) {
@@ -866,50 +751,30 @@
 
         function updateSidebarActive(activeCategory) {
             // Remove active state from all buttons
-            const buttons = document.querySelectorAll(\'aside button\');
+            const buttons = document.querySelectorAll('nav button');
             buttons.forEach(btn => {
-                btn.classList.remove(\'bg-blue-50\', \'text-blue-600\', \'border-l-4\', \'border-blue-600\');
-                btn.classList.add(\'text-gray-600\');
+                btn.classList.remove('bg-blue-50', 'text-blue-600', 'border-blue-600');
+                btn.classList.add('text-gray-600', 'border-gray-300');
             });
 
             // Add active state to selected button
-            const activeButton = document.querySelector(`button[onclick*="${activeCategory}"]`) || 
-                                document.querySelector(\'button[onclick="showProductList()"]\');
+            const activeButton = document.querySelector(`button[onclick*="${activeCategory}"]`);
             if (activeButton) {
-                activeButton.classList.add(\'bg-blue-50\', \'text-blue-600\', \'border-l-4\', \'border-blue-600\');
-                activeButton.classList.remove(\'text-gray-600\');
+                activeButton.classList.add('bg-blue-50', 'text-blue-600', 'border-blue-600');
+                activeButton.classList.remove('text-gray-600', 'border-gray-300');
             }
         }
 
         function filterProducts() {
-            try {
-                const productCards = document.querySelectorAll('.product-card');
-                if (!productCards.length) {
-                    console.error('No product cards found');
-                    return;
-                }
-
-                let hasVisibleProducts = false;
-                
-                // Animation setup
-                const fadeOut = [
-                    { opacity: 1, transform: 'translateY(0)' },
-                    { opacity: 0, transform: 'translateY(-10px)' }
-                ];
-                const fadeIn = [
-                    { opacity: 0, transform: 'translateY(-10px)' },
-                    { opacity: 1, transform: 'translateY(0)' }
-                ];
-                const animationTiming = {
-                    duration: 300,
-                    easing: 'ease-out'
-                };            productCards.forEach((card, index) => {
+            const productCards = document.querySelectorAll('.product-card');
+            
+            productCards.forEach((card, index) => {
                 const productId = index + 1;
                 const product = products[productId];
                 let shouldShow = true;
 
                 // Category filter
-                if (currentFilter !== \'all\' && product.category !== currentFilter) {
+                if (currentFilter !== 'all' && product.category !== currentFilter) {
                     shouldShow = false;
                 }
 
@@ -923,105 +788,48 @@
                     shouldShow = false;
                 }
 
-                // Show/hide product with animation
+                // Show/hide product
                 if (shouldShow) {
                     card.style.display = 'block';
-                    card.animate(fadeIn, animationTiming);
                 } else {
-                    card.animate(fadeOut, animationTiming).onfinish = () => {
-                        card.style.display = 'none';
-                    };
+                    card.style.display = 'none';
                 }
             });
         }
 
+        function parsePrice(text){
+            // Lấy toàn bộ chữ số, bỏ dấu chấm, khoảng trắng, ký hiệu ₫
+            const num = text.replace(/[^\d]/g, '');
+            return Number(num); // VND dưới dạng số
+        }
+
         function searchProducts(event) {
-            try {
-                if (event.key === 'Enter') {
-                    performSearch();
-                }
-            } catch (error) {
-                console.error('Error in search products:', error);
+            if (event.key === 'Enter') {
+                performSearch();
             }
         }
 
         function performSearch() {
-            try {
-                const searchInput = document.getElementById('search-input');
-                if (!searchInput) {
-                    console.error('Search input not found');
-                    return;
-                }
-
-                const searchTerm = searchInput.value.toLowerCase();
-                const productCards = document.querySelectorAll('.product-card');
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const productCards = document.querySelectorAll('.product-card');
             
             productCards.forEach((card, index) => {
                 const productId = index + 1;
                 const product = products[productId];
                 const productTitle = product.title.toLowerCase();
                 
-                if (productTitle.includes(searchTerm) || searchTerm === \'\') {
-                    card.style.display = \'block\';
+                if (productTitle.includes(searchTerm) || searchTerm === '') {
+                    card.style.display = 'block';
                 } else {
-                    card.style.display = \'none\';
+                    card.style.display = 'none';
                 }
             });
         }
 
-        function showCart() {
-            // Create cart modal
-            const modal = document.createElement(\'div\');
-            modal.className = \'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50\';
-            
-            const cartContent = cartCount === 0 ? 
-                \'Giỏ hàng của bạn đang trống!\' : 
-                `Bạn có ${cartCount} sản phẩm trong giỏ hàng`;
-                
-            modal.innerHTML = `
-                <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-                    <h3 class="text-xl font-bold mb-4">Giỏ hàng của bạn</h3>
-                    <p class="text-gray-600 mb-4">${cartContent}</p>
-                    <div class="flex space-x-3">
-                        <button onclick="closeModal()" 
-                                class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg">
-                            Đóng
-                        </button>
-                        ${cartCount > 0 ? `
-                        <button onclick="checkout()" 
-                                class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg">
-                            Thanh toán
-                        </button>` : \'\'}
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-        }
 
-        function closeModal() {
-            const modal = document.querySelector(\'.fixed.inset-0\');
-            if (modal) {
-                modal.remove();
-            }
-        }
-
-        function checkout() {
-            // Create checkout notification
-            const notification = document.createElement(\'div\');
-            notification.className = \'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50\';
-            notification.textContent = \'Chức năng thanh toán đang được phát triển!\';
-            document.body.appendChild(notification);
-            
-            // Remove notification after 3 seconds
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-            
-            closeModal();
-        }
 
         function sortProducts(sortType) {
-            const productGrid = document.querySelector(\'.grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-3.xl\\:grid-cols-4\');
+            const productGrid = document.getElementById('product-grid');
             const productCards = Array.from(productGrid.children);
             
             // Create array of products with their data and DOM elements
@@ -1037,13 +845,13 @@
             // Sort based on selected option
             let sortedProducts;
             switch(sortType) {
-                case \'price-low\':
+                case 'price-low':
                     sortedProducts = productsWithElements.sort((a, b) => a.data.priceValue - b.data.priceValue);
                     break;
-                case \'price-high\':
+                case 'price-high':
                     sortedProducts = productsWithElements.sort((a, b) => b.data.priceValue - a.data.priceValue);
                     break;
-                case \'newest\':
+                case 'newest':
                     sortedProducts = productsWithElements.sort((a, b) => b.data.releaseDate - a.data.releaseDate);
                     break;
                 default:
@@ -1052,10 +860,15 @@
             }
 
             // Clear the grid and re-append in sorted order
-            productGrid.innerHTML = \'\';
+            productGrid.innerHTML = '';
             sortedProducts.forEach(product => {
                 productGrid.appendChild(product.element);
             });
+        }
+
+        function parsePrice(text) {
+            const num = text.replace(/[^\d]/g, ''); // bỏ . , ₫, khoảng trắng
+            return Number(num);
         }
     </script>
 @endsection

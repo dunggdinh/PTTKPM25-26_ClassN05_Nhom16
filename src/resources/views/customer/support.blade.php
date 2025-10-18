@@ -5,27 +5,37 @@
 <div class="bg-gradient-to-br from-blue-50 to-indigo-100">
     <main class="container mx-auto px-4 py-8 max-w-6xl">
         <!-- Header -->
-        <header class="mb-8">
+        <header class="mb-6">
             <h1 class="text-3xl font-bold text-gray-800 mb-2">Trung Tâm Hỗ Trợ Khách Hàng</h1>
             <p class="text-gray-600">Chúng tôi luôn sẵn sàng hỗ trợ bạn 24/7</p>
             <p class="text-gray-600 font-bold">Hotline: 0852541711</p>
         </header>
 
+        <!-- Tabs -->
+        <div class="flex items-center gap-2 mb-6">
+            <button id="chatTab" type="button"
+                class="px-4 py-2 rounded-lg bg-blue-600 text-white font-medium shadow-sm">
+                💬 Chat trực tuyến
+            </button>
+            <button id="requestTab" type="button"
+                class="px-4 py-2 rounded-lg bg-gray-50 text-gray-700 border">
+                📝 Gửi yêu cầu hỗ trợ
+            </button>
+        </div>
 
         <!-- Chat Section -->
         <section id="chatSection" class="bg-white rounded-xl shadow-xl border border-gray-100">
             <div class="flex h-[700px]">
-                <!-- Chat Area -->
                 <div class="flex-1 flex flex-col">
-                    <!-- Chat Header -->
+                    <!-- Chat Header (ĐÃ BỎ Quick Actions trong header) -->
                     <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-xl">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-4">
-                                <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                                <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
                                     <span class="text-xl">👨‍💼</span>
                                 </div>
                                 <div>
-                                    <h3 class="font-bold text-lg">Tư Vấn Triệu Quân Sự</h3>
+                                    <h3 class="font-bold text-lg">Tư vấn viên Minh</h3>
                                     <div class="flex items-center space-x-2">
                                         <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                                         <p class="text-sm text-blue-100">Đang trực tuyến</p>
@@ -39,37 +49,43 @@
                         </div>
                     </div>
 
-                    <!-- Messages Container -->
+                    <!-- Messages -->
                     <div id="messagesContainer" class="flex-1 p-6 overflow-y-auto bg-gradient-to-b from-gray-50 to-white space-y-4">
-                        <div class="chat-bubble flex items-start space-x-3">
-                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm">
-                                👨‍💼
-                            </div>
-                            <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
-                                <p class="text-gray-800">Xin chào! Tôi là Minh, tư vấn viên của cửa hàng. Tôi có thể hỗ trợ gì cho bạn hôm nay?</p>
-                                <span class="text-xs text-gray-500 mt-1 block">10:30</span>
-                            </div>
+                    </div>
+
+                    <!-- Quick Actions (ĐÃ DI CHUYỂN XUỐNG ĐÂY) -->
+                    <div id="quickActions" class="px-4 pb-2">
+                        <div class="flex flex-wrap gap-2">
+                            <button class="quick-action px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm"
+                                    data-message="Mình muốn kiểm tra tình trạng đơn DH123456">Kiểm tra đơn</button>
+                            <button class="quick-action px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm"
+                                    data-message="Cho mình hỏi chính sách đổi trả như thế nào?">Đổi trả</button>
+                            <button class="quick-action px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm"
+                                    data-message="Tư vấn giúp mình chọn điện thoại phù hợp">Tư vấn sản phẩm</button>
+                            <button class="quick-action px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm"
+                                    data-message="Mình gặp lỗi kỹ thuật khi sử dụng sản phẩm">Lỗi kỹ thuật</button>
                         </div>
                     </div>
 
                     <!-- Chat Input -->
-                    <div class="p-6 border-t border-gray-200 bg-white rounded-b-xl">
-                        <form id="chatForm" class="flex space-x-4">
+                    <div class="p-4 border-t border-gray-200 bg-white rounded-b-xl">
+                        <form id="chatForm" class="flex items-center space-x-3">
                             <input 
                                 type="text" 
                                 id="chatInput" 
-                                placeholder="Nhập tin nhắn của bạn..."
+                                placeholder="Nhập tin nhắn của bạn... (Enter để gửi)"
                                 class="flex-1 p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                                required
-                            >
-                            <button type="submit" class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl">
+                                required autocomplete="off">
+                            <button type="submit" class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl">
                                 Gửi
                             </button>
                         </form>
+                        <div class="text-xs text-gray-500 mt-2">Mẹo: Nhấn <span class="font-semibold">Shift + Enter</span> để xuống dòng.</div>
                     </div>
                 </div>
             </div>
         </section>
+
 
         <!-- Request Form Section -->
         <section id="requestSection" class="bg-white rounded-xl shadow-xl border border-gray-100 p-8 hidden">
@@ -137,7 +153,7 @@
                     </div>
 
                     <div>
-                        <label for="priority" class="block text-sm font-medium text-gray-700 mb-2">Mức độ ưu tiên *</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Mức độ ưu tiên *</label>
                         <div class="grid grid-cols-3 gap-3">
                             <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
                                 <input type="radio" name="priority" value="low" class="mr-2" required>
@@ -190,161 +206,205 @@
     </main>
 
     <script>
-        // Tab switching functionality
-        const chatTab = document.getElementById(\'chatTab\');
-        const requestTab = document.getElementById(\'requestTab\');
-        const chatSection = document.getElementById(\'chatSection\');
-        const requestSection = document.getElementById(\'requestSection\');
+        // ---------- Helpers ----------
+        const escapeHTML = (str) => str
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
 
-        chatTab.addEventListener(\'click\', () => {
-            chatTab.classList.add(\'bg-blue-600\', \'text-white\');
-            chatTab.classList.remove(\'bg-gray-50\', \'text-gray-700\');
-            requestTab.classList.add(\'bg-gray-50\', \'text-gray-700\');
-            requestTab.classList.remove(\'bg-blue-600\', \'text-white\');
-            
-            chatSection.classList.remove(\'hidden\');
-            requestSection.classList.add(\'hidden\');
-        });
+        // ---------- Tabs ----------
+        const chatTab = document.getElementById('chatTab');
+        const requestTab = document.getElementById('requestTab');
+        const chatSection = document.getElementById('chatSection');
+        const requestSection = document.getElementById('requestSection');
 
-        requestTab.addEventListener(\'click\', () => {
-            requestTab.classList.add(\'bg-blue-600\', \'text-white\');
-            requestTab.classList.remove(\'bg-gray-50\', \'text-gray-700\');
-            chatTab.classList.add(\'bg-gray-50\', \'text-gray-700\');
-            chatTab.classList.remove(\'bg-blue-600\', \'text-white\');
-            
-            requestSection.classList.remove(\'hidden\');
-            chatSection.classList.add(\'hidden\');
-        });
-
-        // Chat functionality
-        const chatForm = document.getElementById(\'chatForm\');
-        const chatInput = document.getElementById(\'chatInput\');
-        const messagesContainer = document.getElementById(\'messagesContainer\');
-
-        function addMessage(message, isUser = false) {
-            const messageDiv = document.createElement(\'div\');
-            messageDiv.className = \'chat-bubble flex items-start space-x-3\';
-            
-            if (isUser) {
-                messageDiv.classList.add(\'flex-row-reverse\', \'space-x-reverse\');
+        function switchTo(tab) {
+            if (tab === 'chat') {
+                chatTab.classList.add('bg-blue-600','text-white');
+                chatTab.classList.remove('bg-gray-50','text-gray-700','border');
+                requestTab.classList.add('bg-gray-50','text-gray-700','border');
+                requestTab.classList.remove('bg-blue-600','text-white');
+                chatSection.classList.remove('hidden');
+                requestSection.classList.add('hidden');
+            } else {
+                requestTab.classList.add('bg-blue-600','text-white');
+                requestTab.classList.remove('bg-gray-50','text-gray-700','border');
+                chatTab.classList.add('bg-gray-50','text-gray-700','border');
+                chatTab.classList.remove('bg-blue-600','text-white');
+                requestSection.classList.remove('hidden');
+                chatSection.classList.add('hidden');
             }
+        }
+        chatTab.addEventListener('click', () => switchTo('chat'));
+        requestTab.addEventListener('click', () => switchTo('request'));
 
-            const currentTime = new Date().toLocaleTimeString(\'vi-VN\', { 
-                hour: \'2-digit\', 
-                minute: \'2-digit\' 
-            });
+        // ---------- Chat ----------
+        const chatForm = document.getElementById('chatForm');
+        const chatInput = document.getElementById('chatInput');
+        const messagesContainer = document.getElementById('messagesContainer');
 
-            messageDiv.innerHTML = `
-                <div class="w-8 h-8 ${isUser ? \'bg-green-500\' : \'bg-blue-500\'} rounded-full flex items-center justify-center text-white text-sm">
-                    ${isUser ? \'👤\' : \'👨‍💼\'}
-                </div>
+        const LS_KEY = 'support_chat_messages_v1';
+
+        function addMessage(message, isUser = false, timeStr = null, save = true) {
+            const msg = message.trim();
+            if (!msg) return;
+
+            const currentTime = timeStr || new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
+            const wrapper = document.createElement('div');
+            wrapper.className = 'chat-bubble flex items-start space-x-3 fade-in ' + (isUser ? 'flex-row-reverse space-x-reverse' : '');
+
+            wrapper.innerHTML = `
+                <div class="w-8 h-8 ${isUser ? 'bg-green-500' : 'bg-blue-500'} rounded-full flex items-center justify-center text-white text-sm"> ${isUser ? '👤' : '👨‍💼'} </div>
                 <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
-                    <p class="text-gray-800">${message}</p>
+                    <p class="text-gray-800">${escapeHTML(msg)}</p>
                     <span class="text-xs text-gray-500 mt-1 block">${currentTime}</span>
                 </div>
             `;
-
-            messagesContainer.appendChild(messageDiv);
+            messagesContainer.appendChild(wrapper);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            if (save) {
+                const history = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+                history.push({ message: msg, isUser, time: currentTime });
+                localStorage.setItem(LS_KEY, JSON.stringify(history));
+            }
         }
 
         function showTypingIndicator() {
-            const typingDiv = document.createElement(\'div\');
-            typingDiv.className = \'typing-indicator flex items-start space-x-3\';
-            typingDiv.id = \'typingIndicator\';
-            
+            removeTypingIndicator();
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator flex items-start space-x-3';
+            typingDiv.id = 'typingIndicator';
             typingDiv.innerHTML = `
-                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm">
-                    👨‍💼
-                </div>
+                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm">👨‍💼</div>
                 <div class="bg-white p-3 rounded-lg shadow-sm">
                     <p class="text-gray-500">Đang nhập...</p>
                 </div>
             `;
-
             messagesContainer.appendChild(typingDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
-
         function removeTypingIndicator() {
-            const typingIndicator = document.getElementById(\'typingIndicator\');
-            if (typingIndicator) {
-                typingIndicator.remove();
-            }
+            const el = document.getElementById('typingIndicator');
+            if (el) el.remove();
         }
 
+        // Auto-responder with DH pattern
         function getAutoResponse(userMessage) {
             const message = userMessage.toLowerCase();
-            
-            if (message.includes(\'đơn hàng\') || message.includes(\'kiểm tra\')) {
-                return \'Để kiểm tra tình trạng đơn hàng, bạn vui lòng cung cấp mã đơn hàng. Mã đơn hàng thường có dạng DH + 6 số (VD: DH123456).\';
-            } else if (message.includes(\'đổi\') || message.includes(\'trả\')) {
-                return \'Chính sách đổi trả của chúng tôi: Sản phẩm có thể đổi trả trong 7 ngày, còn nguyên tem mác. Bạn có thể mang sản phẩm đến cửa hàng hoặc gửi qua đường bưu điện.\';
-            } else if (message.includes(\'thanh toán\') || message.includes(\'payment\')) {
-                return \'Chúng tôi hỗ trợ các hình thức thanh toán: Thẻ tín dụng, chuyển khoản ngân hàng, ví điện tử (MoMo, ZaloPay), và thanh toán khi nhận hàng (COD).\';
-            } else if (message.includes(\'tư vấn\') || message.includes(\'sản phẩm\')) {
-                return \'Tôi sẵn sàng tư vấn sản phẩm cho bạn! Bạn đang quan tâm đến loại sản phẩm nào? Điện thoại, laptop, phụ kiện hay thiết bị gia dụng?\';
-            } else if (message.includes(\'kỹ thuật\') || message.includes(\'lỗi\')) {
-                return \'Để hỗ trợ kỹ thuật tốt nhất, bạn vui lòng mô tả chi tiết vấn đề gặp phải và model sản phẩm. Tôi sẽ hướng dẫn bạn từng bước.\';
+
+            // Detect order code DHxxxxxx
+            const dhMatch = userMessage.toUpperCase().match(/DH(\d{6,})/);
+            if (dhMatch) {
+                const code = dhMatch[0];
+                // Mock statuses
+                const statuses = [
+                    'Đã tiếp nhận',
+                    'Đang xử lý tại kho',
+                    'Đã bàn giao cho đơn vị vận chuyển',
+                    'Đang vận chuyển',
+                    'Đang giao',
+                    'Giao thành công'
+                ];
+                const idx = parseInt(code.slice(-1)) % statuses.length;
+                return `Tình trạng đơn ${code}: ${statuses[idx]}. Dự kiến giao trong 1-3 ngày làm việc. Bạn cần hỗ trợ gì thêm không?`;
+            }
+
+            if (message.includes('đơn hàng') || message.includes('kiểm tra')) {
+                return 'Để kiểm tra tình trạng đơn hàng, bạn vui lòng cung cấp mã đơn hàng. Mã đơn thường có dạng DH + 6 số (VD: DH123456).';
+            } else if (message.includes('đổi') || message.includes('trả')) {
+                return 'Chính sách đổi trả: trong 7 ngày, còn nguyên tem mác & phụ kiện. Có thể mang tới cửa hàng hoặc gửi bưu điện.';
+            } else if (message.includes('thanh toán') || message.includes('payment')) {
+                return 'Hỗ trợ: Thẻ tín dụng/ghi nợ, chuyển khoản, ví MoMo/ZaloPay, và COD khi nhận hàng.';
+            } else if (message.includes('tư vấn') || message.includes('sản phẩm')) {
+                return 'Mình tư vấn ngay! Bạn quan tâm danh mục nào: điện thoại, laptop, phụ kiện hay gia dụng?';
+            } else if (message.includes('kỹ thuật') || message.includes('lỗi')) {
+                return 'Bạn mô tả chi tiết lỗi + model sản phẩm giúp mình nhé. Mình sẽ hướng dẫn từng bước khắc phục.';
             } else {
-                return \'Cảm ơn bạn đã liên hệ! Tôi đã ghi nhận thông tin và sẽ hỗ trợ bạn ngay. Bạn có thể cung cấp thêm chi tiết để tôi hỗ trợ tốt hơn không?\';
+                return 'Cảm ơn bạn đã liên hệ! Bạn có thể cung cấp thêm chi tiết để mình hỗ trợ chính xác hơn không?';
             }
         }
 
-        chatForm.addEventListener(\'submit\', (e) => {
+        // Load history or seed greeting
+        function loadHistory() {
+            messagesContainer.innerHTML = '';
+            const history = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+            if (history.length) {
+                history.forEach(h => addMessage(h.message, h.isUser, h.time, false));
+            } else {
+                addMessage('Xin chào! Mình là Minh, tư vấn viên của cửa hàng. Mình có thể hỗ trợ gì cho bạn hôm nay?', false);
+            }
+        }
+
+        // Submit handler
+        chatForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const message = chatInput.value.trim();
-            
-            if (message) {
-                addMessage(message, true);
-                chatInput.value = \'\';
-                
-                showTypingIndicator();
-                
-                setTimeout(() => {
-                    removeTypingIndicator();
-                    const response = getAutoResponse(message);
-                    addMessage(response);
-                }, 1500 + Math.random() * 1000);
+            if (!message) return;
+
+            addMessage(message, true);
+            chatInput.value = '';
+
+            showTypingIndicator();
+            setTimeout(() => {
+                removeTypingIndicator();
+                const response = getAutoResponse(message);
+                addMessage(response, false);
+            }, 900 + Math.random() * 900);
+        });
+
+        // Shift+Enter newline; Enter submit
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                chatForm.dispatchEvent(new Event('submit'));
             }
         });
 
         // Quick action buttons
-        document.querySelectorAll(\'.quick-action\').forEach(button => {
-            button.addEventListener(\'click\', () => {
-                const message = button.getAttribute(\'data-message\');
-                chatInput.value = message;
-                chatForm.dispatchEvent(new Event(\'submit\'));
+        document.querySelectorAll('.quick-action').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const msg = btn.getAttribute('data-message') || '';
+                chatInput.value = msg;
+                chatForm.dispatchEvent(new Event('submit'));
             });
         });
 
-        // Support form functionality
-        const supportForm = document.getElementById(\'supportForm\');
-        const successMessage = document.getElementById(\'successMessage\');
-        const ticketId = document.getElementById(\'ticketId\');
+        // ---------- Support form ----------
+        const supportForm = document.getElementById('supportForm');
+        const successMessage = document.getElementById('successMessage');
+        const ticketId = document.getElementById('ticketId');
 
-        supportForm.addEventListener(\'submit\', (e) => {
+        supportForm.addEventListener('submit', (e) => {
             e.preventDefault();
             
             // Generate ticket ID
-            const ticketNumber = \'SP\' + Date.now().toString().slice(-6);
+            const ticketNumber = 'SP' + Date.now().toString().slice(-6);
             ticketId.textContent = ticketNumber;
             
             // Show success message
-            successMessage.classList.remove(\'hidden\');
-            supportForm.style.display = \'none\';
+            successMessage.classList.remove('hidden');
+            supportForm.style.display = 'none';
             
             // Scroll to success message
-            successMessage.scrollIntoView({ behavior: \'smooth\' });
-            
+            successMessage.scrollIntoView({ behavior: 'smooth' });
+
+            // (Optional) push a chat note
+            addMessage(`Mình đã tạo phiếu hỗ trợ ${ticketNumber} cho bạn. Bộ phận CSKH sẽ phản hồi trong 24h.`, false);
+
             // Reset form after 5 seconds
             setTimeout(() => {
                 supportForm.reset();
-                successMessage.classList.add(\'hidden\');
-                supportForm.style.display = \'block\';
+                successMessage.classList.add('hidden');
+                supportForm.style.display = 'block';
             }, 5000);
         });
+
+        // ---------- Init ----------
+        loadHistory();
+        switchTo('chat');
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement(\'script\');d.innerHTML="window.__CF$cv$params={r:\'98f5f8bce2160eeb\',t:\'MTc2MDYwMTA5Mi4wMDAwMDA=\'};var a=document.createElement(\'script\');a.nonce=\'\';a.src=\'/cdn-cgi/challenge-platform/scripts/jsd/main.js\';document.getElementsByTagName(\'head\')[0].appendChild(a);";b.getElementsByTagName(\'head\')[0].appendChild(d)}}if(document.body){var a=document.createElement(\'iframe\');a.height=1;a.width=1;a.style.position=\'absolute\';a.style.top=0;a.style.left=0;a.style.border=\'none\';a.style.visibility=\'hidden\';document.body.appendChild(a);if(\'loading\'!==document.readyState)c();else if(window.addEventListener)document.addEventListener(\'DOMContentLoaded\',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);\'loading\'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
-</html>
+</div>
 @endsection

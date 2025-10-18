@@ -188,10 +188,60 @@ button.logout:hover {
 .tab-button.active { background-color: #3b82f6; color: #fff; }
 
 /* ===== Star Rating & Reviews ===== */
-.star-rating { display: flex; gap: 4px; color: #fbbf24; }
-.star { cursor: pointer; font-size: 24px; color: #d1d5db; transition: color 0.2s; }
-.star.active, .star.hover { color: #fbbf24; }
-.review-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+.star-rating {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    user-select: none;
+}
+
+.star {
+    cursor: pointer;
+    font-size: 24px;
+    line-height: 1;
+    color: #d1d5db;                    /* màu sao chưa chọn */
+    transition: transform .1s ease, color .2s ease, text-shadow .2s ease;
+    will-change: transform, color;
+    display: inline-block;      /* thêm */
+    padding: 2px;  
+}
+
+.star.hover,
+.star.active {
+    color: #fbbf24;                    /* vàng sáng */
+    text-shadow: 0 0 8px rgba(251, 191, 36, 0.35);
+}
+
+.star:active {
+    transform: scale(0.95);
+}
+
+/* Trạng thái chỉ đọc (dùng khi hiển thị sao trung bình) */
+.star-rating.readonly .star {
+    cursor: default;
+}
+
+/* Vô hiệu hoá chọn sao (khi đang submit, v.v.) */
+.star.is-disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Giảm chuyển động nếu người dùng bật reduce motion */
+@media (prefers-reduced-motion: reduce) {
+    .star {
+        transition: color .2s ease;
+    }
+    .star:active {
+        transform: none;
+    }
+}
+
+/* Card review và progress giữ nguyên hiệu ứng hover */
+.review-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
 .progress-bar { transition: width 0.3s ease; }
 
 /* ===== Inputs & Forms ===== */

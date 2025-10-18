@@ -194,6 +194,9 @@ use App\Http\Controllers\ShipmentController;
 use App\Http\Controllers\Admin\DeliveryController;
 use App\Http\Controllers\InventoryController;
 
+// routes/api.php
+use App\Http\Controllers\TrackingController;
+Route::get('/tracking/{trackingId}', [TrackingController::class, 'show']);
 
 
 // Nhóm route admin 

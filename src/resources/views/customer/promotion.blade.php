@@ -218,6 +218,50 @@
             </article>
         </section>
 
+        <!-- Shopping Cart -->
+        <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-96 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50 overflow-y-auto">
+            <div class="p-6 border-b">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-gray-800">🛒 Giỏ hàng</h2>
+                    <button id="close-cart" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                </div>
+                <div class="mt-2">
+                    <span class="text-sm text-gray-600">Số lượng: </span>
+                    <span id="cart-count" class="font-bold text-blue-600">0</span>
+                </div>
+            </div>
+            
+            <div id="cart-items" class="p-6">
+                <div class="text-center text-gray-500 py-8" id="empty-cart">
+                    <div class="text-4xl mb-4">🛒</div>
+                    <p>Giỏ hàng của bạn đang trống</p>
+                </div>
+            </div>
+            
+            <div id="cart-footer" class="border-t p-6 bg-gray-50" style="display: none;">
+                <div class="mb-4">
+                    <div class="flex justify-between text-lg font-bold">
+                        <span>Tổng cộng:</span>
+                        <span id="cart-total" class="text-red-600">0₫</span>
+                    </div>
+                    <div class="text-sm text-green-600 mt-1" id="voucher-savings" style="display: none;">
+                        Tiết kiệm: <span id="savings-amount">0₫</span> với voucher
+                    </div>
+                </div>
+                <button class="w-full bg-gradient-to-r from-green-500 to-teal-500 text-white py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                    Thanh toán ngay
+                </button>
+            </div>
+        </div>
+
+        <!-- Cart Button -->
+        <button id="cart-button" class="fixed bottom-6 right-6 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-colors z-40">
+            <div class="relative">
+                🛒
+                <span id="cart-badge" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center" style="display: none;">0</span>
+            </div>
+        </button>
+
         <!-- Special Offers Section -->
         <section class="mt-16 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl p-8 text-center text-white">
             <h2 class="text-3xl font-bold mb-4">🎁 Ưu Đãi Đặc Biệt</h2>
@@ -252,62 +296,276 @@
         });
 
         // Countdown timer functionality
-        function initializeCountdown() {
-            const hours = document.getElementById('hours');
-            const minutes = document.getElementById('minutes');
-            const seconds = document.getElementById('seconds');
+        function updateFlashSaleCountdown() {
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            const currentSecond = now.getSeconds();
             
-            if (hours && minutes && seconds) {
-                // Set initial time (2 hours)
-                hours.textContent = '02';
-                minutes.textContent = '00';
-                seconds.textContent = '00';
+            const hoursElement = document.getElementById('hours');
+            const minutesElement = document.getElementById('minutes');
+            const secondsElement = document.getElementById('seconds');
+            const flashSaleSection = document.querySelector('.countdown');
+            const flashSaleTitle = flashSaleSection.querySelector('h2');
+            const flashSaleDesc = flashSaleSection.querySelector('p');
+            
+            // Check if currently in Flash Sale time (8PM - 10PM)
+            if (currentHour >= 20 && currentHour < 22) {
+                // During Flash Sale - countdown to end (10PM)
+                const endTime = new Date();
+                endTime.setHours(22, 0, 0, 0);
                 
-                // Add transition styles for smooth animations
-                [hours, minutes, seconds].forEach(el => {
-                    el.style.transition = 'all 0.2s ease-in-out';
-                });
-
-                function updateCountdown() {
-                    let h = parseInt(hours.textContent);
-                    let m = parseInt(minutes.textContent);
-                    let s = parseInt(seconds.textContent);
-                    
-                    s--;
-                    if (s < 0) {
-                        s = 59;
-                        m--;
-                        if (m < 0) {
-                            m = 59;
-                            h--;
-                            if (h < 0) {
-                                // Reset to 2 hours when countdown reaches 0
-                                h = 2;
-                                m = 0;
-                                s = 0;
-                            }
-                        }
-                    }
-                    
-                    // Apply animation effect
-                    seconds.style.transform = 'scale(1.1)';
-                    seconds.style.color = '#fde047';
-                    
-                    setTimeout(() => {
-                        seconds.style.transform = 'scale(1)';
-                        seconds.style.color = 'white';
-                    }, 200);
-                    
-                    // Update display
-                    hours.textContent = h.toString().padStart(2, '0');
-                    minutes.textContent = m.toString().padStart(2, '0');
-                    seconds.textContent = s.toString().padStart(2, '0');
+                const timeLeft = endTime - now;
+                const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                
+                hoursElement.textContent = hours.toString().padStart(2, '0');
+                minutesElement.textContent = minutes.toString().padStart(2, '0');
+                secondsElement.textContent = seconds.toString().padStart(2, '0');
+                
+                flashSaleTitle.textContent = '⚡ FLASH SALE ĐANG DIỄN RA - Còn lại';
+                flashSaleDesc.textContent = 'Giảm đến 70% cho tất cả sản phẩm! Nhanh tay kẻo lỡ!';
+                flashSaleSection.style.background = 'linear-gradient(45deg, #ff6b6b, #ee5a24)';
+                
+            } else {
+                // Outside Flash Sale - countdown to next 8PM
+                let nextFlashSale = new Date();
+                
+                if (currentHour >= 22) {
+                    // After 10PM, next Flash Sale is tomorrow 8PM
+                    nextFlashSale.setDate(nextFlashSale.getDate() + 1);
                 }
+                nextFlashSale.setHours(20, 0, 0, 0);
                 
-                // Start the countdown
-                setInterval(updateCountdown, 1000);
+                const timeLeft = nextFlashSale - now;
+                const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                
+                hoursElement.textContent = hours.toString().padStart(2, '0');
+                minutesElement.textContent = minutes.toString().padStart(2, '0');
+                secondsElement.textContent = seconds.toString().padStart(2, '0');
+                
+                flashSaleTitle.textContent = '⏰ FLASH SALE SẮP BẮT ĐẦU - Còn';
+                flashSaleDesc.textContent = 'Flash Sale 8h-10h tối hàng ngày. Chuẩn bị sẵn sàng!';
+                flashSaleSection.style.background = 'linear-gradient(45deg, #667eea, #764ba2)';
             }
         }
+
+        // Update countdown every second
+        updateFlashSaleCountdown();
+        setInterval(updateFlashSaleCountdown, 1000);
+        
+        // Category filtering functionality
+        const categoryButtons = document.querySelectorAll('.category-btn');
+        const promotionCards = document.querySelectorAll('.promotion-card');
+        
+        categoryButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const category = this.getAttribute('data-category');
+                
+                // Update active button
+                categoryButtons.forEach(btn => {
+                    btn.classList.remove('bg-blue-600', 'text-white');
+                    btn.classList.add('bg-gray-200', 'text-gray-700');
+                });
+                this.classList.remove('bg-gray-200', 'text-gray-700');
+                this.classList.add('bg-blue-600', 'text-white');
+                
+                // Filter cards
+                promotionCards.forEach(card => {
+                    if (category === 'all' || card.getAttribute('data-category') === category) {
+                        card.style.display = 'block';
+                        setTimeout(() => {
+                            card.style.opacity = '1';
+                            card.style.transform = 'translateY(0)';
+                        }, 100);
+                    } else {
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(20px)';
+                        setTimeout(() => {
+                            card.style.display = 'none';
+                        }, 300);
+                    }
+                });
+            });
+        });
+        
+        // Shopping cart functionality
+        let cart = [];
+        let cartTotal = 0;
+        let appliedVouchers = [];
+        
+        // Voucher database
+        const vouchers = [
+            { code: 'SAVE15', discount: 15, description: 'Giảm 15% cho đơn hàng này', minOrder: 0 },
+            { code: 'WELCOME20', discount: 20, description: 'Giảm 20% cho khách hàng mới', minOrder: 1000000 },
+            { code: 'MEGA25', discount: 25, description: 'Giảm 25% cho đơn hàng trên 5 triệu', minOrder: 5000000 },
+            { code: 'FLASH30', discount: 30, description: 'Giảm 30% Flash Sale đặc biệt', minOrder: 2000000 }
+        ];
+        
+        function getRandomVoucher() {
+            return vouchers[Math.floor(Math.random() * vouchers.length)];
+        }
+        
+        function formatPrice(price) {
+            return price.toLocaleString('vi-VN') + '₫';
+        }
+        
+        function updateCartUI() {
+            const cartCount = document.getElementById('cart-count');
+            const cartBadge = document.getElementById('cart-badge');
+            const cartItems = document.getElementById('cart-items');
+            const cartFooter = document.getElementById('cart-footer');
+            const emptyCart = document.getElementById('empty-cart');
+            const cartTotalElement = document.getElementById('cart-total');
+            
+            cartCount.textContent = cart.length;
+            
+            if (cart.length > 0) {
+                cartBadge.textContent = cart.length;
+                cartBadge.style.display = 'flex';
+                emptyCart.style.display = 'none';
+                cartFooter.style.display = 'block';
+                
+                // Calculate total with voucher discount
+                let subtotal = cart.reduce((sum, item) => sum + item.price, 0);
+                let discount = 0;
+                
+                if (appliedVouchers.length > 0) {
+                    const voucher = appliedVouchers[0];
+                    discount = subtotal * (voucher.discount / 100);
+                    document.getElementById('voucher-savings').style.display = 'block';
+                    document.getElementById('savings-amount').textContent = formatPrice(discount);
+                }
+                
+                cartTotal = subtotal - discount;
+                cartTotalElement.textContent = formatPrice(cartTotal);
+                
+                // Update cart items display
+                cartItems.innerHTML = cart.map((item, index) => `
+                    <div class="flex items-center justify-between p-4 border-b">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-800">${item.name}</h4>
+                            <p class="text-red-600 font-bold">${formatPrice(item.price)}</p>
+                        </div>
+                        <button onclick="removeFromCart(${index})" class="text-red-500 hover:text-red-700 ml-4">
+                            🗑️
+                        </button>
+                    </div>
+                `).join('');
+                
+                // Show applied voucher
+                if (appliedVouchers.length > 0) {
+                    const voucher = appliedVouchers[0];
+                    cartItems.innerHTML += `
+                        <div class="bg-green-50 p-4 rounded-lg mt-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span class="font-bold text-green-600">🎫 ${voucher.code}</span>
+                                    <p class="text-sm text-green-600">${voucher.description}</p>
+                                </div>
+                                <span class="text-green-600 font-bold">-${voucher.discount}%</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                cartBadge.style.display = 'none';
+                emptyCart.style.display = 'block';
+                cartFooter.style.display = 'none';
+                cartItems.innerHTML = `
+                    <div class="text-center text-gray-500 py-8" id="empty-cart">
+                        <div class="text-4xl mb-4">🛒</div>
+                        <p>Giỏ hàng của bạn đang trống</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function addToCart(productName, price) {
+            const item = { name: productName, price: price };
+            cart.push(item);
+            
+            // Auto-apply voucher for first purchase or random chance
+            if (cart.length === 1 || Math.random() < 0.3) {
+                const voucher = getRandomVoucher();
+                if (!appliedVouchers.find(v => v.code === voucher.code)) {
+                    appliedVouchers.push(voucher);
+                    showVoucherModal(voucher);
+                }
+            }
+            
+            updateCartUI();
+            showNotification(`Đã thêm ${productName} vào giỏ hàng!`);
+        }
+        
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+        
+        function showVoucherModal(voucher) {
+            const modal = document.getElementById('voucher-modal');
+            const code = document.getElementById('voucher-code');
+            const description = document.getElementById('voucher-description');
+            
+            code.textContent = voucher.code;
+            description.textContent = voucher.description;
+            modal.style.display = 'flex';
+        }
+        
+        // Add to cart functionality for all buy buttons
+        document.querySelectorAll('button').forEach(button => {
+            if (button.textContent.includes('Mua ngay')) {
+                button.addEventListener('click', function() {
+                    const card = this.closest('.promotion-card');
+                    const productName = card.querySelector('h3').textContent;
+                    const priceText = card.querySelector('.text-red-600').textContent;
+                    const price = parseInt(priceText.replace(/[^\d]/g, ''));
+                    
+                    // Visual feedback
+                    const originalText = this.textContent;
+                    const originalClasses = this.className;
+                    
+                    this.textContent = 'Đã thêm vào giỏ! ✓';
+                    this.className = this.className.replace(/from-\w+-\d+\s+to-\w+-\d+/, 'from-green-500 to-green-600');
+                    
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                        this.className = originalClasses;
+                    }, 2000);
+                    
+                    // Add to cart
+                    addToCart(productName, price);
+                });
+            }
+        });
+        
+        // Cart sidebar functionality
+        document.getElementById('cart-button').addEventListener('click', function() {
+            document.getElementById('cart-sidebar').classList.remove('translate-x-full');
+        });
+        
+        document.getElementById('close-cart').addEventListener('click', function() {
+            document.getElementById('cart-sidebar').classList.add('translate-x-full');
+        });
+        
+        // Voucher modal functionality
+        document.getElementById('close-voucher-modal').addEventListener('click', function() {
+            document.getElementById('voucher-modal').style.display = 'none';
+        });
+        
+        // Close cart when clicking outside
+        document.addEventListener('click', function(e) {
+            const cartSidebar = document.getElementById('cart-sidebar');
+            const cartButton = document.getElementById('cart-button');
+            
+            if (!cartSidebar.contains(e.target) && !cartButton.contains(e.target)) {
+                cartSidebar.classList.add('translate-x-full');
+            }
+        });
 
         // Category filtering functionality
         function initializeCategoryFilters() {
