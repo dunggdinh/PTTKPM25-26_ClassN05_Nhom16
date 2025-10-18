@@ -81,6 +81,22 @@
             <aside class="lg:col-span-1">
                 <div class="bg-white rounded-xl shadow-lg p-6 sticky top-8">
                     <h3 class="text-xl font-semibold text-gray-800 mb-4">✍️ Viết đánh giá</h3>
+                    <!-- Hiển thị sản phẩm đang viết đánh giá -->
+                    <div id="selectedProductBox" class="hidden mb-4">
+                        <div class="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
+                            <span class="text-sm text-blue-700">Đang viết cho:</span>
+                            <span id="selectedProductName" class="text-sm font-semibold text-blue-800"></span>
+                            <button type="button" id="clearSelectedProduct"
+                                    class="ml-auto text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded">
+                            ✖ Đổi sản phẩm
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Ẩn để submit -->
+                    <input type="hidden" id="productId" name="product_id">
+                    <input type="hidden" id="productName" name="product_name">
+
                     <form id="reviewForm" class="space-y-4">
                         <div>
                             <label for="customerName" class="block text-sm font-medium text-gray-700 mb-2">Tên của bạn</label>
@@ -249,203 +265,191 @@
     </main>
 
     <script>
+    document.addEventListener('DOMContentLoaded', () => {
         let selectedRating = 0;
-        
-        // Xử lý đánh giá sao
+
+        // --- Tham chiếu DOM dùng chung ---
+        const selectedProductBox = document.getElementById('selectedProductBox');
+        const selectedProductName = document.getElementById('selectedProductName');
+        const productIdInput = document.getElementById('productId');
+        const productNameInput = document.getElementById('productName');
+
+        // ====== STAR RATING ======
         const stars = document.querySelectorAll('.star');
         const ratingText = document.getElementById('ratingText');
-        
+
         const ratingLabels = {
-            1: \'Rất tệ\',
-            2: \'Tệ\', 
-            3: \'Bình thường\',
-            4: \'Tốt\',
-            5: \'Tuyệt vời\'
+            1: 'Rất tệ',
+            2: 'Tệ',
+            3: 'Bình thường',
+            4: 'Tốt',
+            5: 'Tuyệt vời'
         };
-        
+
+        function updateStars() {
+            stars.forEach((star, index) => {
+                star.classList.remove('active', 'hover');
+                if (index < selectedRating) star.classList.add('active');
+            });
+        }
+
+        function highlightStarsHover(rating) {
+            stars.forEach((star, index) => {
+                star.classList.remove('hover');
+                if (index < rating) star.classList.add('hover');
+            });
+        }
+
         stars.forEach(star => {
-            star.addEventListener(\'click\', () => {
-                selectedRating = parseInt(star.dataset.rating);
+            star.addEventListener('click', () => {
+                selectedRating = parseInt(star.dataset.rating, 10);
                 updateStars();
                 ratingText.textContent = ratingLabels[selectedRating];
             });
-            
-            star.addEventListener(\'mouseenter\', () => {
-                const rating = parseInt(star.dataset.rating);
+
+            star.addEventListener('mouseenter', () => {
+                const rating = parseInt(star.dataset.rating, 10);
                 highlightStarsHover(rating);
             });
         });
-        
-        document.getElementById(\'starRating\').addEventListener(\'mouseleave\', () => {
-            updateStars();
-        });
-        
-        function highlightStarsHover(rating) {
-            stars.forEach((star, index) => {
-                star.classList.remove(\'active\', \'hover\');
-                if (index < rating) {
-                    star.classList.add(\'hover\');
-                }
-            });
-        }
-        
-        function updateStars() {
-            stars.forEach((star, index) => {
-                star.classList.remove(\'active\', \'hover\');
-                if (index < selectedRating) {
-                    star.classList.add(\'active\');
-                }
-            });
-        }
-        
-        // Xử lý form gửi đánh giá
-        document.getElementById('reviewForm').addEventListener('submit', function(e) {
+
+        document.getElementById('starRating').addEventListener('mouseleave', updateStars);
+
+        // ====== SUBMIT REVIEW ======
+        document.getElementById('reviewForm').addEventListener('submit', function (e) {
             e.preventDefault();
-            
+
             const name = document.getElementById('customerName').value.trim();
             const title = document.getElementById('reviewTitle').value.trim();
             const content = document.getElementById('reviewContent').value.trim();
-            
+            const selectedProductId = productIdInput.value.trim();
+            const selectedProductNm = productNameInput.value.trim();
+
+            if (!selectedProductId) {
+                showNotification('Vui lòng chọn sản phẩm cần đánh giá (nhấn "✍️ Viết đánh giá" ở sản phẩm).', 'error');
+                return;
+            }
+
             if (!name || !title || !content || selectedRating === 0) {
                 showNotification('Vui lòng điền đầy đủ thông tin và chọn số sao!', 'error');
                 return;
             }
-            
-            // Tạo đánh giá mới
-            createReviewElement(name, title, content, selectedRating).then(newReview => {
+
+            createReviewElement(name, title, content, selectedRating, selectedProductNm).then(newReview => {
                 const reviewsList = document.getElementById('reviewsList');
-                
-                // Add fade-in animation
+
                 newReview.style.opacity = '0';
                 newReview.style.transform = 'translateY(-20px)';
                 reviewsList.insertBefore(newReview, reviewsList.firstChild);
-                
-                // Trigger animation
+
                 requestAnimationFrame(() => {
                     newReview.style.opacity = '1';
                     newReview.style.transform = 'translateY(0)';
                 });
-                
-                // Reset form
+
                 this.reset();
                 selectedRating = 0;
                 updateStars();
                 ratingText.textContent = 'Chọn số sao';
-                
+
                 showNotification('Cảm ơn bạn đã gửi đánh giá! 🎉', 'success');
+
+                // Reset chip chọn sản phẩm
+                selectedProductBox.classList.add('hidden');
+                selectedProductName.textContent = '';
+                productIdInput.value = '';
+                productNameInput.value = '';
             });
         });
-        
-        async function createReviewElement(name, title, content, rating) {
+
+        async function createReviewElement(name, title, content, rating, productName) {
             const reviewDiv = document.createElement('div');
             reviewDiv.className = 'review-card border border-gray-200 rounded-lg p-6';
             reviewDiv.dataset.stars = rating;
             reviewDiv.style.transition = 'all 0.3s ease-out';
-            
-            const stars = '⭐'.repeat(rating);
+
+            const starsTxt = '⭐'.repeat(rating);
             const initial = name.charAt(0).toUpperCase();
             const colors = ['bg-blue-500', 'bg-pink-500', 'bg-green-500', 'bg-purple-500', 'bg-red-500'];
             const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            
-            // Format current date
+
             const now = new Date();
-            const formattedDate = now.toLocaleDateString('vi-VN', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-            
+            const formattedDate = now.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
             reviewDiv.innerHTML = `
                 <div class="flex items-start justify-between mb-3">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 ${randomColor} rounded-full flex items-center justify-center text-white font-semibold">
-                            ${initial}
-                        </div>
-                        <div>
-                            <h4 class="font-semibold text-gray-800">${name}</h4>
-                            <p class="text-sm text-gray-600">Vừa xong</p>
-                        </div>
+                    <div class="w-10 h-10 ${randomColor} rounded-full flex items-center justify-center text-white font-semibold">
+                        ${initial}
                     </div>
-                    <div class="flex text-yellow-400">
-                        ${stars}
+                    <div>
+                        <h4 class="font-semibold text-gray-800">${name}</h4>
+                        <p class="text-sm text-gray-600">${formattedDate}</p>
                     </div>
+                    </div>
+                    <div class="flex text-yellow-400">${starsTxt}</div>
                 </div>
+
+                <div class="mb-2">
+                    <span class="inline-flex items-center gap-1 text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
+                    🛍️ Cho sản phẩm: <strong>${productName}</strong>
+                    </span>
+                </div>
+
                 <h5 class="font-semibold text-gray-800 mb-2">${title}</h5>
                 <p class="text-gray-700 leading-relaxed">${content}</p>
+
                 <div class="flex items-center gap-4 mt-4 text-sm text-gray-600">
                     <button class="like-btn flex items-center gap-1 hover:text-blue-600 transition-colors" data-liked="false" data-count="0">
-                        <span class="like-icon">🤍</span> <span class="like-count">0</span>
+                    <span class="like-icon">🤍</span> <span class="like-count">0</span>
                     </button>
-                    <button class="reply-btn flex items-center gap-1 hover:text-blue-600">
-                        💬 Trả lời
-                    </button>
+                    <button class="reply-btn flex items-center gap-1 hover:text-blue-600">💬 Trả lời</button>
                 </div>
             `;
-            
             return reviewDiv;
         }
-        
+
+        // ====== TOAST NOTIF ======
         function showNotification(message, type = 'success') {
-            // Remove existing notifications
-            const existingNotifications = document.querySelectorAll('.notification');
-            existingNotifications.forEach(notif => notif.remove());
-            
+            document.querySelectorAll('.notification').forEach(n => n.remove());
+
             const notification = document.createElement('div');
-            notification.className = `notification fixed top-4 right-4 px-6 py-3 rounded-lg text-white font-semibold z-50 transform transition-all duration-300 ${
-                type === 'success' ? 'bg-green-500' : 'bg-red-500'
-            } translate-x-full`;
-            
-            // Add icon based on type
+            notification.className =
+                `notification fixed top-4 right-4 px-6 py-3 rounded-lg text-white font-semibold z-50 transform transition-all duration-300 ${
+                    type === 'success' ? 'bg-green-500' : 'bg-red-500'
+                } translate-x-full`;
             const icon = type === 'success' ? '✅' : '❌';
-            notification.innerHTML = `<div class="flex items-center gap-2">
-                <span>${icon}</span>
-                <span>${message}</span>
-            </div>`;
-            
+            notification.innerHTML = `<div class="flex items-center gap-2"><span>${icon}</span><span>${message}</span></div>`;
             document.body.appendChild(notification);
-            
-            // Slide in
-            requestAnimationFrame(() => {
-                notification.style.transform = 'translateX(0)';
-            });
-            
-            // Slide out and remove
+
+            requestAnimationFrame(() => { notification.style.transform = 'translateX(0)'; });
+
             setTimeout(() => {
                 notification.style.transform = 'translateX(100%)';
                 notification.style.opacity = '0';
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        document.body.removeChild(notification);
-                    }
-                }, 300);
+                setTimeout(() => notification.remove(), 300);
             }, 3000);
         }
-        
-        // Xử lý lọc theo số sao
-        document.getElementById(\'starFilter\').addEventListener(\'change\', (e) => {
+
+        // ====== Lọc theo sao ======
+        document.getElementById('starFilter').addEventListener('change', (e) => {
             const filterValue = e.target.value;
-            const reviewsList = document.getElementById(\'reviewsList\');
+            const reviewsList = document.getElementById('reviewsList');
             const reviews = Array.from(reviewsList.children);
-            
+
             reviews.forEach(review => {
-                if (filterValue === \'all\') {
-                    review.style.display = \'block\';
+                if (filterValue === 'all') {
+                    review.style.display = 'block';
                 } else {
                     const reviewStars = review.dataset.stars;
-                    if (reviewStars === filterValue) {
-                        review.style.display = \'block\';
-                    } else {
-                        review.style.display = \'none\';
-                    }
+                    review.style.display = (reviewStars === filterValue) ? 'block' : 'none';
                 }
             });
-            
-            // Đếm số đánh giá hiển thị
-            const visibleReviews = reviews.filter(review => review.style.display !== \'none\').length;
-            const filterText = filterValue === \'all\' ? \'tất cả đánh giá\' : `đánh giá ${filterValue} sao`;
+
+            const visibleReviews = reviews.filter(r => r.style.display !== 'none').length;
+            const filterText = filterValue === 'all' ? 'tất cả đánh giá' : `đánh giá ${filterValue} sao`;
             showNotification(`Hiển thị ${visibleReviews} ${filterText}! ⭐`, 'success');
-            
-            // Animate filtered reviews
+
             reviews.forEach(review => {
                 if (review.style.display === 'block') {
                     review.style.opacity = '0';
@@ -458,123 +462,88 @@
             });
         });
 
-        // Xử lý sắp xếp đánh giá
+        // ====== Sắp xếp ======
         document.getElementById('sortSelect').addEventListener('change', (e) => {
             const sortType = e.target.value;
-            const reviewsList = document.getElementById(\'reviewsList\');
-            const reviews = Array.from(reviewsList.children).filter(review => review.style.display !== \'none\');
-            
-            reviews.sort((a, b) => {
-                switch(sortType) {
-                    case \'newest\':
-                        // Mới nhất lên đầu (thứ tự hiện tại)
-                        return 0;
-                    case \'oldest\':
-                        // Cũ nhất lên đầu (đảo ngược)
-                        return reviews.indexOf(b) - reviews.indexOf(a);
-                    case \'highest\':
-                        // Đánh giá cao nhất
-                        const starsA = parseInt(a.dataset.stars);
-                        const starsB = parseInt(b.dataset.stars);
-                        return starsB - starsA;
-                    case \'lowest\':
-                        // Đánh giá thấp nhất
-                        const starsA2 = parseInt(a.dataset.stars);
-                        const starsB2 = parseInt(b.dataset.stars);
-                        return starsA2 - starsB2;
-                    default:
-                        return 0;
+            const reviewsList = document.getElementById('reviewsList');
+            const all = Array.from(reviewsList.children);
+            const visible = all.filter(r => r.style.display !== 'none');
+            const hidden = all.filter(r => r.style.display === 'none');
+
+            visible.sort((a, b) => {
+                if (sortType === 'highest' || sortType === 'lowest') {
+                    const A = parseInt(a.dataset.stars, 10);
+                    const B = parseInt(b.dataset.stars, 10);
+                    return sortType === 'highest' ? (B - A) : (A - B);
                 }
+                // newest/oldest: vì demo tĩnh, giữ/đảo thứ tự hiện tại
+                return sortType === 'oldest' ? (visible.indexOf(b) - visible.indexOf(a)) : 0;
             });
-            
-            // Xóa và thêm lại theo thứ tự mới (chỉ các review hiển thị)
-            const allReviews = Array.from(reviewsList.children);
-            const hiddenReviews = allReviews.filter(review => review.style.display === \'none\');
-            
-            reviewsList.innerHTML = \'\';
-            reviews.forEach(review => reviewsList.appendChild(review));
-            hiddenReviews.forEach(review => reviewsList.appendChild(review));
-            
-            showNotification(`Đã sắp xếp theo ${e.target.selectedOptions[0].text.toLowerCase()}! 📋`, \'success\');
+
+            reviewsList.innerHTML = '';
+            visible.forEach(r => reviewsList.appendChild(r));
+            hidden.forEach(r => reviewsList.appendChild(r));
+
+            showNotification(`Đã sắp xếp theo ${e.target.selectedOptions[0].text.toLowerCase()}! 📋`, 'success');
         });
-        
-        // Xử lý nút like
-        document.addEventListener(\'click\', (e) => {
-            const likeBtn = e.target.closest(\'.like-btn\');
+
+        // ====== Like & Reply ======
+        document.addEventListener('click', (e) => {
+            const likeBtn = e.target.closest('.like-btn');
             if (likeBtn) {
-                const isLiked = likeBtn.dataset.liked === \'true\';
-                const currentCount = parseInt(likeBtn.dataset.count);
-                const likeIcon = likeBtn.querySelector(\'.like-icon\');
-                const likeCount = likeBtn.querySelector(\'.like-count\');
-                
+                const isLiked = likeBtn.dataset.liked === 'true';
+                const current = parseInt(likeBtn.dataset.count, 10);
+                const likeIcon = likeBtn.querySelector('.like-icon');
+                const likeCount = likeBtn.querySelector('.like-count');
+
                 if (isLiked) {
-                    // Unlike
-                    likeBtn.dataset.liked = \'false\';
-                    likeBtn.dataset.count = currentCount - 1;
-                    likeIcon.textContent = \'🤍\';
-                    likeCount.textContent = currentCount - 1;
-                    likeBtn.style.color = \'#6b7280\';
+                    likeBtn.dataset.liked = 'false';
+                    likeBtn.dataset.count = current - 1;
+                    likeIcon.textContent = '🤍';
+                    likeCount.textContent = current - 1;
+                    likeBtn.style.color = '#6b7280';
                 } else {
-                    // Like
-                    likeBtn.dataset.liked = \'true\';
-                    likeBtn.dataset.count = currentCount + 1;
-                    likeIcon.textContent = \'❤️\';
-                    likeCount.textContent = currentCount + 1;
-                    likeBtn.style.color = \'#dc2626\';
+                    likeBtn.dataset.liked = 'true';
+                    likeBtn.dataset.count = current + 1;
+                    likeIcon.textContent = '❤️';
+                    likeCount.textContent = current + 1;
+                    likeBtn.style.color = '#dc2626';
                 }
             }
-            
-            // Xử lý nút trả lời
-            const replyBtn = e.target.closest(\'.reply-btn\');
+
+            const replyBtn = e.target.closest('.reply-btn');
             if (replyBtn) {
-                const reviewCard = replyBtn.closest(\'.review-card\');
-                
-                // Kiểm tra xem đã có form trả lời chưa
-                let existingReplyForm = reviewCard.querySelector(\'.reply-form\');
-                if (existingReplyForm) {
-                    existingReplyForm.remove();
-                    return;
-                }
-                
-                // Tạo form trả lời
-                const replyForm = document.createElement(\'div\');
-                replyForm.className = \'reply-form mt-4 p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500\';
+                const reviewCard = replyBtn.closest('.review-card');
+                let existing = reviewCard.querySelector('.reply-form');
+                if (existing) { existing.remove(); return; }
+
+                const replyForm = document.createElement('div');
+                replyForm.className = 'reply-form mt-4 p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500';
                 replyForm.innerHTML = `
                     <div class="flex items-center gap-2 mb-3">
-                        <span class="text-sm font-medium text-gray-700">💬 Trả lời đánh giá này:</span>
+                    <span class="text-sm font-medium text-gray-700">💬 Trả lời đánh giá này:</span>
                     </div>
                     <div class="space-y-3">
-                        <input type="text" class="reply-name w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Tên của bạn">
-                        <textarea class="reply-content w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" rows="3" placeholder="Viết phản hồi của bạn..."></textarea>
-                        <div class="flex gap-2">
-                            <button class="submit-reply bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-lg transition duration-200">
-                                Gửi phản hồi
-                            </button>
-                            <button class="cancel-reply bg-gray-500 hover:bg-gray-600 text-white text-sm font-medium py-2 px-4 rounded-lg transition duration-200">
-                                Hủy
-                            </button>
-                        </div>
+                    <input type="text" class="reply-name w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Tên của bạn">
+                    <textarea class="reply-content w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" rows="3" placeholder="Viết phản hồi của bạn..."></textarea>
+                    <div class="flex gap-2">
+                        <button class="submit-reply bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-lg transition duration-200">Gửi phản hồi</button>
+                        <button class="cancel-reply bg-gray-500 hover:bg-gray-600 text-white text-sm font-medium py-2 px-4 rounded-lg transition duration-200">Hủy</button>
+                    </div>
                     </div>
                 `;
-                
                 reviewCard.appendChild(replyForm);
-                
-                // Focus vào input tên
-                replyForm.querySelector(\'.reply-name\').focus();
-                
-                // Xử lý nút gửi phản hồi
-                replyForm.querySelector(\'.submit-reply\').addEventListener(\'click\', () => {
-                    const replyName = replyForm.querySelector(\'.reply-name\').value;
-                    const replyContent = replyForm.querySelector(\'.reply-content\').value;
-                    
+                replyForm.querySelector('.reply-name').focus();
+
+                replyForm.querySelector('.submit-reply').addEventListener('click', () => {
+                    const replyName = replyForm.querySelector('.reply-name').value.trim();
+                    const replyContent = replyForm.querySelector('.reply-content').value.trim();
                     if (!replyName || !replyContent) {
-                        showNotification(\'Vui lòng điền đầy đủ thông tin phản hồi!\', \'error\');
+                        showNotification('Vui lòng điền đầy đủ thông tin phản hồi!', 'error');
                         return;
                     }
-                    
-                    // Tạo phản hồi
-                    const replyDiv = document.createElement(\'div\');
-                    replyDiv.className = \'mt-4 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500\';
+                    const replyDiv = document.createElement('div');
+                    replyDiv.className = 'mt-4 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500';
                     replyDiv.innerHTML = `
                         <div class="flex items-center gap-3 mb-2">
                             <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
@@ -588,20 +557,62 @@
                         </div>
                         <p class="text-gray-700 text-sm leading-relaxed">${replyContent}</p>
                     `;
-                    
                     replyForm.remove();
                     reviewCard.appendChild(replyDiv);
-                    
-                    showNotification(\'Phản hồi đã được gửi thành công! 💬\', \'success\');
+                    showNotification('Phản hồi đã được gửi thành công! 💬', 'success');
                 });
-                
-                // Xử lý nút hủy
-                replyForm.querySelector(\'.cancel-reply\').addEventListener(\'click\', () => {
-                    replyForm.remove();
-                });
+
+                replyForm.querySelector('.cancel-reply').addEventListener('click', () => replyForm.remove());
             }
         });
+
+        // ====== Nút “✖ Đổi sản phẩm” ======
+        document.getElementById('clearSelectedProduct').addEventListener('click', () => {
+            selectedProductBox.classList.add('hidden');
+            selectedProductName.textContent = '';
+            productIdInput.value = '';
+            productNameInput.value = '';
+        });
+
+        // ====== Preselect qua query (?review_product_id=&review_product_name=) ======
+        (function preselectFromQuery() {
+            const params = new URLSearchParams(window.location.search);
+            const pid = params.get('review_product_id');
+            const pname = params.get('review_product_name');
+            if (pid && pname) {
+                selectedProductName.textContent = pname;
+                productIdInput.value = pid;
+                productNameInput.value = pname;
+                selectedProductBox.classList.remove('hidden');
+                document.getElementById('reviewForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        })();
+    });
+
+        // ====== Quan trọng: đưa ra GLOBAL để HTML onclick gọi được ======
+    window.showReviewForm = function (btn) {
+        const pid = btn.dataset.productId;
+        const pname = btn.dataset.productName;
+
+        const selectedProductBox = document.getElementById('selectedProductBox');
+        const selectedProductName = document.getElementById('selectedProductName');
+        const productIdInput = document.getElementById('productId');
+        const productNameInput = document.getElementById('productName');
+
+        selectedProductName.textContent = pname;
+        productIdInput.value = pid;
+        productNameInput.value = pname;
+
+        selectedProductBox.classList.remove('hidden');
+        document.getElementById('reviewTitle').focus();
+        document.getElementById('reviewForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        const form = document.getElementById('reviewForm');
+        form.classList.add('ring-2','ring-blue-300','rounded-lg');
+        setTimeout(() => form.classList.remove('ring-2','ring-blue-300'), 600);
+    };
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement(\'script\');d.innerHTML="window.__CF$cv$params={r:\'98f5f31a27e00eeb\',t:\'MTc2MDYwMDg2Mi4wMDAwMDA=\'};var a=document.createElement(\'script\');a.nonce=\'\';a.src=\'/cdn-cgi/challenge-platform/scripts/jsd/main.js\';document.getElementsByTagName(\'head\')[0].appendChild(a);";b.getElementsByTagName(\'head\')[0].appendChild(d)}}if(document.body){var a=document.createElement(\'iframe\');a.height=1;a.width=1;a.style.position=\'absolute\';a.style.top=0;a.style.left=0;a.style.border=\'none\';a.style.visibility=\'hidden\';document.body.appendChild(a);if(\'loading\'!==document.readyState)c();else if(window.addEventListener)document.addEventListener(\'DOMContentLoaded\',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);\'loading\'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script\');d.innerHTML="window.__CF$cv$params={r:'98f5f31a27e00eeb\',t:'MTc2MDYwMDg2Mi4wMDAwMDA=\'};var a=document.createElement('script\');a.nonce='\';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js\';document.getElementsByTagName('head\')[0].appendChild(a);";b.getElementsByTagName('head\')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe\');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none\';a.style.visibility='hidden\';document.body.appendChild(a);if('loading\'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded\',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading\'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
 @endsection

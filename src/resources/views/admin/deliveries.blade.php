@@ -68,15 +68,22 @@
             </div>
         </div>
 
-        <!-- Controls -->
-        // Them
+        <!-- Form export -->
         <form id="exportForm" action="{{ route('admin.deliveries.export') }}" method="POST">
             @csrf
             <input type="hidden" name="selectedIds" id="selectedIds">
             <input type="hidden" name="currentPageIds" id="currentPageIds" value="{{ $deliveries->pluck('id')->toJson() }}">
+            <input type="hidden" name="fileFormat" id="exportFileFormat" value="xlsx">
+            <input type="hidden" name="dataRange" id="exportDataRange" value="all">
+            <input type="hidden" name="columns" id="exportColumns" value='["code", "supplier", "product", "quantity", "value", "date", "status"]'>
+            <input type="hidden" name="fileName" id="exportFileName" value="danh-sach-lo-hang">
+            <input type="hidden" name="includeTimestamp" id="exportIncludeTimestamp" value="1">
+            <input type="hidden" name="includeHeader" id="exportIncludeHeader" value="1">
+            <input type="hidden" name="includeStats" id="exportIncludeStats" value="0">
+            <input type="hidden" name="exportTime" id="exportTime" value="{{ now()->format('H:i d/m/Y') }}">
         </form>
-        // Moi
 
+        <!-- Controls -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div class="flex flex-col sm:flex-row gap-4">
@@ -1236,134 +1243,86 @@
 
         function processExport() {
             // Get export settings
-            const fileFormat = document.getElementById(\'fileFormat\').value;
-            const dataRange = document.querySelector(\'input[name="dataRange"]:checked\').value;
-            const selectedColumns = Array.from(document.querySelectorAll(\'input[name="columns"]:checked\')).map(cb => cb.value);
-            const statusFilters = Array.from(document.querySelectorAll(\'input[name="statusFilter"]:checked\')).map(cb => cb.value);
-            const fileName = document.getElementById(\'fileName\').value;
-            const includeTimestamp = document.getElementById(\'includeTimestamp\').checked;
-            const includeHeader = document.getElementById(\'includeHeader\').checked;
-            const includeStats = document.getElementById(\'includeStats\').checked;
+            const fileFormat = document.getElementById('fileFormat').value || 'xlsx';
+            const dataRange = document.querySelector('input[name="dataRange"]:checked')?.value || 'all';
+            const selectedColumns = Array.from(document.querySelectorAll('input[name="columns"]:checked')).map(cb => cb.value) || ['code', 'supplier', 'product', 'quantity', 'value', 'date', 'status'];
+            const fileName = document.getElementById('fileName').value || 'danh-sach-lo-hang';
+            const includeTimestamp = document.getElementById('includeTimestamp')?.checked || true;
+            const includeHeader = document.getElementById('includeHeader')?.checked || true;
+            const includeStats = document.getElementById('includeStats')?.checked || false;
+            const exportTime = document.getElementById('exportTime').value || '{{ now()->format('H:i d/m/Y') }}';
 
             if (selectedColumns.length === 0) {
-                alert(\'Vui lòng chọn ít nhất một cột để xuất!\');
+                alert('Vui lòng chọn ít nhất một cột để xuất!');
                 return;
             }
 
-            // Column mapping for shipments
-            const columnMap = {
-                \'id\': \'Mã lô hàng\',
-                \'supplier\': \'Nhà cung cấp\',
-                \'product\': \'Sản phẩm\',
-                \'quantity\': \'Số lượng\',
-                \'value\': \'Giá trị\',
-                \'date\': \'Ngày nhập\',
-                \'status\': \'Trạng thái\'
-            };
-
-            // Get data to export based on range selection
             let dataToExport = [];
-            
-            if (dataRange === \'all\') {
-                // Export all filtered shipments (respecting current filters)
+            if (dataRange === 'all') {
                 dataToExport = [...filteredShipments];
-            } else if (dataRange === \'current\') {
-                // Export only current page items
+            } else if (dataRange === 'current') {
                 const startIndex = (currentPage - 1) * itemsPerPage;
                 const endIndex = Math.min(startIndex + itemsPerPage, filteredShipments.length);
                 dataToExport = filteredShipments.slice(startIndex, endIndex);
-            } else if (dataRange === \'selected\') {
-                // Get selected shipment IDs
-                const selectedIds = Array.from(document.querySelectorAll(\'.shipment-checkbox:checked\')).map(cb => cb.value);
+            } else if (dataRange === 'selected') {
+                const selectedIds = Array.from(document.querySelectorAll('.shipment-checkbox:checked')).map(cb => cb.value);
                 dataToExport = filteredShipments.filter(shipment => selectedIds.includes(shipment.id));
             }
 
             if (dataToExport.length === 0) {
-                alert(\'Không có dữ liệu để xuất!\');
+                alert('Không có dữ liệu để xuất!');
                 return;
             }
 
-            // Prepare headers
-            const headers = selectedColumns.map(col => columnMap[col]);
-            
-            // Prepare rows
+            const headers = selectedColumns.map(col => ({
+                'id': 'Mã lô hàng',
+                'supplier': 'Nhà cung cấp',
+                'product': 'Sản phẩm',
+                'quantity': 'Số lượng',
+                'value': 'Giá trị',
+                'date': 'Ngày nhập',
+                'status': 'Trạng thái'
+            }[col]));
+
             const rows = dataToExport.map(shipment => {
                 return selectedColumns.map(col => {
                     let value = shipment[col];
-                    
-                    // Format data
-                    if (col === \'value\') {
-                        value = formatCurrency(value);
-                    } else if (col === \'date\') {
-                        value = formatDate(value);
-                    } else if (col === \'status\') {
-                        value = value === \'pending\' ? \'Đang chờ\' : value === \'completed\' ? \'Đã nhập kho\' : \'Đã hủy\';
-                    }
-                    
+                    if (col === 'value') value = formatCurrency(value);
+                    else if (col === 'date') value = formatDate(value);
+                    else if (col === 'status') value = value === 'pending' ? 'Đang chờ' : value === 'completed' ? 'Đã nhập kho' : 'Đã hủy';
                     return value;
                 });
             });
 
-            // Generate filename
             let finalFileName = fileName;
             if (includeTimestamp) {
-                const timestamp = new Date().toISOString().split(\'T\')[0];
-                finalFileName += `-${timestamp}`;
+                finalFileName += `-${exportTime.replace(/[:/]/g, '-')}`;
             }
             finalFileName += `.${fileFormat}`;
 
-            // Create file content
             let content = [];
-            
-            // Add stats if requested
             if (includeStats) {
-                content.push(\'=== THỐNG KÊ TỔNG QUAN ===\');
+                content.push('=== THỐNG KÊ TỔNG QUAN ===');
                 content.push(`Tổng số lô hàng: ${dataToExport.length}`);
-                content.push(`Ngày xuất: ${new Date().toLocaleDateString(\'vi-VN\')}`);
-                content.push(\'\');
+                content.push(`Ngày xuất: ${exportTime}`);
+                content.push('');
             }
-            
-            // Add headers
-            if (includeHeader) {
-                content.push(headers.join(\',\'));
-            }
-            
-            // Add data rows
-            content.push(...rows.map(row => row.map(cell => 
-                typeof cell === \'string\' && cell.includes(\',\') ? `"${cell}"` : cell
-            ).join(\',\')));
-            
-            const finalContent = content.join(\'\n\');
-            
-            // Set MIME type
-            const mimeType = fileFormat === \'xlsx\' ? 
-                \'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\' : 
-                \'text/csv;charset=utf-8;\';
+            if (includeHeader) content.push(headers.join(','));
+            content.push(...rows.map(row => row.map(cell => typeof cell === 'string' && cell.includes(',') ? `"${cell}"` : cell).join(',')));
+            const finalContent = '\uFEFF' + content.join('\n');
 
-            // Add BOM for UTF-8 encoding
-            const BOM = \'\uFEFF\';
-            const contentWithBOM = BOM + finalContent;
+            const mimeType = fileFormat === 'xlsx' ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : 'text/csv;charset=utf-8;';
+            const blob = new Blob([finalContent], { type: mimeType });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = finalFileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
-            // Create and download file
-            const blob = new Blob([contentWithBOM], { type: mimeType });
-            const link = document.createElement(\'a\');
-            const url = URL.createObjectURL(blob);
-            
-            link.setAttribute(\'href\', url);
-            link.setAttribute(\'download\', finalFileName);
-            link.style.visibility = \'hidden\';
-            
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            // Close modal and show success
-            closeExportModal();
-            
-            setTimeout(() => {
-                alert(`Đã xuất file ${fileFormat.toUpperCase()} thành công!\nFile: ${finalFileName}\nSố lô hàng: ${dataToExport.length}\nSố cột: ${selectedColumns.length}`);
-            }, 100);
-        }
+    closeExportModal();
+    setTimeout(() => alert(`Đã xuất file ${fileFormat.toUpperCase()} thành công!\nFile: ${finalFileName}\nSố lô hàng: ${dataToExport.length}\nSố cột: ${selectedColumns.length}`), 100);
+}
 
 
 
