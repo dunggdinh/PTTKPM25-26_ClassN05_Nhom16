@@ -1,8 +1,8 @@
 @extends('admin.layout')
 @section('title', 'Quản lý hàng lỗi')
 @section('content')
-<body class="ml-64 w-[calc(100%-16rem)] min-h-screen p-8 pt-24 transition-all bg-gradient-to-br from-blue-50 to-indigo-100">
-    <div class="max-w-7xl mx-auto p-6">
+<div class="bg-gradient-to-br from-blue-50 to-indigo-100">
+    <main class="container mx-auto px-4 py-8 max-w-7xl">
         <!-- Header -->
         <div class="mb-6">
             <h1 class="text-4xl font-bold text-gray-900">Quản lý Đổi/Trả hàng</h1>
@@ -1282,6 +1282,6 @@
         // Initialize the application
         init();
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement(\'script\');d.innerHTML="window.__CF$cv$params={r:\'98cc4069a044ddc3\',t:\'MTc2MDE2MzYyNi4wMDAwMDA=\'};var a=document.createElement(\'script\');a.nonce=\'\';a.src=\'/cdn-cgi/challenge-platform/scripts/jsd/main.js\';document.getElementsByTagName(\'head\')[0].appendChild(a);";b.getElementsByTagName(\'head\')[0].appendChild(d)}}if(document.body){var a=document.createElement(\'iframe\');a.height=1;a.width=1;a.style.position=\'absolute\';a.style.top=0;a.style.left=0;a.style.border=\'none\';a.style.visibility=\'hidden\';document.body.appendChild(a);if(\'loading\'!==document.readyState)c();else if(window.addEventListener)document.addEventListener(\'DOMContentLoaded\',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);\'loading\'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</div>
 </html>
 @endsection

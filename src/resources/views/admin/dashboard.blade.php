@@ -1,9 +1,8 @@
 @extends('admin.layout')
 @section('title', 'Dashboard')
 @section('content')
-<body class="ml-64 w-[calc(100%-16rem)] min-h-screen p-8 pt-24 transition-all bg-gradient-to-br from-blue-50 to-indigo-100">
-    <!-- Main Content -->
-    <main class="p-6">
+<div class="bg-gradient-to-br from-blue-50 to-indigo-100">
+    <main class="container mx-auto px-4 py-8 max-w-7xl">
         <!-- Dashboard Title -->
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-gray-900 mb-2">Dashboard Admin</h1>
@@ -359,6 +358,6 @@
             });
         });
     </script>
-</body>
+</div>
 </html>
 @endsection
