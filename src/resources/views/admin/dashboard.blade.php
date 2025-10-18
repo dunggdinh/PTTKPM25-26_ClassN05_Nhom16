@@ -1,14 +1,7 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Admin</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="{{ url('css/app.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body class="bg-gray-50 font-sans">
+@extends('admin.layout')
+@section('title', 'Dashboard')
+@section('content')
+<body class="ml-64 w-[calc(100%-16rem)] min-h-screen p-8 pt-24 transition-all bg-gradient-to-br from-blue-50 to-indigo-100">
     <!-- Main Content -->
     <main class="p-6">
         <!-- Dashboard Title -->
@@ -368,3 +361,4 @@
     </script>
 </body>
 </html>
+@endsection

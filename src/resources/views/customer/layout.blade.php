@@ -6,30 +6,6 @@
     <title>@yield('title', 'Cửa Hàng Điện Tử')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ url('css/app.css') }}">
-    <style>
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            width: 16rem;
-            background-color: white;
-            box-shadow: 2px 0 4px rgba(0,0,0,0.1);
-            margin-top: 65px;
-        }
-        .menu-divider {
-            height: 1px;
-            background-color: #e5e7eb;
-            margin: 0 24px;
-        }
-        .gradient-header {
-            background-color: white;
-        }
-        .menu-item.active {
-            font-weight: 700;
-            color: #1d4ed8;
-        }
-    </style>
 </head>
 <body class="bg-gray-50 font-sans">
     <!-- Header Bar -->
@@ -183,7 +159,7 @@
 
         
         <!-- Menu Navigation -->
-        <nav class="pt-6">
+        <nav class="pt-10">
             <a href="/customer/home" class="menu-item flex items-center px-6 py-4 text-gray-600 hover:bg-gray-100">
                 <span class="mr-4 text-lg">🏠</span>
                 <span class="text-base">Trang chủ</span>

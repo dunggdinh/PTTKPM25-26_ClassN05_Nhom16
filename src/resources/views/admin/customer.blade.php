@@ -1,14 +1,7 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Khách Hàng - Admin</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="{{ url('css/app.css') }}">
-
-</head>
-<body class="bg-gray-50 font-sans">
+@extends('admin.layout')
+@section('title', 'Quản lý khách hàng')
+@section('content')
+<body class="ml-64 w-[calc(100%-16rem)] min-h-screen p-8 pt-24 transition-all bg-gradient-to-br from-blue-50 to-indigo-100">
     <div class="min-h-full p-6">
         <!-- Header -->
         <div class="mb-8">
@@ -1445,7 +1438,7 @@
                         <p>Không hoạt động: ${data.filter(c => c.status === \'inactive\').length}</p>
                         <p>Bị khóa: ${data.filter(c => c.status === \'blocked\').length}</p>
                     </div>
-                `;
+                ;
             }
             
             htmlContent += \'<table>\';
@@ -1587,3 +1580,4 @@
     </script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement(\'script\');d.innerHTML="window.__CF$cv$params={r:\'98c8357931793ee9\',t:\'MTc2MDEyMTIzNi4wMDAwMDA=\'};var a=document.createElement(\'script\');a.nonce=\'\';a.src=\'/cdn-cgi/challenge-platform/scripts/jsd/main.js\';document.getElementsByTagName(\'head\')[0].appendChild(a);";b.getElementsByTagName(\'head\')[0].appendChild(d)}}if(document.body){var a=document.createElement(\'iframe\');a.height=1;a.width=1;a.style.position=\'absolute\';a.style.top=0;a.style.left=0;a.style.border=\'none\';a.style.visibility=\'hidden\';document.body.appendChild(a);if(\'loading\'!==document.readyState)c();else if(window.addEventListener)document.addEventListener(\'DOMContentLoaded\',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);\'loading\'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
+@endsection

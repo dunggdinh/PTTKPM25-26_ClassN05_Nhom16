@@ -195,53 +195,21 @@ use App\Http\Controllers\InventoryController;
 
 
 
-// Nhóm route admin (gộp lại)
+// Nhóm route admin 
 Route::prefix('admin')->name('admin.')->group(function () {
 
-    Route::get('/layout', function () {
-        return view('admin.layout');
-    })->name('layout');
-
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('dashboard');
-
-    Route::get('/support', function () {
-        return view('admin.support');
-    })->name('support');
-
-    Route::get('/customer', function () {
-        return view('admin.customer');
-    })->name('customer');
-
-    Route::get('/deliveries', function () {
-        return view('admin.deliveries');
-    })->name('deliveries');
-
-    Route::get('/inventory', function () {
-        return view('admin.inventory');
-    })->name('inventory');
-
-    Route::get('/order', function () {
-        return view('admin.order');
-    })->name('order');
-
-    Route::get('/payments_gateway', function () {
-        return view('admin.payments_gateway');
-    })->name('payments_gateway');
-
-    Route::get('/report', function () {
-        return view('admin.report');
-    })->name('report');
-
-    Route::get('/return', function () {
-        return view('admin.return');
-    })->name('return');
-
-    Route::get('/warranties', function () {
-        return view('admin.warranties');
-    })->name('warranties');
+    Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
+    Route::view('/support', 'admin.support')->name('support');
+    Route::view('/customer', 'admin.customer')->name('customer');
+    Route::view('/deliveries', 'admin.deliveries')->name('deliveries');
+    Route::view('/inventory', 'admin.inventory')->name('inventory');
+    Route::view('/order', 'admin.order')->name('order');
+    Route::view('/payments_gateway', 'admin.payments_gateway')->name('payments_gateway');
+    Route::view('/report', 'admin.report')->name('report');
+    Route::view('/return', 'admin.return')->name('return');
+    Route::view('/warranties', 'admin.warranties')->name('warranties');
 });
+
 
 
 // Nhóm route auth
