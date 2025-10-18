@@ -190,54 +190,27 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\auth\AuthController;
 
 
+use App\Http\Controllers\ShipmentController;
+use App\Http\Controllers\Admin\DeliveryController;
+use App\Http\Controllers\InventoryController;
 
-// Nhóm route admin (gộp lại)
+
+
+// Nhóm route admin 
 Route::prefix('admin')->name('admin.')->group(function () {
 
-    Route::get('/layout', function () {
-        return view('admin.layout');
-    })->name('layout');
-
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('dashboard');
-
-    Route::get('/support', function () {
-        return view('admin.support');
-    })->name('support');
-
-    Route::get('/customer', function () {
-        return view('admin.customer');
-    })->name('customer');
-
-    Route::get('/deliveries', function () {
-        return view('admin.deliveries');
-    })->name('deliveries');
-
-    Route::get('/inventory', function () {
-        return view('admin.inventory');
-    })->name('inventory');
-
-    Route::get('/order', function () {
-        return view('admin.order');
-    })->name('order');
-
-    Route::get('/payments_gateway', function () {
-        return view('admin.payments_gateway');
-    })->name('payments_gateway');
-
-    Route::get('/report', function () {
-        return view('admin.report');
-    })->name('report');
-
-    Route::get('/return', function () {
-        return view('admin.return');
-    })->name('return');
-
-    Route::get('/warranties', function () {
-        return view('admin.warranties');
-    })->name('warranties');
+    Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
+    Route::view('/support', 'admin.support')->name('support');
+    Route::view('/customer', 'admin.customer')->name('customer');
+    Route::view('/deliveries', 'admin.deliveries')->name('deliveries');
+    Route::view('/inventory', 'admin.inventory')->name('inventory');
+    Route::view('/order', 'admin.order')->name('order');
+    Route::view('/payments_gateway', 'admin.payments_gateway')->name('payments_gateway');
+    Route::view('/report', 'admin.report')->name('report');
+    Route::view('/return', 'admin.return')->name('return');
+    Route::view('/warranties', 'admin.warranties')->name('warranties');
 });
+
 
 
 // Nhóm route auth
@@ -286,43 +259,15 @@ Route::prefix('auth')->name('auth.')->group(function () {
 
 
 // Nhóm route customer
-Route::prefix('customer')->name('customer.')->group(function () {
-
-    Route::get('/home', function () {
-        return view('customer.home');
-    })->name('home');
-
-    Route::get('/cart', function () {
-        return view('customer.cart');
-    })->name('cart');
-
-    Route::get('/layout', function () {
-        return view('customer.layout');
-    })->name('layout');
-
-    Route::get('/order', function () {
-        return view('customer.order');
-    })->name('order');
-
-    Route::get('/profile', function () {
-        return view('customer.profile');
-    })->name('profile');
-
-    Route::get('/promotion', function () {
-        return view('customer.promotion');
-    })->name('promotion');
-
-    Route::get('/review', function () {
-        return view('customer.review');
-    })->name('review');
-
-    Route::get('/store', function () {
-        return view('customer.store');
-    })->name('store');
-
-    Route::get('/support', function () {
-        return view('customer.support');
-    })->name('support');
+Route::prefix('customer')->group(function () {
+    Route::view('/home', 'customer.home');
+    Route::view('/promotion', 'customer.promotion');
+    Route::view('/product', 'customer.product');
+    Route::view('/cart', 'customer.cart');
+    Route::view('/order', 'customer.order');
+    Route::view('/review', 'customer.review');
+    Route::view('/support', 'customer.support');
+    Route::view('/profile', 'customer.profile');
 });
 
 // Route test (có thể xóa nếu không cần)
@@ -362,3 +307,34 @@ Route::get('/checkout', function () {
 });
 Route::post('/vnpay-payment', [PaymentController::class, 'createPayment']);
 Route::get('/vnpay-return', [PaymentController::class, 'returnPayment']);
+
+
+// Shipment 
+Route::get('/deliveries', [ShipmentController::class, 'index'])->name('deliveries.index');
+Route::post('/shipments', [ShipmentController::class, 'store'])->name('shipments.store');
+Route::get('/shipments/{id}', [ShipmentController::class, 'show'])->name('shipments.show');
+Route::put('/shipments/{id}', [ShipmentController::class, 'update'])->name('shipments.update');
+Route::delete('/shipments/{id}', [ShipmentController::class, 'destroy'])->name('shipments.destroy');
+Route::post('/shipments/export', [ShipmentController::class, 'export'])->name('shipments.export');
+
+
+// Deli
+Route::prefix('admin')->group(function () {
+    Route::get('/deliveries', [DeliveryController::class, 'index'])->name('admin.deliveries.index');
+    Route::get('/deliveries/create', [DeliveryController::class, 'create'])->name('admin.deliveries.create');
+    Route::post('/deliveries', [DeliveryController::class, 'store'])->name('admin.deliveries.store');
+    Route::get('/deliveries/{id}/edit', [DeliveryController::class, 'edit'])->name('admin.deliveries.edit');
+    Route::put('/deliveries/{id}', [DeliveryController::class, 'update'])->name('admin.deliveries.update');
+    Route::delete('/deliveries/{id}', [DeliveryController::class, 'destroy'])->name('admin.deliveries.destroy');
+    Route::post('/deliveries/export', [DeliveryController::class, 'export'])->name('admin.deliveries.export');
+});
+
+
+// Inventory
+Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+Route::get('/api/inventory/products', [InventoryController::class, 'getProducts']);
+Route::get('/api/inventory/alerts', [InventoryController::class, 'getAlerts']);
+Route::get('/api/inventory/product/{id}', [InventoryController::class, 'getProductDetails']);
+Route::put('/api/inventory/product/{id}', [InventoryController::class, 'updateStock']);
+Route::delete('/api/inventory/product/{id}', [InventoryController::class, 'delete']);
+Route::post('/api/inventory/export', [InventoryController::class, 'export']);

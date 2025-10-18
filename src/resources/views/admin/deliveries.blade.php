@@ -1,18 +1,11 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Lô Hàng Nhập - Admin</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="{{ url('css/app.css') }}">
-
-</head>
-<body class="bg-gray-50 font-sans">
+@extends('admin.layout')
+@section('title', 'Quản lý nhập hàng')
+@section('content')
+<body class="ml-64 w-[calc(100%-16rem)] min-h-screen p-8 pt-24 transition-all bg-gradient-to-br from-blue-50 to-indigo-100">
     <div class="min-h-full p-6">
         <!-- Header -->
         <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">Quản Lý Lô Hàng Nhập</h1>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Quản Lý Hàng Nhập</h1>
             <p class="text-gray-600">Theo dõi và quản lý các lô hàng nhập kho</p>
         </div>
 
@@ -27,7 +20,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Tổng lô hàng</p>
-                        <p class="text-2xl font-semibold text-gray-900">156</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $totalDeliveries }}</p>
                     </div>
                 </div>
             </div>
@@ -41,7 +34,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Đã nhập kho</p>
-                        <p class="text-2xl font-semibold text-gray-900">142</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $completedDeliveries }}</p>
                     </div>
                 </div>
             </div>
@@ -55,7 +48,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Đang chờ</p>
-                        <p class="text-2xl font-semibold text-gray-900">14</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $pendingDeliveries }}</p>
                     </div>
                 </div>
             </div>
@@ -69,13 +62,21 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Tổng giá trị</p>
-                        <p class="text-2xl font-semibold text-gray-900">2.4B VNĐ</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ number_format($totalValue, 0, ',', '.') }} VNĐ</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Controls -->
+        // Them
+        <form id="exportForm" action="{{ route('admin.deliveries.export') }}" method="POST">
+            @csrf
+            <input type="hidden" name="selectedIds" id="selectedIds">
+            <input type="hidden" name="currentPageIds" id="currentPageIds" value="{{ $deliveries->pluck('id')->toJson() }}">
+        </form>
+        // Moi
+
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div class="flex flex-col sm:flex-row gap-4">
@@ -139,7 +140,36 @@
                         </tr>
                     </thead>
                     <tbody id="shipmentTable" class="bg-white divide-y divide-gray-200">
-                        <!-- Data will be populated by JavaScript -->
+                        @foreach($deliveries as $delivery)
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <input type="checkbox" class="shipment-checkbox text-blue-600 focus:ring-blue-500 w-4 h-4" value="{{ $delivery->id }}">
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $delivery->code }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $delivery->supplier }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $delivery->product }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $delivery->quantity }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ number_format($delivery->value, 0, ',', '.') }} VNĐ</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ \Carbon\Carbon::parse($delivery->date)->format('d/m/Y') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 py-1 text-xs rounded-full 
+                                        {{ $delivery->status == 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+                                        $delivery->status == 'completed' ? 'bg-green-100 text-green-800' : 
+                                        'bg-red-100 text-red-800' }}">
+                                        {{ $delivery->status == 'pending' ? 'Đang chờ' : 
+                                        $delivery->status == 'completed' ? 'Đã nhập kho' : 'Đã hủy' }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <a href="{{ route('admin.deliveries.edit', $delivery->id) }}" class="text-blue-600 hover:text-blue-800">Sửa</a>
+                                    <form action="{{ route('admin.deliveries.destroy', $delivery->id) }}" method="POST" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-600 hover:text-red-800 ml-3" onclick="return confirm('Bạn có chắc muốn xóa lô hàng này?')">Xóa</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -1358,3 +1388,4 @@
     </script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement(\'script\');d.innerHTML="window.__CF$cv$params={r:\'98cc185181a1ddc3\',t:\'MTc2MDE2MTk4NC4wMDAwMDA=\'};var a=document.createElement(\'script\');a.nonce=\'\';a.src=\'/cdn-cgi/challenge-platform/scripts/jsd/main.js\';document.getElementsByTagName(\'head\')[0].appendChild(a);";b.getElementsByTagName(\'head\')[0].appendChild(d)}}if(document.body){var a=document.createElement(\'iframe\');a.height=1;a.width=1;a.style.position=\'absolute\';a.style.top=0;a.style.left=0;a.style.border=\'none\';a.style.visibility=\'hidden\';document.body.appendChild(a);if(\'loading\'!==document.readyState)c();else if(window.addEventListener)document.addEventListener(\'DOMContentLoaded\',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);\'loading\'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
+@endsection

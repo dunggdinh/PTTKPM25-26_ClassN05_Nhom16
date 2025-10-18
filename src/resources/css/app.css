@@ -20,35 +20,52 @@ body {
 /* ===== Sidebar ===== */
 .sidebar {
     position: fixed;
+    top: 4rem; /* Trừ phần header cao 4rem (64px) */
     left: 0;
-    top: 4rem; /* trừ header */
     width: 16rem; /* 64 = 16rem */
     height: calc(100% - 4rem);
-    background: linear-gradient(180deg, #667eea 0%, #764ba2 100%); /* gradient đẹp */
-    box-shadow: 2px 0 12px rgba(0,0,0,0.15);
+    background: linear-gradient(180deg, #667eea 0%, #764ba2 100%); /* Gradient xanh tím */
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
     z-index: 10;
     transition: transform 0.3s ease-in-out;
-}
-
-/* Menu item hover/active */
-.sidebar .menu-item {
-    transition: all 0.3s ease;
     color: #e0e0e0;
 }
+
+/* Menu item cơ bản */
+.sidebar .menu-item {
+    display: block;
+    padding: 0.75rem 1.25rem;
+    transition: all 0.3s ease;
+    color: #e0e0e0;
+    text-decoration: none;
+}
+
+/* Hover */
 .sidebar .menu-item:hover {
     background: rgba(255, 255, 255, 0.15);
     transform: translateX(4px);
 }
+
+/* Active */
 .sidebar .menu-item.active {
     background: rgba(255, 255, 255, 0.25);
     border-right: 4px solid #ffffff;
     color: #ffffff;
+    font-weight: 700;
 }
+
+/* Divider giữa các nhóm menu */
 .sidebar .menu-divider {
     height: 2px;
-    margin: 0.5rem 0;
-    background-color: rgba(255,255,255,0.1);
+    margin: 0.5rem 1.5rem;
+    background-color: rgba(255, 255, 255, 0.1);
 }
+
+/* Header gradient giữ trắng */
+.gradient-header {
+    background-color: white;
+}
+
 
 /* ===== Cards ===== */
 .order-card,

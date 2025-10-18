@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ElectroStore - Khách hàng</title>
+    <title>@yield('title', 'Cửa Hàng Điện Tử')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ url('css/app.css') }}">
 </head>
@@ -24,8 +24,8 @@
                 </button>
                 
                 <div>
-                    <h2 class="text-xl font-semibold text-blue-600">ElectroStore</h2>
-                    <p class="text-sm text-gray-500">Trang chủ</p>
+                    <h2 class="text-3xl font-bold text-gray-900">ElectroStore</h2>
+                    <p class="text-base font-medium text-gray-700" id="pageSubtitle">Trang chủ</p>
                 </div>
             </div>
             
@@ -128,11 +128,11 @@
                         </div>
                         <!-- User Name -->
                         <div class="text-right">
-                            <p class="font-medium text-gray-800">Nguyễn Văn Nam</p>
-                            <p class="text-xs text-gray-500">Khách hàng</p>
+                            <p class="text-xl font-bold text-gray-900">Nguyễn Văn Nam</p>
+                            <p class="text-sm font-semibold text-gray-600">Khách hàng</p>
                         </div>
                         <!-- Dropdown Arrow -->
-                        <svg class="w-4 h-4 text-gray-400 transition-transform" id="dropdownArrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-gray-600 transition-transform" id="dropdownArrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </div>
@@ -159,190 +159,133 @@
 
         
         <!-- Menu Navigation -->
-        <nav class="pt-6">
-            <div class="menu-item active flex items-center px-6 py-4 text-blue-700 cursor-pointer">
+        <nav class="pt-10">
+            <a href="/customer/home" class="menu-item flex items-center px-6 py-4 text-gray-600 hover:bg-gray-100">
                 <span class="mr-4 text-lg">🏠</span>
-                <span class="font-medium text-base">Trang chủ</span>
-                <div class="ml-auto w-2 h-2 bg-blue-600 rounded-full"></div>
-            </div>
+                <span class="text-base">Trang chủ</span>
+            </a>
             <div class="menu-divider"></div>
-            <div class="menu-item flex items-center px-6 py-4 text-gray-700 cursor-pointer">
+            <a href="/customer/promotion" class="menu-item flex items-center px-6 py-4 text-gray-600 hover:bg-gray-100">
                 <span class="mr-4 text-lg">🎯</span>
                 <span class="text-base">Khuyến mãi</span>
-            </div>
+            </a>
             <div class="menu-divider"></div>
-            <div class="menu-item flex items-center px-6 py-4 text-gray-700 cursor-pointer">
+            <a href="/customer/product" class="menu-item flex items-center px-6 py-4 text-gray-700 hover:bg-gray-100">
                 <span class="mr-4 text-lg">📦</span>
                 <span class="text-base">Sản phẩm</span>
-            </div>
+            </a>
             <div class="menu-divider"></div>
-            <div class="menu-item flex items-center px-6 py-4 text-gray-700 cursor-pointer">
+            <a href="/customer/cart" class="menu-item flex items-center px-6 py-4 text-gray-700 hover:bg-gray-100">
                 <span class="mr-4 text-lg">🛒</span>
                 <span class="text-base">Giỏ hàng</span>
-            </div>
+            </a>
             <div class="menu-divider"></div>
-            <div class="menu-item flex items-center px-6 py-4 text-gray-700 cursor-pointer">
+            <a href="/customer/order" class="menu-item flex items-center px-6 py-4 text-gray-700 hover:bg-gray-100">
                 <span class="mr-4 text-lg">📋</span>
                 <span class="text-base">Đơn hàng</span>
-            </div>
+            </a>
             <div class="menu-divider"></div>
-            <div class="menu-item flex items-center px-6 py-4 text-gray-700 cursor-pointer">
+            <a href="/customer/review" class="menu-item flex items-center px-6 py-4 text-gray-700 hover:bg-gray-100">
                 <span class="mr-4 text-lg">⭐</span>
                 <span class="text-base">Đánh giá sản phẩm</span>
-            </div>
+            </a>
             <div class="menu-divider"></div>
-            <div class="menu-item flex items-center px-6 py-4 text-gray-700 cursor-pointer">
+            <a href="/customer/support" class="menu-item flex items-center px-6 py-4 text-gray-700 hover:bg-gray-100">
                 <span class="mr-4 text-lg">💬</span>
                 <span class="text-base">Hỗ trợ khách hàng</span>
-            </div>
+            </a>
+            <div class="menu-divider"></div>
+            <a href="/customer/profile" class="menu-item flex items-center px-6 py-4 text-gray-700 hover:bg-gray-100">
+                <span class="mr-4 text-lg">👤</span>
+                <span class="text-base">Hồ sơ của tôi</span>
+            </a>
+            <div class="menu-divider"></div>
         </nav>
     </div>
     
-    <!-- Main Content Area -->
-        
+        <!-- Main Content Area -->
     <main id="mainContent" class="ml-64 w-[calc(100%-16rem)] min-h-screen p-8 pt-24 transition-all bg-gray-50">
-
-        <div class="text-center py-20 text-gray-500">Đang tải ...</div>
-    </main>
-
+        @yield('content')
+    </main>    
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const currentPath = window.location.pathname;
-            const menuMap = {
-                '/customer/home': 'Trang chủ',
-                '/customer/promotion': 'Khuyến mãi',
-                '/customer/store': 'Sản phẩm',
-                '/customer/cart': 'Giỏ hàng',
-                '/customer/order': 'Đơn hàng',
-                '/customer/review': 'Đánh giá sản phẩm',
-                '/customer/support': 'Hỗ trợ khách hàng',
-                '/customer/profile': 'Hồ sơ của tôi'
-            };
+        const routes = {
+            'Trang chủ': '/customer/home',
+            'Khuyến mãi': '/customer/promotion',
+            'Sản phẩm': '/customer/product',
+            'Giỏ hàng': '/customer/cart',
+            'Đơn hàng': '/customer/order',
+            'Đánh giá sản phẩm': '/customer/review',
+            'Hỗ trợ khách hàng': '/customer/support',
+            'Hồ sơ của tôi': '/customer/profile'
+        };
 
-            const menuName = menuMap[currentPath] || 'Trang chủ';
-            updateMainContent(menuName, false);
-        });
-
-        async function updateMainContent(menuName, pushState = true) {
-            const main = document.getElementById('mainContent');
-            const routes = {
-                'Trang chủ': '/customer/home',
-                'Khuyến mãi': '/customer/promotion',
-                'Sản phẩm': '/customer/store',
-                'Giỏ hàng': '/customer/cart',
-                'Đơn hàng': '/customer/order',
-                'Đánh giá sản phẩm': '/customer/review',
-                'Hỗ trợ khách hàng': '/customer/support',
-                'Hồ sơ của tôi': '/customer/profile'
-            };
-
-            const url = routes[menuName];
-            if (!url) {
-                main.innerHTML = '<div class="p-6 text-gray-500">Không tìm thấy nội dung.</div>';
-                return;
-            }
-
-            main.innerHTML = '<div class="text-center py-20 text-gray-500 animate-pulse">Đang tải...</div>';
-
-            try {
-                const response = await fetch(url);
-                const html = await response.text();
-                main.innerHTML = html;
-                if (pushState) history.pushState({ menuName }, '', url);
-            } catch {
-                main.innerHTML = '<div class="p-6 text-red-500">Lỗi tải nội dung.</div>';
-            }
+        // Add ripple effect to menu items
+        function createRipple(event) {
+            const button = event.currentTarget;
+            const ripple = button.querySelector('.ripple');
+            
+            // Remove existing animation
+            ripple.classList.remove('animate-ripple');
+            
+            // Get click coordinates
+            const rect = button.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            // Set ripple position and start animation
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            ripple.classList.add('animate-ripple');
         }
 
-        // Xử lý khi click menu
+        // Set active menu based on current URL
+        function setActiveMenu() {
+            const currentPath = window.location.pathname;
+            const pageSubtitle = document.getElementById('pageSubtitle');
+            
+            // Remove active state from all menu items first
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Find and activate current menu item
+            document.querySelectorAll('.menu-item').forEach(item => {
+                if (item.getAttribute('href') === currentPath) {
+                    item.classList.add('active');
+                    pageSubtitle.textContent = item.querySelector('span:last-child').textContent.trim();
+                }
+            });
+        }
+
+        // Call setActiveMenu on page load
+        document.addEventListener('DOMContentLoaded', setActiveMenu);
+
+        // Click menu
         document.querySelectorAll('.menu-item').forEach(item => {
-            item.addEventListener('click', function () {
-                document.querySelectorAll('.menu-item').forEach(i => {
-                    i.classList.remove('text-blue-600', 'active');
-                    i.classList.add('text-gray-700');
-                });
-                this.classList.add('text-blue-600', 'active');
-                const menuText = this.querySelector('span:last-child').textContent.trim();
-                updateMainContent(menuText, true);
+            item.addEventListener('click', () => {
+                const menuText = item.querySelector('span:last-child').textContent.trim();
+                const url = routes[menuText];
+                if (url) {
+                    window.location.href = url;
+                }
             });
         });
 
-        window.addEventListener('popstate', event => {
-            const menuName = event.state?.menuName || 'Trang chủ';
-            updateMainContent(menuName, false);
-        });
-    </script>
-
-
-</body>
-    </div>
-    
-    <script>
+        // Toggle UI
         function toggleDropdown() {
-            const dropdown = document.getElementById(\'userDropdown\');
-            const arrow = document.getElementById(\'dropdownArrow\');
-            
-            dropdown.classList.toggle(\'show\');
-            arrow.style.transform = dropdown.classList.contains(\'show\') ? \'rotate(180deg)\' : \'rotate(0deg)\';
+            document.getElementById('userDropdown').classList.toggle('hidden');
+            document.getElementById('dropdownArrow').classList.toggle('rotate-180');
         }
-        
         function toggleNotifications() {
-            const dropdown = document.getElementById(\'notificationsDropdown\');
-            dropdown.classList.toggle(\'show\');
+            document.getElementById('notificationsDropdown').classList.toggle('hidden');
         }
-        
         function toggleSidebar() {
             const sidebar = document.querySelector('.sidebar');
-            const mainContent = document.querySelector('#mainContent');
-            
-            if (sidebar.style.transform === 'translateX(-100%)') {
-                sidebar.style.transform = 'translateX(0)';
-                mainContent.style.marginLeft = '16rem';
-            } else {
-                sidebar.style.transform = 'translateX(-100%)';
-                mainContent.style.marginLeft = '0';
-            }
+            const main = document.querySelector('#mainContent');
+            const hidden = sidebar.style.transform === 'translateX(-100%)';
+            sidebar.style.transform = hidden ? 'translateX(0)' : 'translateX(-100%)';
+            main.style.marginLeft = hidden ? '16rem' : '0';
         }
-        
-        // Close dropdown when clicking outside
-        document.addEventListener(\'click\', function(event) {
-            const userDropdown = document.getElementById(\'userDropdown\');
-            const notificationsDropdown = document.getElementById(\'notificationsDropdown\');
-            const userAccount = event.target.closest(\'.relative\');
-            
-            // Close user dropdown
-            if (!userAccount || !userAccount.contains(event.target)) {
-                userDropdown.classList.remove(\'show\');
-                document.getElementById(\'dropdownArrow\').style.transform = \'rotate(0deg)\';
-            }
-            
-            // Close notifications dropdown
-            const notificationBell = event.target.closest(\'.relative.cursor-pointer\');
-            if (!notificationBell || !notificationBell.contains(event.target)) {
-                notificationsDropdown.classList.remove(\'show\');
-            }
-        });
-        
-        // Menu item click handlers
-        document.querySelectorAll(\'.menu-item\').forEach(item => {
-            item.addEventListener(\'click\', function() {
-                // Remove active class from all items
-                document.querySelectorAll(\'.menu-item\').forEach(i => i.classList.remove(\'active\'));
-                // Add active class to clicked item
-                this.classList.add(\'active\');
-                
-                // Update header subtitle based on selected menu
-                const menuText = this.querySelector(\'span:last-child\').textContent;
-                document.querySelector(\'header p\').textContent = menuText;
-                
-                // Auto hide sidebar when menu item is clicked
-                const sidebar = document.querySelector(\'.fixed.left-0.top-16\');
-                const mainContent = document.querySelector(\'.ml-64\');
-                
-                sidebar.style.transform = \'translateX(-100%)\';
-                mainContent.style.marginLeft = \'0\';
-            });
-        });
     </script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement(\'script\');d.innerHTML="window.__CF$cv$params={r:\'98f4561c8249f995\',t:\'MTc2MDU4Mzk0NS4wMDAwMDA=\'};var a=document.createElement(\'script\');a.nonce=\'\';a.src=\'/cdn-cgi/challenge-platform/scripts/jsd/main.js\';document.getElementsByTagName(\'head\')[0].appendChild(a);";b.getElementsByTagName(\'head\')[0].appendChild(d)}}if(document.body){var a=document.createElement(\'iframe\');a.height=1;a.width=1;a.style.position=\'absolute\';a.style.top=0;a.style.left=0;a.style.border=\'none\';a.style.visibility=\'hidden\';document.body.appendChild(a);if(\'loading\'!==document.readyState)c();else if(window.addEventListener)document.addEventListener(\'DOMContentLoaded\',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);\'loading\'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
