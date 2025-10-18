@@ -18,41 +18,29 @@ class DeliveriesExport implements FromCollection, WithHeadings, ShouldAutoSize, 
     public function __construct($deliveries, $columns, $includeHeader, $includeStats)
     {
         $this->deliveries = $deliveries;
-        $this->columns = $columns;
+        // Lọc các cột hợp lệ dựa trên model
+        $validColumns = ['id', 'code', 'supplier', 'product', 'quantity', 'value', 'date', 'status'];
+        $this->columns = array_intersect($columns, $validColumns);
         $this->includeHeader = $includeHeader;
         $this->includeStats = $includeStats;
     }
 
-    /**
-     * Return the collection of deliveries to export.
-     */
     public function collection()
     {
         $data = new Collection;
 
-        // Thêm thống kê nếu được yêu cầu
         if ($this->includeStats) {
-            $data->push([
-                'BÁO CÁO TỒN KHO',
-            ]);
-            $data->push([
-                'Ngày xuất: ' . now()->format('d/m/Y H:i:s'),
-            ]);
-            $data->push([
-                'Tổng số lô hàng: ' . $this->deliveries->count(),
-            ]);
+            $data->push(['BÁO CÁO LÔ HÀNG']);
+            $data->push(['Ngày xuất: ' . now()->format('d/m/Y H:i:s')]);
+            $data->push(['Tổng số lô hàng: ' . $this->deliveries->count()]);
             $data->push([]); // Dòng trống
         }
 
-        // Thêm dữ liệu lô hàng
         $data = $data->merge($this->deliveries);
 
         return $data;
     }
 
-    /**
-     * Define the headings for the export.
-     */
     public function headings(): array
     {
         if (!$this->includeHeader) {
@@ -61,32 +49,29 @@ class DeliveriesExport implements FromCollection, WithHeadings, ShouldAutoSize, 
 
         $columnMap = [
             'id' => 'Mã lô hàng',
+            'code' => 'Mã lô hàng',
             'supplier' => 'Nhà cung cấp',
             'product' => 'Sản phẩm',
             'quantity' => 'Số lượng',
-            'value' => 'Giá trị',
+            'value' => 'Giá trị (VNĐ)',
             'date' => 'Ngày nhập',
             'status' => 'Trạng thái',
         ];
 
-        return array_filter(array_map(function ($col) use ($columnMap) {
-            return $columnMap[$col] ?? null;
-        }, $this->columns));
+        return array_map(function ($col) use ($columnMap) {
+            return $columnMap[$col] ?? $col;
+        }, $this->columns);
     }
 
-    /**
-     * Map each row of the collection.
-     */
     public function map($delivery): array
     {
-        // Nếu là dòng thống kê, trả về nguyên bản
         if (is_array($delivery)) {
             return $delivery;
         }
 
         $row = [];
         foreach ($this->columns as $col) {
-            $value = $delivery->$col;
+            $value = $delivery->$col ?? '';
 
             if ($col === 'value') {
                 $value = number_format($value, 0, ',', '.') . ' VNĐ';

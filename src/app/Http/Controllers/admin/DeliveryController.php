@@ -1,4 +1,4 @@
-<!-- <?php
+<?php
 
 namespace App\Http\Controllers\Admin;
 
@@ -16,30 +16,26 @@ class DeliveryController extends Controller
      */
     public function index(Request $request)
     {
-        // Query deliveries với filters
         $query = Delivery::query();
 
-        // Filter by search
         if ($search = $request->input('search')) {
-            $query->where('code', 'like', "%$search%")
+            $query->where(function ($q) use ($search) {
+                $q->where('code', 'like', "%$search%")
                   ->orWhere('supplier', 'like', "%$search%")
                   ->orWhere('product', 'like', "%$search%");
+            });
         }
 
-        // Filter by status
         if ($status = $request->input('status')) {
             $query->where('status', $status);
         }
 
-        // Filter by supplier
         if ($supplier = $request->input('supplier')) {
             $query->where('supplier', $supplier);
         }
 
-        // Phân trang (10 items per page)
         $deliveries = $query->paginate(10);
 
-        // Stats for dashboard cards
         $totalDeliveries = Delivery::count();
         $completedDeliveries = Delivery::where('status', 'completed')->count();
         $pendingDeliveries = Delivery::where('status', 'pending')->count();
@@ -59,7 +55,6 @@ class DeliveryController extends Controller
      */
     public function create()
     {
-        // Danh sách nhà cung cấp để hiển thị trong dropdown
         $suppliers = ['Samsung Electronics', 'Apple Inc.', 'Xiaomi Corp.', 'Sony Corporation'];
         return view('admin.deliveries.create', compact('suppliers'));
     }
@@ -79,9 +74,12 @@ class DeliveryController extends Controller
             'status' => 'required|in:pending,completed,cancelled',
         ]);
 
-        Delivery::create($validated);
-
-        return redirect()->route('admin.deliveries.index')->with('success', 'Thêm lô hàng thành công!');
+        try {
+            Delivery::create($validated);
+            return redirect()->route('admin.deliveries.index')->with('success', 'Thêm lô hàng thành công!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi thêm lô hàng. Vui lòng thử lại!');
+        }
     }
 
     /**
@@ -111,9 +109,12 @@ class DeliveryController extends Controller
             'status' => 'required|in:pending,completed,cancelled',
         ]);
 
-        $delivery->update($validated);
-
-        return redirect()->route('admin.deliveries.index')->with('success', 'Cập nhật lô hàng thành công!');
+        try {
+            $delivery->update($validated);
+            return redirect()->route('admin.deliveries.index')->with('success', 'Cập nhật lô hàng thành công!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi cập nhật lô hàng. Vui lòng thử lại!');
+        }
     }
 
     /**
@@ -122,9 +123,13 @@ class DeliveryController extends Controller
     public function destroy($id)
     {
         $delivery = Delivery::findOrFail($id);
-        $delivery->delete();
 
-        return redirect()->route('admin.deliveries.index')->with('success', 'Xóa lô hàng thành công!');
+        try {
+            $delivery->delete();
+            return redirect()->route('admin.deliveries.index')->with('success', 'Xóa lô hàng thành công!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi xóa lô hàng. Vui lòng thử lại!');
+        }
     }
 
     /**
@@ -144,7 +149,6 @@ class DeliveryController extends Controller
             return redirect()->back()->with('error', 'Vui lòng chọn ít nhất một cột để xuất!');
         }
 
-        // Query dữ liệu dựa trên dataRange
         $query = Delivery::query();
 
         if ($dataRange === 'selected') {
@@ -154,11 +158,13 @@ class DeliveryController extends Controller
             }
             $query->whereIn('id', $selectedIds);
         } elseif ($dataRange === 'current') {
-            // Lấy dữ liệu từ trang hiện tại
-            $query->whereIn('id', $request->input('currentPageIds', []));
+            $currentPageIds = $request->input('currentPageIds', []);
+            if (empty($currentPageIds)) {
+                return redirect()->back()->with('error', 'Không có dữ liệu trên trang hiện tại!');
+            }
+            $query->whereIn('id', $currentPageIds);
         }
 
-        // Áp dụng các bộ lọc nếu có
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('code', 'like', "%$search%")
@@ -181,13 +187,15 @@ class DeliveryController extends Controller
             return redirect()->back()->with('error', 'Không có dữ liệu để xuất!');
         }
 
-        // Tạo tên file
         if ($includeTimestamp) {
-            $fileName .= '-' . now()->format('Y-m-d');
+            $fileName .= '-' . now()->format('Y-m-d_H-i-s');
         }
         $fileName .= '.' . $fileFormat;
 
-        // Xuất file sử dụng Maatwebsite\Excel
-        return Excel::download(new DeliveriesExport($deliveries, $columns, $includeHeader, $includeStats), $fileName);
+        try {
+            return Excel::download(new DeliveriesExport($deliveries, $columns, $includeHeader, $includeStats), $fileName);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi xuất file. Vui lòng thử lại!');
+        }
     }
-} -->
+}
