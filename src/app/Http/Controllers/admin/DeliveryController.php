@@ -1,4 +1,4 @@
-<!-- <?php
+<?php
 
 namespace App\Http\Controllers\Admin;
 
@@ -190,4 +190,4 @@ class DeliveryController extends Controller
         // Xuất file sử dụng Maatwebsite\Excel
         return Excel::download(new DeliveriesExport($deliveries, $columns, $includeHeader, $includeStats), $fileName);
     }
-} -->
+} 
