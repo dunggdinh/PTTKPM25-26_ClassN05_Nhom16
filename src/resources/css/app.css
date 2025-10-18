@@ -66,6 +66,73 @@ body {
     background-color: white;
 }
 
+/* ===== Dropdown Menu ===== */
+.dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    margin-top: 0.5rem;
+    width: 12rem;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 0;
+    z-index: 50;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.dropdown.show {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ===== Dropdown Links ===== */
+#userDropdown a {
+    display: block;
+    padding: 0.5rem 1rem;
+    color: #374151;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+}
+
+#userDropdown a:hover {
+    background-color: rgba(239, 68, 68, 0.05);
+}
+
+/* ===== Logout Link ===== */
+#userDropdown a.logout {
+    color: #dc2626;
+}
+
+#userDropdown a.logout:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* ===== Dropdown Arrow Animation ===== */
+#dropdownArrow {
+    transition: transform 0.2s ease;
+}
+/* ===== Logout Button (for <button> tag) ===== */
+button.logout {
+    color: #dc2626;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+button.logout:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #b91c1c;
+}
+
+
 
 /* ===== Cards ===== */
 .order-card,

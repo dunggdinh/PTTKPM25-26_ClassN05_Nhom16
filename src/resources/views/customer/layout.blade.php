@@ -139,15 +139,19 @@
                     
                     <!-- Dropdown Menu -->
                     <div class="dropdown absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2" id="userDropdown">
-                        <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors">
+                        <a href="{{ url('/customer/profile') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors">
                             <span class="mr-3">👤</span>
                             <span>Hồ sơ của tôi</span>
                         </a>
                         <hr class="my-1 border-gray-100">
-                        <a href="#" class="flex items-center px-4 py-2 text-red-600 hover:bg-red-50 transition-colors">
-                            <span class="mr-3">🚪</span>
-                            <span>Đăng xuất</span>
-                        </a>
+                        <form action="{{ route('auth.logout') }}" method="POST" class="w-full">
+                            @csrf
+                            <button type="submit" 
+                                class="flex items-center w-full px-4 py-2 font-medium text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors">
+                                <span class="mr-3">🚪</span>
+                                <span>Đăng xuất</span>
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -273,8 +277,21 @@
 
         // Toggle UI
         function toggleDropdown() {
-            document.getElementById('userDropdown').classList.toggle('hidden');
-            document.getElementById('dropdownArrow').classList.toggle('rotate-180');
+            const dropdown = document.getElementById('userDropdown');
+            const arrow = document.getElementById('dropdownArrow');
+            dropdown.classList.toggle('show');
+            arrow.style.transform = dropdown.classList.contains('show') ? 'rotate(180deg)' : '';
+            
+            // Close dropdown when clicking outside
+            if (dropdown.classList.contains('show')) {
+                document.addEventListener('click', function closeDropdown(e) {
+                    if (!e.target.closest('.relative')) {
+                        dropdown.classList.remove('show');
+                        arrow.style.transform = '';
+                        document.removeEventListener('click', closeDropdown);
+                    }
+                });
+            }
         }
         function toggleNotifications() {
             document.getElementById('notificationsDropdown').classList.toggle('hidden');
