@@ -259,43 +259,15 @@ Route::prefix('auth')->name('auth.')->group(function () {
 });
 
 // Nhóm route customer
-Route::prefix('customer')->name('customer.')->group(function () {
-
-    Route::get('/home', function () {
-        return view('customer.home');
-    })->name('home');
-
-    Route::get('/cart', function () {
-        return view('customer.cart');
-    })->name('cart');
-
-    Route::get('/layout', function () {
-        return view('customer.layout');
-    })->name('layout');
-
-    Route::get('/order', function () {
-        return view('customer.order');
-    })->name('order');
-
-    Route::get('/profile', function () {
-        return view('customer.profile');
-    })->name('profile');
-
-    Route::get('/promotion', function () {
-        return view('customer.promotion');
-    })->name('promotion');
-
-    Route::get('/review', function () {
-        return view('customer.review');
-    })->name('review');
-
-    Route::get('/store', function () {
-        return view('customer.store');
-    })->name('store');
-
-    Route::get('/support', function () {
-        return view('customer.support');
-    })->name('support');
+Route::prefix('customer')->group(function () {
+    Route::view('/home', 'customer.home');
+    Route::view('/promotion', 'customer.promotion');
+    Route::view('/product', 'customer.product');
+    Route::view('/cart', 'customer.cart');
+    Route::view('/order', 'customer.order');
+    Route::view('/review', 'customer.review');
+    Route::view('/support', 'customer.support');
+    Route::view('/profile', 'customer.profile');
 });
 
 // Route test (có thể xóa nếu không cần)
