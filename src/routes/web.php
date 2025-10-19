@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Response;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\auth\AuthController;
 use App\Http\Controllers\admin\CustomerController;
-
+use App\Http\Controllers\admin\ReturnController; // 
 use App\Http\Controllers\admin\InventoryController;
 
 // routes/api.php
@@ -55,7 +55,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/order/reload', [OrderController::class, 'reload'])->name('order.reload');
     Route::view('/payments_gateway', 'admin.payments_gateway')->name('payments_gateway');
     Route::view('/report', 'admin.report')->name('report');
-    Route::view('/return', 'admin.return')->name('return');
+    // Route::view('/return', 'admin.return')->name('return');
+    Route::get('/return', [ReturnController::class, 'index'])->name('admin.return'); // mới để kết nối đến Controller và Returncontroller
     Route::view('/warranties', 'admin.warranties')->name('warranties');
 });
 Route::prefix('auth')->name('auth.')->group(function () {
