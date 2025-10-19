@@ -20,7 +20,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Tổng lô hàng</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ $totalDeliveries }}</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $totalBatches }}</p>
                     </div>
                 </div>
             </div>
@@ -34,7 +34,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Đã nhập kho</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ $completedDeliveries }}</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $completedBatches }}</p>
                     </div>
                 </div>
             </div>
@@ -48,7 +48,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Đang chờ</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ $pendingDeliveries }}</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $pendingBatches }}</p>
                     </div>
                 </div>
             </div>
@@ -62,69 +62,78 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Tổng giá trị</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ number_format($totalValue, 0, ',', '.') }} VNĐ</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $totalValue }}</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Form export -->
-        <form id="exportForm" action="{{ route('admin.deliveries.export') }}" method="POST">
-            @csrf
-            <input type="hidden" name="selectedIds" id="selectedIds">
-            <input type="hidden" name="currentPageIds" id="currentPageIds" value="{{ $deliveries->pluck('id')->toJson() }}">
-            <input type="hidden" name="fileFormat" id="exportFileFormat" value="xlsx">
-            <input type="hidden" name="dataRange" id="exportDataRange" value="all">
-            <input type="hidden" name="columns" id="exportColumns" value='["code", "supplier", "product", "quantity", "value", "date", "status"]'>
-            <input type="hidden" name="fileName" id="exportFileName" value="danh-sach-lo-hang">
-            <input type="hidden" name="includeTimestamp" id="exportIncludeTimestamp" value="1">
-            <input type="hidden" name="includeHeader" id="exportIncludeHeader" value="1">
-            <input type="hidden" name="includeStats" id="exportIncludeStats" value="0">
-            <input type="hidden" name="exportTime" id="exportTime" value="{{ now()->format('H:i d/m/Y') }}">
-        </form>
+
 
         <!-- Controls -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <form action="{{ route('deliveries') }}" method="GET" class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div class="flex flex-col sm:flex-row gap-4">
+                    <!-- Ô tìm kiếm -->
                     <div class="relative">
                         <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
-                        <input type="text" id="searchInput" oninput="applyFilters()" placeholder="Tìm kiếm lô hàng..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-80">
+                        <input 
+                            type="text" 
+                            name="search"
+                            value="{{ request('search') }}"
+                            placeholder="Tìm kiếm lô hàng..." 
+                            class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-80">
                     </div>
-                    
-                    <select id="statusFilter" onchange="applyFilters()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+
+                    <!-- Bộ lọc trạng thái -->
+                    <select name="status" onchange="this.form.submit()" 
+                            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         <option value="">Tất cả trạng thái</option>
-                        <option value="pending">Đang chờ</option>
-                        <option value="completed">Đã nhập kho</option>
-                        <option value="cancelled">Đã hủy</option>
+                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Đang chờ</option>
+                        <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Đã nhập kho</option>
+                        <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Đã hủy</option>
                     </select>
-                    
-                    <select id="supplierFilter" onchange="applyFilters()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+
+                    <!-- Bộ lọc nhà cung cấp -->
+                    <select name="supplier" onchange="this.form.submit()" 
+                            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         <option value="">Tất cả nhà cung cấp</option>
-                        <option value="Samsung Electronics">Samsung Electronics</option>
-                        <option value="Apple Inc.">Apple Inc.</option>
-                        <option value="Xiaomi Corp.">Xiaomi Corp.</option>
-                        <option value="Sony Corporation">Sony Corporation</option>
+                        <option value="Samsung Electronics" {{ request('supplier') == 'Samsung Electronics' ? 'selected' : '' }}>Samsung Electronics</option>
+                        <option value="Apple Inc." {{ request('supplier') == 'Apple Inc.' ? 'selected' : '' }}>Apple Inc.</option>
+                        <option value="Xiaomi Corp." {{ request('supplier') == 'Xiaomi Corp.' ? 'selected' : '' }}>Xiaomi Corp.</option>
+                        <option value="Sony Corporation" {{ request('supplier') == 'Sony Corporation' ? 'selected' : '' }}>Sony Corporation</option>
                     </select>
                 </div>
-                
+
+                <!-- Hành động -->
                 <div class="flex flex-col sm:flex-row gap-3">
-                    <button onclick="openExportModal()" class="border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 whitespace-nowrap">
+                    <a href="{{ route('deliveries.export') }}" 
+                    class="border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 whitespace-nowrap">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
                         Xuất Excel
-                    </button>
-                    <button onclick="openAddModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 whitespace-nowrap">
+                    </a>
+
+                    <a href="{{ route('deliveries.reload') }}" 
+                    class="border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 whitespace-nowrap">
+                        🔄 Tải lại
+                    </a>
+
+                    <button type="button" onclick="openAddModal()" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 whitespace-nowrap">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
                         Thêm lô hàng mới
                     </button>
                 </div>
-            </div>
+            </form>
         </div>
 
         <!-- Table -->
@@ -134,7 +143,7 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" class="text-blue-600 focus:ring-blue-500 w-4 h-4">
+                                <input type="checkbox" id="selectAll" class="text-blue-600 focus:ring-blue-500 w-4 h-4">
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã lô hàng</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nhà cung cấp</th>
@@ -146,41 +155,48 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
                         </tr>
                     </thead>
-                    <tbody id="shipmentTable" class="bg-white divide-y divide-gray-200">
-                        @foreach($deliveries as $delivery)
+
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @foreach ($deliveries as $delivery)
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <input type="checkbox" class="shipment-checkbox text-blue-600 focus:ring-blue-500 w-4 h-4" value="{{ $delivery->id }}">
+                                <td class="px-6 py-4 text-sm">
+                                    <input type="checkbox" class="text-blue-600 focus:ring-blue-500 w-4 h-4">
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $delivery->code }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $delivery->supplier }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $delivery->product }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $delivery->quantity }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ number_format($delivery->value, 0, ',', '.') }} VNĐ</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ \Carbon\Carbon::parse($delivery->date)->format('d/m/Y') }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 py-1 text-xs rounded-full 
-                                        {{ $delivery->status == 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                                        $delivery->status == 'completed' ? 'bg-green-100 text-green-800' : 
-                                        'bg-red-100 text-red-800' }}">
-                                        {{ $delivery->status == 'pending' ? 'Đang chờ' : 
-                                        $delivery->status == 'completed' ? 'Đã nhập kho' : 'Đã hủy' }}
+                                <td class="px-6 py-4 text-sm text-gray-700">{{ $delivery->delivery_id }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-700">{{ $delivery->supplier->name ?? '-' }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-700">{{ $delivery->product->name ?? '-' }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-700">{{ $delivery->quantity }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-700">{{ number_format($delivery->total_value, 0, ',', '.') }} ₫</td>
+                                <td class="px-6 py-4 text-sm text-gray-700">{{ $delivery->created_at->format('d/m/Y') }}</td>
+                                <td class="px-6 py-4 text-sm">
+                                    <span class="px-3 py-1 rounded-full text-xs font-medium 
+                                        @if($delivery->status == 'pending') bg-yellow-100 text-yellow-800
+                                        @elseif($delivery->status == 'completed') bg-green-100 text-green-800
+                                        @else bg-red-100 text-red-800 @endif">
+                                        {{ ucfirst($delivery->status) }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <a href="{{ route('admin.deliveries.edit', $delivery->id) }}" class="text-blue-600 hover:text-blue-800">Sửa</a>
-                                    <form action="{{ route('admin.deliveries.destroy', $delivery->id) }}" method="POST" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-800 ml-3" onclick="return confirm('Bạn có chắc muốn xóa lô hàng này?')">Xóa</button>
-                                    </form>
+                                <td class="px-6 py-4 text-sm">
+                                    <div class="flex gap-2">
+                                        <a href="#" class="text-blue-600 hover:underline">Sửa</a>
+                                        <form action="{{ route('deliveries.destroy', $delivery->delivery_id) }}" method="POST" onsubmit="return confirm('Xóa lô hàng này?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-600 hover:underline">Xóa</button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
+
+            <div class="p-4">
+                {{ $deliveries->links() }}
+            </div>
         </div>
+
 
         <!-- Pagination -->
         <div class="bg-white px-6 py-3 flex items-center justify-between border-t border-gray-200 mt-6 rounded-lg shadow-sm">
