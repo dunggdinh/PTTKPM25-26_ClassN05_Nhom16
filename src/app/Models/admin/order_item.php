@@ -1,6 +1,5 @@
 <?php
 
-namespace App\Models\admin;
 
 namespace App\Models\admin;
 
