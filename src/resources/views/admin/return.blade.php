@@ -20,7 +20,9 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Chờ xử lý</p>
-                        <p class="text-2xl font-semibold text-gray-900" id="pendingCount">12</p>
+                        <!-- <p class="text-2xl font-semibold text-gray-900" id="pendingCount">12</p> -->
+                        <!-- data that -->
+                        <p class="text-2xl font-semibold text-gray-900">{{ $stats['pending'] }}</p>
                     </div>
                 </div>
             </div>
@@ -33,7 +35,8 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Đang xử lý</p>
-                        <p class="text-2xl font-semibold text-gray-900" id="processingCount">8</p>
+                        <!-- <p class="text-2xl font-semibold text-gray-900" id="processingCount">8</p> -->
+                        <p class="text-2xl font-semibold text-gray-900">{{ $stats['processing'] }}</p>
                     </div>
                 </div>
             </div>
@@ -46,7 +49,8 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Hoàn thành</p>
-                        <p class="text-2xl font-semibold text-gray-900" id="completedCount">45</p>
+                        <!-- <p class="text-2xl font-semibold text-gray-900" id="completedCount">45</p> -->
+                        <p class="text-2xl font-semibold text-gray-900">{{ $stats['completed'] }}</p>
                     </div>
                 </div>
             </div>
@@ -59,12 +63,16 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Từ chối</p>
-                        <p class="text-2xl font-semibold text-gray-900" id="rejectedCount">3</p>
+                        <!-- <p class="text-2xl font-semibold text-gray-900" id="rejectedCount">3</p> -->
+                        <p class="text-2xl font-semibold text-gray-900">{{ $stats['rejected'] }}</p>
                     </div>
                 </div>
             </div>
         </div>
-
+        <!-- Phân trang -->
+        <div class="p-4">
+            {{ $returns->links('pagination::tailwind') }}
+        </div>
         <!-- Filters and Search -->
         <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -138,8 +146,37 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
                         </tr>
                     </thead>
-                    <tbody id="returnsTableBody" class="bg-white divide-y divide-gray-200">
-                        <!-- Table rows will be populated by JavaScript -->
+                    <!-- <tbody id="returnsTableBody" class="bg-white divide-y divide-gray-200">
+                        Table rows will be populated by JavaScript -->
+                    <!-- </tbody> -->
+                    <tbody class="bg-white divide-y divide-gray-200">
+                    @foreach ($returns as $item)
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4">
+                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        </td>
+                        <td class="px-6 py-4 font-medium text-gray-900">{{ $item->return_id }}</td>
+                        <td class="px-6 py-4">{{ $item->order_item_id }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ $item->reason }}</td>
+                        <td class="px-6 py-4 text-sm">
+                            <span class="px-2 py-1 text-xs rounded-full
+                                @if($item->status == 'pending') bg-yellow-100 text-yellow-800
+                                @elseif($item->status == 'processing') bg-blue-100 text-blue-800
+                                @elseif($item->status == 'approved') bg-green-100 text-green-800
+                                @elseif($item->status == 'completed') bg-green-200 text-green-900
+                                @elseif($item->status == 'rejected') bg-red-100 text-red-800
+                                @endif">
+                                {{ ucfirst($item->status) }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            {{ \Carbon\Carbon::parse($item->requested_at)->format('d/m/Y H:i') }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            {{ $item->processed_at ? \Carbon\Carbon::parse($item->processed_at)->format('d/m/Y H:i') : '—' }}
+                        </td>
+                    </tr>
+                    @endforeach
                     </tbody>
                 </table>
             </div>

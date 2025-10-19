@@ -4,7 +4,7 @@ namespace App\Models\admin;
 
 use Illuminate\Database\Eloquent\Model;
 
-class order extends Model
+class Order extends Model
 {
     protected $table = 'orders';
     protected $primaryKey = 'order_id';
@@ -16,17 +16,17 @@ class order extends Model
         'shipping_address', 'created_at',
     ];
 
-    public function customer()
+    public function Customer()
     {
-        return $this->belongsTo(customer::class, 'user_id', 'user_id');
+        return $this->belongsTo(Customer::class, 'user_id', 'user_id');
     }
 
-    public function supplier()
+    public function Supplier()
     {
-        return $this->belongsTo(supplier::class, 'supplier_id', 'supplier_id');
+        return $this->belongsTo(Supplier::class, 'supplier_id', 'supplier_id');
     }
 
-    public function orderItems()
+    public function OrderItems()
     {
         return $this->hasMany(OrderItem::class, 'order_id', 'order_id');
     }

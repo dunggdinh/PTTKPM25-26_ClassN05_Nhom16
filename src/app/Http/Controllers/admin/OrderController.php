@@ -4,10 +4,10 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\admin\order;
-use App\Models\admin\orderItem;
-use App\Models\admin\customer;
-use App\Models\admin\product;
+use App\Models\admin\Order;
+use App\Models\admin\OrderItem;
+use App\Models\admin\Customer;
+use App\Models\admin\Product;
 use App\Exports\OrderExport;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -19,14 +19,14 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         // Sửa lại quan hệ đúng với model bạn có
-        $query = order::with(['customer', 'orderItems.product']);
+        $query = Order::with(['Customer', 'OrderItems.product']);
 
         // 🔍 Tìm kiếm theo mã đơn hoặc tên khách hàng
         if ($request->has('search') && !empty($request->search)) {
             $search = strtolower($request->search);
             $query->where(function ($q) use ($search) {
                 $q->whereRaw('LOWER(order_id) LIKE ?', ["%{$search}%"])
-                  ->orWhereHas('customer', function ($sub) use ($search) {
+                  ->orWhereHas('Customer', function ($sub) use ($search) {
                       $sub->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"]);
                   });
             });
@@ -38,9 +38,17 @@ class OrderController extends Controller
         }
 
         // ⏰ Lọc theo thời gian (ngày đặt)
-        if ($request->has('date') && !empty($request->date)) {
-            $query->whereDate('created_at', $request->date);
+        if ($request->filled('date')) {
+            if ($request->date === 'today') {
+                $query->whereDate('created_at', today());
+            } elseif ($request->date === 'week') {
+                $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+            } elseif ($request->date === 'month') {
+                $query->whereMonth('created_at', now()->month)
+                    ->whereYear('created_at', now()->year);
+            }
         }
+
 
         // 📋 Phân trang
         $orders = $query->orderBy('created_at', 'desc')
@@ -48,10 +56,10 @@ class OrderController extends Controller
                         ->withQueryString();
 
         // 📊 Thống kê
-        $totalOrders = order::count();
-        $pendingOrders = order::where('status', 'Chờ xử lý')->count();
-        $completedOrders = order::where('status', 'Đã giao')->count();
-        $revenue = order::where('status', 'Đã giao')->sum('total_amount');
+        $totalOrders = Order::count();
+        $pendingOrders = Order::where('status', 'Chờ xử lý')->count();
+        $completedOrders = Order::where('status', 'Đã giao')->count();
+        $revenue = Order::where('status', 'Đã giao')->sum('total_amount');
 
         return view('admin.order', compact(
             'orders', 'totalOrders', 'pendingOrders', 'completedOrders', 'revenue'
@@ -67,7 +75,7 @@ class OrderController extends Controller
             'status' => 'required|string'
         ]);
 
-        $order = order::findOrFail($id);
+        $order = Order::findOrFail($id);
         $order->status = $request->status;
         $order->save();
 
@@ -79,7 +87,7 @@ class OrderController extends Controller
      */
     public function destroy($id)
     {
-        $order = order::findOrFail($id);
+        $order = Order::findOrFail($id);
         $order->delete();
 
         return redirect()->back()->with('success', 'Xóa đơn hàng thành công!');
@@ -98,17 +106,26 @@ class OrderController extends Controller
      */
     public function reload()
     {
-        $orders = order::with(['customer', 'orderItems.product'])
+        $orders = Order::with(['customer', 'orderItems.product'])
                         ->orderBy('created_at', 'desc')
                         ->paginate(10);
 
-        $totalOrders = order::count();
-        $pendingOrders = order::where('status', 'Chờ xử lý')->count();
-        $completedOrders = order::where('status', 'Đã giao')->count();
-        $revenue = order::where('status', 'Đã giao')->sum('total_amount');
+        $totalOrders = Order::count();
+        $pendingOrders = Order::where('status', 'Chờ xử lý')->count();
+        $completedOrders = Order::where('status', 'Đã giao')->count();
+        $revenue = Order::where('status', 'Đã giao')->sum('total_amount');
 
         return view('admin.order', compact(
             'orders', 'totalOrders', 'pendingOrders', 'completedOrders', 'revenue'
         ));
+    }
+    public function show($id)
+    {
+        // Lấy đơn hàng cùng với thông tin khách hàng và các sản phẩm trong đơn
+        $order = Order::with(['customer', 'orderItems.product'])
+                    ->where('order_id', $id)
+                    ->firstOrFail();
+
+        return view('admin.order_show', compact('order'));
     }
 }

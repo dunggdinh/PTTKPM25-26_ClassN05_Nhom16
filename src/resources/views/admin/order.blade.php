@@ -4,12 +4,10 @@
 <div class="bg-gradient-to-br from-blue-50 to-indigo-100">
     <main class="container mx-auto px-4 py-8 max-w-7xl">
         <!-- Header -->
-        <header class="mb-8">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900">Quản Lý Đơn Hàng</h1>
                 <p class="text-gray-600 mt-1">Theo dõi và xử lý đơn hàng của khách hàng</p>
             </div>
-        </header>
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-4 gap-6 mb-8">
@@ -64,7 +62,7 @@
 
         <!-- Filters and Search -->
         <div class="bg-white rounded-xl shadow-sm border p-6 mb-6">
-            <form action="{{ route('admin.order.index') }}" method="GET" class="flex flex-col sm:flex-row gap-4 items-end">
+            <form action="{{ route('admin.order') }}" class="flex flex-col sm:flex-row gap-4 items-end">
                 <!-- Ô tìm kiếm -->
                 <div class="flex-1">
                     <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Tìm Kiếm</label>
@@ -124,10 +122,6 @@
                 <table class="w-full border border-gray-200 rounded-lg">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                <input type="checkbox" id="select-all" onchange="toggleSelectAll()" 
-                                    class="text-blue-600 focus:ring-blue-500 rounded">
-                            </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã Đơn Hàng</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khách Hàng</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sản Phẩm</th>
@@ -193,18 +187,13 @@
                                 </td>
 
                                 <!-- Thao tác -->
-                                <td class="px-6 py-4 text-sm">
-                                    <div class="flex gap-2">
-                                        <a href="{{ route('order.show', $order->order_id) }}" 
-                                        class="text-blue-600 hover:underline">Xem</a>
-                                        <a href="{{ route('order.edit', $order->order_id) }}" 
-                                        class="text-green-600 hover:underline">Sửa</a>
-                                        <form action="{{ route('order.destroy', $order->order_id) }}" method="POST" onsubmit="return confirm('Xóa đơn hàng này?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:underline">Xóa</button>
-                                        </form>
-                                    </div>
+                                <td class="px-6 py-4 text-sm text-gray-700">
+                                    <a href="{{ route('admin.order.show', $order->order_id) }}" class="text-blue-600 hover:underline">Xem</a>
+                                    <form action="{{ route('admin.order.destroy', $order->order_id) }}" method="POST" onsubmit="return confirm('Xóa đơn hàng này?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-600 hover:underline">Xóa</button>
+                                    </form>
                                 </td>
                             </tr>
                         @empty
@@ -449,84 +438,6 @@
     </main>
 
     <script>
-        // Sample order data
-        const orders = [
-            {
-                id: 'DH001',
-                customer: 'Nguyễn Văn An',
-                email: 'an.nguyen@email.com',
-                phone: '0901234567',
-                products: [
-                    { name: 'iPhone 15 Pro Max', quantity: 1, price: 29990000 },
-                    { name: 'AirPods Pro', quantity: 1, price: 6990000 }
-                ],
-                total: 36980000,
-                status: 'pending',
-                date: '2024-01-15',
-                address: '123 Nguyễn Huệ, Q1, TP.HCM'
-            },
-            {
-                id: 'DH002',
-                customer: 'Trần Thị Bình',
-                email: 'binh.tran@email.com',
-                phone: '0912345678',
-                products: [
-                    { name: 'Samsung Galaxy S24', quantity: 1, price: 22990000 }
-                ],
-                total: 22990000,
-                status: 'processing',
-                date: '2024-01-14',
-                address: '456 Lê Lợi, Q3, TP.HCM'
-            },
-            {
-                id: 'DH003',
-                customer: 'Lê Minh Cường',
-                email: 'cuong.le@email.com',
-                phone: '0923456789',
-                products: [
-                    { name: 'MacBook Air M3', quantity: 1, price: 28990000 },
-                    { name: 'Magic Mouse', quantity: 1, price: 2290000 }
-                ],
-                total: 31280000,
-                status: 'shipped',
-                date: '2024-01-13',
-                address: '789 Võ Văn Tần, Q3, TP.HCM'
-            },
-            {
-                id: 'DH004',
-                customer: 'Phạm Thị Dung',
-                email: 'dung.pham@email.com',
-                phone: '0934567890',
-                products: [
-                    { name: 'iPad Pro 12.9"', quantity: 1, price: 26990000 }
-                ],
-                total: 26990000,
-                status: 'delivered',
-                date: '2024-01-12',
-                address: '321 Pasteur, Q1, TP.HCM'
-            },
-            {
-                id: 'DH005',
-                customer: 'Hoàng Văn Em',
-                email: 'em.hoang@email.com',
-                phone: '0945678901',
-                products: [
-                    { name: 'Apple Watch Series 9', quantity: 1, price: 9990000 }
-                ],
-                total: 9990000,
-                status: 'cancelled',
-                date: '2024-01-11',
-                address: '654 Điện Biên Phủ, Q3, TP.HCM'
-            }
-        ];
-
-        const statusLabels = {
-            pending: 'Chờ xử lý',
-            processing: 'Đang xử lý',
-            shipped: 'Đã gửi hàng',
-            delivered: 'Đã giao',
-            cancelled: 'Đã hủy'
-        };
 
         function formatCurrency(amount) {
             return new Intl.NumberFormat('vi-VN', {

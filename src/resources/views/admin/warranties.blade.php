@@ -20,7 +20,8 @@
                     </div>
                     <div class="flex-1">
                         <p class="text-sm font-medium text-gray-600">Tổng yêu cầu</p>
-                        <p class="text-2xl font-bold text-gray-900">247</p>
+                        <!-- <p class="text-2xl font-bold text-gray-900">247</p> -->
+                        <p class="text-2xl font-bold text-gray-900">{{ $total }}</p>
                     </div>
                 </div>
             </div>
@@ -33,7 +34,8 @@
                     </div>
                     <div class="flex-1">
                         <p class="text-sm font-medium text-gray-600">Đang xử lý</p>
-                        <p class="text-2xl font-bold text-gray-900">32</p>
+                        <!-- <p class="text-2xl font-bold text-gray-900">32</p> -->
+                        <p class="text-2xl font-bold text-gray-900">{{ $processing }}</p>
                     </div>
                 </div>
             </div>
@@ -46,7 +48,8 @@
                     </div>
                     <div class="flex-1">
                         <p class="text-sm font-medium text-gray-600">Hoàn thành</p>
-                        <p class="text-2xl font-bold text-gray-900">198</p>
+                        <!-- <p class="text-2xl font-bold text-gray-900">198</p> -->
+                        <p class="text-2xl font-bold text-gray-900">{{ $completed }}</p>
                     </div>
                 </div>
             </div>
@@ -59,7 +62,8 @@
                     </div>
                     <div class="flex-1">
                         <p class="text-sm font-medium text-gray-600">Lịch hẹn hôm nay</p>
-                        <p class="text-2xl font-bold text-gray-900">8</p>
+                        <!-- <p class="text-2xl font-bold text-gray-900">8</p> -->
+                        <p class="text-2xl font-bold text-gray-900">{{ $appointments_today ?? 0 }}</p>
                     </div>
                 </div>
             </div>
@@ -128,8 +132,46 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200" id="warranty-list">
-                            <!-- Warranty items will be populated here -->
+                        <!-- <tbody class="bg-white divide-y divide-gray-200" id="warranty-list">
+                            Warranty items will be populated here
+                        </tbody> -->
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach($warranties as $w)
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ $w->warranty_id }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ $w->order_item_id }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $w->product_serial }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ \Carbon\Carbon::parse($w->start_date)->format('d/m/Y') }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ \Carbon\Carbon::parse($w->end_date)->format('d/m/Y') }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full
+                                        @if($w->status == 'active') bg-green-100 text-green-800
+                                        @elseif($w->status == 'claimed') bg-yellow-100 text-yellow-800
+                                        @elseif($w->status == 'expired') bg-gray-200 text-gray-800
+                                        @else bg-blue-100 text-blue-800
+                                        @endif">
+                                        {{ ucfirst($w->status) }}
+                                    </span>
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $w->service_center }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ $w->notes }}
+                                </td>
+                            </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -647,103 +689,104 @@
         let currentWarrantyId = null;
 
         // Sample data
-        const warrantyData = [
-            {
-                id: \'BH001\',
-                customer: \'Nguyễn Văn A\',
-                phone: \'0901234567\',
-                address: \'123 Đường ABC, Quận 1, TP.HCM\',
-                product: \'iPhone 14 Pro\',
-                productType: \'phone\',
-                serial: \'F2LMQXYZ1234\',
-                purchaseDate: \'2024-06-15\',
-                issue: \'Màn hình bị vỡ\',
-                status: \'processing\',
-                priority: \'high\',
-                date: \'2024-12-15\',
-                description: \'Khách hàng làm rơi điện thoại, màn hình bị nứt\',
-                timeline: [
-                    { action: \'Yêu cầu được tạo\', date: \'2024-12-15\', time: \'09:30\', status: \'completed\' },
-                    { action: \'Đang kiểm tra sản phẩm\', date: \'2024-12-15\', time: \'14:15\', status: \'current\' },
-                    { action: \'Chờ phê duyệt sửa chữa\', date: \'\', time: \'\', status: \'pending\' }
-                ]
-            },
-            {
-                id: \'BH002\',
-                customer: \'Trần Thị B\',
-                phone: \'0912345678\',
-                address: \'456 Đường DEF, Quận 3, TP.HCM\',
-                product: \'MacBook Air M2\',
-                productType: \'laptop\',
-                serial: \'FVFXM2ABC567\',
-                purchaseDate: \'2023-11-20\',
-                issue: \'Pin không sạc\',
-                status: \'pending\',
-                priority: \'medium\',
-                date: \'2024-12-14\',
-                description: \'Pin không nhận sạc sau 1 năm sử dụng\',
-                timeline: [
-                    { action: \'Yêu cầu được tạo\', date: \'2024-12-14\', time: \'10:15\', status: \'completed\' }
-                ]
-            },
-            {
-                id: \'BH003\',
-                customer: \'Lê Văn C\',
-                phone: \'0923456789\',
-                address: \'789 Đường GHI, Quận 7, TP.HCM\',
-                product: \'AirPods Pro\',
-                productType: \'headphone\',
-                serial: \'HWXYZ789DEF\',
-                purchaseDate: \'2024-03-10\',
-                issue: \'Mất âm thanh bên trái\',
-                status: \'completed\',
-                priority: \'low\',
-                date: \'2024-12-13\',
-                description: \'Tai nghe trái không có âm thanh\',
-                timeline: [
-                    { action: \'Yêu cầu được tạo\', date: \'2024-12-13\', time: \'08:45\', status: \'completed\' },
-                    { action: \'Kiểm tra và thay thế\', date: \'2024-12-13\', time: \'15:30\', status: \'completed\' },
-                    { action: \'Hoàn thành sửa chữa\', date: \'2024-12-13\', time: \'16:45\', status: \'completed\' }
-                ]
-            },
-            {
-                id: \'BH004\',
-                customer: \'Phạm Văn D\',
-                phone: \'0934567890\',
-                address: \'321 Đường JKL, Quận 5, TP.HCM\',
-                product: \'iPad Pro\',
-                productType: \'phone\',
-                serial: \'DMPQR456GHI\',
-                purchaseDate: \'2024-08-05\',
-                issue: \'Màn hình không phản hồi\',
-                status: \'pending\',
-                priority: \'high\',
-                date: \'2024-12-16\',
-                description: \'Màn hình cảm ứng không hoạt động\',
-                timeline: [
-                    { action: \'Yêu cầu được tạo\', date: \'2024-12-16\', time: \'11:20\', status: \'completed\' }
-                ]
-            },
-            {
-                id: \'BH005\',
-                customer: \'Hoàng Thị E\',
-                phone: \'0945678901\',
-                address: \'654 Đường MNO, Quận 2, TP.HCM\',
-                product: \'Dell XPS 13\',
-                productType: \'laptop\',
-                serial: \'DELLXPS13789\',
-                purchaseDate: \'2023-09-15\',
-                issue: \'Quạt tản nhiệt ồn\',
-                status: \'processing\',
-                priority: \'medium\',
-                date: \'2024-12-15\',
-                description: \'Quạt chạy liên tục và có tiếng ồn lớn\',
-                timeline: [
-                    { action: \'Yêu cầu được tạo\', date: \'2024-12-15\', time: \'13:10\', status: \'completed\' },
-                    { action: \'Đang chẩn đoán vấn đề\', date: \'2024-12-15\', time: \'16:00\', status: \'current\' }
-                ]
-            }
-        ];
+        // const warrantyData = [
+        //     {
+        //         id: \'BH001\',
+        //         customer: \'Nguyễn Văn A\',
+        //         phone: \'0901234567\',
+        //         address: \'123 Đường ABC, Quận 1, TP.HCM\',
+        //         product: \'iPhone 14 Pro\',
+        //         productType: \'phone\',
+        //         serial: \'F2LMQXYZ1234\',
+        //         purchaseDate: \'2024-06-15\',
+        //         issue: \'Màn hình bị vỡ\',
+        //         status: \'processing\',
+        //         priority: \'high\',
+        //         date: \'2024-12-15\',
+        //         description: \'Khách hàng làm rơi điện thoại, màn hình bị nứt\',
+        //         timeline: [
+        //             { action: \'Yêu cầu được tạo\', date: \'2024-12-15\', time: \'09:30\', status: \'completed\' },
+        //             { action: \'Đang kiểm tra sản phẩm\', date: \'2024-12-15\', time: \'14:15\', status: \'current\' },
+        //             { action: \'Chờ phê duyệt sửa chữa\', date: \'\', time: \'\', status: \'pending\' }
+        //         ]
+        //     },
+        //     {
+        //         id: \'BH002\',
+        //         customer: \'Trần Thị B\',
+        //         phone: \'0912345678\',
+        //         address: \'456 Đường DEF, Quận 3, TP.HCM\',
+        //         product: \'MacBook Air M2\',
+        //         productType: \'laptop\',
+        //         serial: \'FVFXM2ABC567\',
+        //         purchaseDate: \'2023-11-20\',
+        //         issue: \'Pin không sạc\',
+        //         status: \'pending\',
+        //         priority: \'medium\',
+        //         date: \'2024-12-14\',
+        //         description: \'Pin không nhận sạc sau 1 năm sử dụng\',
+        //         timeline: [
+        //             { action: \'Yêu cầu được tạo\', date: \'2024-12-14\', time: \'10:15\', status: \'completed\' }
+        //         ]
+        //     },
+        //     {
+        //         id: \'BH003\',
+        //         customer: \'Lê Văn C\',
+        //         phone: \'0923456789\',
+        //         address: \'789 Đường GHI, Quận 7, TP.HCM\',
+        //         product: \'AirPods Pro\',
+        //         productType: \'headphone\',
+        //         serial: \'HWXYZ789DEF\',
+        //         purchaseDate: \'2024-03-10\',
+        //         issue: \'Mất âm thanh bên trái\',
+        //         status: \'completed\',
+        //         priority: \'low\',
+        //         date: \'2024-12-13\',
+        //         description: \'Tai nghe trái không có âm thanh\',
+        //         timeline: [
+        //             { action: \'Yêu cầu được tạo\', date: \'2024-12-13\', time: \'08:45\', status: \'completed\' },
+        //             { action: \'Kiểm tra và thay thế\', date: \'2024-12-13\', time: \'15:30\', status: \'completed\' },
+        //             { action: \'Hoàn thành sửa chữa\', date: \'2024-12-13\', time: \'16:45\', status: \'completed\' }
+        //         ]
+        //     },
+        //     {
+        //         id: \'BH004\',
+        //         customer: \'Phạm Văn D\',
+        //         phone: \'0934567890\',
+        //         address: \'321 Đường JKL, Quận 5, TP.HCM\',
+        //         product: \'iPad Pro\',
+        //         productType: \'phone\',
+        //         serial: \'DMPQR456GHI\',
+        //         purchaseDate: \'2024-08-05\',
+        //         issue: \'Màn hình không phản hồi\',
+        //         status: \'pending\',
+        //         priority: \'high\',
+        //         date: \'2024-12-16\',
+        //         description: \'Màn hình cảm ứng không hoạt động\',
+        //         timeline: [
+        //             { action: \'Yêu cầu được tạo\', date: \'2024-12-16\', time: \'11:20\', status: \'completed\' }
+        //         ]
+        //     },
+        //     {
+        //         id: \'BH005\',
+        //         customer: \'Hoàng Thị E\',
+        //         phone: \'0945678901\',
+        //         address: \'654 Đường MNO, Quận 2, TP.HCM\',
+        //         product: \'Dell XPS 13\',
+        //         productType: \'laptop\',
+        //         serial: \'DELLXPS13789\',
+        //         purchaseDate: \'2023-09-15\',
+        //         issue: \'Quạt tản nhiệt ồn\',
+        //         status: \'processing\',
+        //         priority: \'medium\',
+        //         date: \'2024-12-15\',
+        //         description: \'Quạt chạy liên tục và có tiếng ồn lớn\',
+        //         timeline: [
+        //             { action: \'Yêu cầu được tạo\', date: \'2024-12-15\', time: \'13:10\', status: \'completed\' },
+        //             { action: \'Đang chẩn đoán vấn đề\', date: \'2024-12-15\', time: \'16:00\', status: \'current\' }
+        //         ]
+        //     }
+        // ];
+        const warrantyData = @json($warranties);
 
         const appointmentsData = [
             {
@@ -965,7 +1008,7 @@
             updatePaginationInfo(totalRequests);
         }
 
-        // Update pagination information
+        //  Update pagination information
         function updatePaginationInfo(totalCount) {
             const paginationText = document.querySelector(\'.text-sm.text-gray-700\');
             if (paginationText) {

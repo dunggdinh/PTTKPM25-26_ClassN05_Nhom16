@@ -1,41 +1,61 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Order;
-use App\Models\Customer;
-use App\Models\Product;
 use Illuminate\Http\Request;
+use App\Models\admin\Order;
+use App\Models\admin\Customer;
+use App\Models\admin\Product;
+use App\Models\admin\OrderItem;
+use Carbon\Carbon;
+use DB;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // Query stats từ DB
-        $totalRevenue = Order::sum('total_amount'); // Tổng doanh thu
-        $totalOrders = Order::count(); // Tổng đơn hàng
-        $totalCustomers = Customer::count(); // Tổng khách hàng
-        $totalProducts = Product::count(); // Tổng sản phẩm
-        $lowStockProducts = Product::where('stock', '<', 50)->count(); // Sản phẩm sắp hết (giả sử threshold 50)
+        // ==== Tổng doanh thu ====
+        $totalRevenue = Order::where('status', 'completed')->sum('total_amount');
 
-        // Top products (sản phẩm bán chạy dựa trên orders)
-        $topProducts = Product::withCount('orders') // Giả sử có relation orders ở Product model
-            ->orderBy('orders_count', 'desc')
-            ->take(4)
+        // ==== Đơn hàng ====
+        $totalOrders = Order::count();
+
+        // ==== Khách hàng ====
+        $totalCustomers = Customer::where('role', 'customer')->count();
+
+        // ==== Sản phẩm ====
+        $totalProducts = Product::count();
+
+        // ==== Sản phẩm sắp hết hàng (<=10 sp) ====
+        $lowStockProducts = Product::where('quantity', '<=', 10)->count();
+
+        // ==== Tính doanh thu theo tháng ====
+        $monthlyRevenue = Order::select(
+                DB::raw('MONTH(created_at) as month'),
+                DB::raw('SUM(total_amount) as total')
+            )
+            ->whereYear('created_at', date('Y'))
+            ->where('status', 'completed')
+            ->groupBy(DB::raw('MONTH(created_at)'))
+            ->pluck('total', 'month');
+
+        // ==== Sản phẩm bán chạy ====
+        $topProducts = OrderItem::select('product_id', DB::raw('SUM(quantity) as total_sold'))
+            ->groupBy('product_id')
+            ->orderByDesc('total_sold')
+            ->take(5)
+            ->with('product')
             ->get();
 
-        // Recent orders
-        $recentOrders = Order::latest()->take(4)->get();
-
         return view('admin.dashboard', compact(
-            'totalRevenue', 
-            'totalOrders', 
-            'totalCustomers', 
-            'totalProducts', 
-            'lowStockProducts', 
-            'topProducts', 
-            'recentOrders'
+            'totalRevenue',
+            'totalOrders',
+            'totalCustomers',
+            'totalProducts',
+            'lowStockProducts',
+            'monthlyRevenue',
+            'topProducts'
         ));
     }
 }

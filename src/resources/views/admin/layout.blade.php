@@ -132,7 +132,7 @@
 
             <a href="/admin/deliveries" class="menu-item flex items-center px-6 py-4 text-gray-600 hover:bg-gray-100">
                 <span class="mr-4 text-lg">🚚</span>
-                <span class="text-base">Quản lý lô hàng nhập</span>
+                <span class="text-base">Quản lý nhập hàng</span>
             </a>
             <div class="menu-divider"></div>
 
