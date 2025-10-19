@@ -116,37 +116,44 @@ class InventoryController extends Controller
 
     public function reload()
     {
-        // Lấy danh sách sản phẩm sắp xếp theo tên, phân trang 10
-        $products = product::orderBy('name', 'asc')->paginate(10);
+        $query = product::with('category');
+
+        // Lấy danh mục để hiển thị dropdown
+        $categories = category::all();
+
+        // Không lọc, không tìm kiếm — chỉ tải lại toàn bộ
+
+        // Sắp xếp mặc định
+        $sortBy = 'name';
+        $sortDirection = 'asc';
+        $products = $query->orderBy($sortBy, $sortDirection)
+                        ->paginate(10);
+
+        // Thêm trạng thái tồn kho
+        $products->transform(function ($item) {
+            $item->status = $item->quantity == 0
+                ? 'Hết hàng'
+                : ($item->quantity < 10 ? 'Sắp hết hàng' : 'Còn hàng');
+            return $item;
+        });
 
         // Thống kê
         $totalProducts = product::count(); // Tổng sản phẩm
         $inStock = product::where('quantity', '>=', 10)->count(); // Còn hàng
-        $lowStock = product::where('quantity', '>', 0)->where('quantity', '<', 10)->count(); // Sắp hết hàng
+        $lowStock = product::where('quantity', '>', 0)
+                            ->where('quantity', '<', 10)
+                            ->count(); // Sắp hết hàng
         $outOfStock = product::where('quantity', 0)->count(); // Hết hàng
 
-        // Tính số sản phẩm mới hôm nay và hôm qua
-        $newToday = product::whereDate('created_at', now()->toDateString())->count();
-        $newYesterday = product::whereDate('created_at', now()->subDay()->toDateString())->count();
-
-        // Tính tăng trưởng
-        if ($newYesterday == 0) {
-            $growth = $newToday > 0 ? '+100%' : '0%';
-        } else {
-            $growthValue = (($newToday - $newYesterday) / $newYesterday) * 100;
-            $growth = ($growthValue >= 0 ? '+' : '') . number_format($growthValue, 1) . '%';
-        }
-
-        // Thêm trạng thái cho mỗi sản phẩm
-        $products->transform(function ($item) {
-            $item->status = $item->quantity == 0 ? 'Hết hàng'
-                            : ($item->quantity < 10 ? 'Sắp hết hàng' : 'Còn hàng');
-            return $item;
-        });
-
-        return view('admin.product', compact(
-            'products', 'totalProducts', 'inStock', 'lowStock', 'outOfStock', 'newToday', 'growth'
+        return view('admin.inventory', compact(
+            'products',
+            'categories',
+            'totalProducts',
+            'inStock',
+            'lowStock',
+            'outOfStock'
         ));
     }
+
 
 }
