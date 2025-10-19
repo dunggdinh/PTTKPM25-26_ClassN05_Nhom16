@@ -21,7 +21,7 @@
                         </div>
                         <div class="ml-4">
                             <p class="text-sm font-medium text-gray-600">Tổng sản phẩm</p>
-                            <p class="text-2xl font-bold text-gray-900">1,247</p>
+                            <p class="text-2xl font-semibold text-gray-900">{{ $totalProducts }}</p>
                         </div>
                     </div>
                 </div>
@@ -35,7 +35,7 @@
                         </div>
                         <div class="ml-4">
                             <p class="text-sm font-medium text-gray-600">Sắp hết hàng</p>
-                            <p class="text-2xl font-bold text-gray-900">23</p>
+                            <p class="text-2xl font-semibold text-gray-900">{{ $lowStock }}</p>
                         </div>
                     </div>
                 </div>
@@ -49,7 +49,7 @@
                         </div>
                         <div class="ml-4">
                             <p class="text-sm font-medium text-gray-600">Hết hàng</p>
-                            <p class="text-2xl font-bold text-gray-900">5</p>
+                            <p class="text-2xl font-semibold text-gray-900">{{ $outOfStock }}</p>
                         </div>
                     </div>
                 </div>
@@ -63,7 +63,7 @@
                         </div>
                         <div class="ml-4">
                             <p class="text-sm font-medium text-gray-600">Còn hàng</p>
-                            <p class="text-2xl font-bold text-gray-900">1,219</p>
+                            <p class="text-2xl font-semibold text-gray-900">{{ $inStock }}</p>
                         </div>
                     </div>
                 </div>
@@ -80,8 +80,21 @@
                     </h2>
                 </div>
                 <div class="p-6">
-                    <div id="alertsList" class="space-y-4">
-                        <!-- Alerts will be populated by JavaScript -->
+                    <div id="alertsList" class="space-y-2">
+                        @foreach($products as $product)
+                            @if($product->quantity == 0)
+                                <div class="p-3 rounded-md bg-red-100 text-red-800 font-semibold">
+                                    {{ $product->name }} – Hết hàng
+                                </div>
+                            @elseif($product->quantity < 10)
+                                <div class="p-3 rounded-md bg-yellow-100 text-yellow-800 font-semibold">
+                                    {{ $product->name }} – Sắp hết hàng ({{ $product->quantity }} sp)
+                                </div>
+                            @endif
+                        @endforeach
+                        @if($products->where('quantity', '<', 10)->count() == 0)
+                            <div class="text-gray-500">Không có sản phẩm sắp hết hoặc hết hàng</div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -100,35 +113,39 @@
                                 </svg>
                             </div>
                             
-                            <select id="categoryFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent">
+                            <select id="categoryFilter" name="category" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent">
                                 <option value="">Tất cả danh mục</option>
-                                <option value="smartphone">Điện thoại</option>
-                                <option value="laptop">Laptop</option>
-                                <option value="tablet">Tablet</option>
-                                <option value="accessory">Phụ kiện</option>
+                                <option value="smartphone" {{ request('category') == 'smartphone' ? 'selected' : '' }}>Điện thoại</option>
+                                <option value="laptop" {{ request('category') == 'laptop' ? 'selected' : '' }}>Laptop</option>
                             </select>
+
                             
-                            <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent">
+                            <select id="statusFilter" name="status" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent">
                                 <option value="">Tất cả trạng thái</option>
-                                <option value="in-stock">Còn hàng</option>
-                                <option value="low-stock">Sắp hết</option>
-                                <option value="out-of-stock">Hết hàng</option>
+                                <option value="in-stock" {{ request('status') == 'in-stock' ? 'selected' : '' }}>Còn hàng</option>
+                                <option value="low-stock" {{ request('status') == 'low-stock' ? 'selected' : '' }}>Sắp hết</option>
+                                <option value="out-of-stock" {{ request('status') == 'out-of-stock' ? 'selected' : '' }}>Hết hàng</option>
                             </select>
+
                         </div>
                         
                         <div class="flex space-x-3">
-                            <button onclick="showExcelPreview()" class="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                            <a href="{{ route('admin.inventory.export') }}" class="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
                                 <span>Xuất Excel</span>
-                            </button>
-                            <button onclick="refreshData()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                            </a>
+
+                            <a href="{{ route('admin.inventory.reload') }}" 
+                                class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                                 </svg>
                                 <span>Làm mới</span>
-                            </button>
+                            </a>
+
                         </div>
                     </div>
                 </div>
@@ -139,220 +156,71 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     <input type="checkbox" id="selectAll" class="text-green-600 focus:ring-green-500" onchange="toggleSelectAll()">
                                 </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã sản phẩm</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sản phẩm</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hãng</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Danh mục</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tồn kho</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tối thiểu</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số lượng</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giá</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bảo hành</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
                             </tr>
                         </thead>
+
                         <tbody id="inventoryTable" class="bg-white divide-y divide-gray-200">
-                            <!-- Table rows will be populated by JavaScript -->
+                            @forelse ($products as $product)
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <input type="checkbox" name="selected[]" value="{{ $product->product_id }}" class="rowCheckbox text-green-600 focus:ring-green-500">
+                                    </td>
+
+                                    <td class="px-6 py-4 text-sm text-gray-900 font-medium">{{ $product->product_id }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900">{{ $product->name }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900">{{ $product->brand }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900">
+                                        {{ $product->category->name ?? '—' }}
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-900">{{ $product->quantity }}</td>
+
+                                    {{-- Hiển thị trạng thái có màu --}}
+                                    <td class="px-6 py-4 text-sm">
+                                        @if($product->quantity == 0)
+                                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700">Hết hàng</span>
+                                        @elseif($product->quantity < 10)
+                                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700">Sắp hết</span>
+                                        @else
+                                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">Còn hàng</span>
+                                        @endif
+                                    </td>
+
+                                    <td class="px-6 py-4 text-sm text-gray-900">{{ number_format($product->price, 0, ',', '.') }}₫</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900">{{ $product->warranty }} tháng</td>
+
+                                    <td class="px-6 py-4 text-sm">
+                                        <div class="flex space-x-2">
+                                            <a href="{{ route('admin.inventory.update', $product->product_id) }}" 
+                                            class="text-blue-600 hover:text-blue-800 font-medium">Sửa</a>
+                                            <form action="{{ route('admin.inventory.destroy', $product->product_id) }}" method="POST" onsubmit="return confirm('Xóa sản phẩm này?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-800 font-medium">Xóa</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="10" class="px-6 py-4 text-center text-gray-500 text-sm">
+                                        Không có sản phẩm nào.
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
             </div>
         </main>
-    </div>
-
-    <!-- Excel Export Modal -->
-    <div id="excelPreviewModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-lg w-full max-w-4xl mx-4 max-h-5/6 overflow-y-auto">
-            <!-- Modal Header -->
-            <div class="flex justify-between items-center p-6 border-b border-gray-200">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-green-100 p-2 rounded-lg">
-                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-900">Xuất dữ liệu Excel</h3>
-                        <p class="text-sm text-gray-600">Tùy chỉnh dữ liệu xuất theo nhu cầu</p>
-                    </div>
-                </div>
-                <button onclick="closeExcelPreview()" class="text-gray-400 hover:text-gray-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-            
-            <!-- Modal Content -->
-            <div class="p-6">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Left Column -->
-                    <div class="space-y-6">
-                        <!-- Export Range -->
-                        <div>
-                            <h4 class="text-lg font-semibold text-gray-900 mb-3">Phạm vi xuất</h4>
-                            <div class="space-y-2">
-                                <label class="flex items-center">
-                                    <input type="radio" name="exportRange" value="all" checked class="text-green-600 focus:ring-green-500">
-                                    <span class="ml-2 text-sm text-gray-700">Tất cả sản phẩm (<span id="totalCount">8</span> sản phẩm)</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="radio" name="exportRange" value="current" class="text-green-600 focus:ring-green-500">
-                                    <span class="ml-2 text-sm text-gray-700">Trang hiện tại (<span id="currentCount">8</span> sản phẩm)</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="radio" name="exportRange" value="selected" class="text-green-600 focus:ring-green-500">
-                                    <span class="ml-2 text-sm text-gray-700">Sản phẩm đã chọn (<span id="selectedCount">0</span> sản phẩm)</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- File Format & Name -->
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Định dạng file</label>
-                                <select id="fileFormat" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                                    <option value="xlsx">Excel (.xlsx)</option>
-                                    <option value="csv">CSV (.csv)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Tên file</label>
-                                <input type="text" id="fileName" value="bao-cao-ton-kho" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                                <p class="text-xs text-gray-500 mt-1">Tên file sẽ được thêm ngày tháng tự động</p>
-                            </div>
-                        </div>
-
-                        <!-- Status Filter -->
-                        <div>
-                            <h4 class="text-lg font-semibold text-gray-900 mb-3">Lọc theo trạng thái</h4>
-                            <div class="space-y-2">
-                                <label class="flex items-center">
-                                    <input type="checkbox" id="statusInStock" checked class="text-green-600 focus:ring-green-500">
-                                    <span class="ml-2 text-sm text-gray-700">Còn hàng</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" id="statusLowStock" checked class="text-green-600 focus:ring-green-500">
-                                    <span class="ml-2 text-sm text-gray-700">Sắp hết</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" id="statusOutStock" checked class="text-green-600 focus:ring-green-500">
-                                    <span class="ml-2 text-sm text-gray-700">Hết hàng</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Right Column -->
-                    <div class="space-y-6">
-                        <!-- Column Selection -->
-                        <div>
-                            <h4 class="text-lg font-semibold text-gray-900 mb-3">Chọn cột xuất</h4>
-                            <div class="max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-3 space-y-2">
-                                <label class="flex items-center">
-                                    <input type="checkbox" id="colId" checked class="text-green-600 focus:ring-green-500">
-                                    <span class="ml-2 text-sm text-gray-700">ID</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" id="colName" checked class="text-green-600 focus:ring-green-500">
-                                    <span class="ml-2 text-sm text-gray-700">Tên sản phẩm</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" id="colSku" checked class="text-green-600 focus:ring-green-500">
-                                    <span class="ml-2 text-sm text-gray-700">Mã SKU</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" id="colCategory" checked class="text-green-600 focus:ring-green-500">
-                                    <span class="ml-2 text-sm text-gray-700">Danh mục</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" id="colBrand" class="text-green-600 focus:ring-green-500">
-                                    <span class="ml-2 text-sm text-gray-700">Thương hiệu</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" id="colStock" checked class="text-green-600 focus:ring-green-500">
-                                    <span class="ml-2 text-sm text-gray-700">Tồn kho</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" id="colMinStock" checked class="text-green-600 focus:ring-green-500">
-                                    <span class="ml-2 text-sm text-gray-700">Tồn kho tối thiểu</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" id="colStatus" checked class="text-green-600 focus:ring-green-500">
-                                    <span class="ml-2 text-sm text-gray-700">Trạng thái</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" id="colPrice" checked class="text-green-600 focus:ring-green-500">
-                                    <span class="ml-2 text-sm text-gray-700">Giá bán</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" id="colSupplier" class="text-green-600 focus:ring-green-500">
-                                    <span class="ml-2 text-sm text-gray-700">Nhà cung cấp</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" id="colLocation" class="text-green-600 focus:ring-green-500">
-                                    <span class="ml-2 text-sm text-gray-700">Vị trí kho</span>
-                                </label>
-                            </div>
-                            <div class="flex space-x-2 mt-3">
-                                <button onclick="selectAllColumns()" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded transition-colors">
-                                    Chọn tất cả
-                                </button>
-                                <button onclick="deselectAllColumns()" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded transition-colors">
-                                    Bỏ chọn tất cả
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Additional Options -->
-                        <div>
-                            <h4 class="text-lg font-semibold text-gray-900 mb-3">Tùy chọn bổ sung</h4>
-                            <div class="space-y-2">
-                                <label class="flex items-center">
-                                    <input type="checkbox" id="includeHeaders" checked class="text-green-600 focus:ring-green-500">
-                                    <span class="ml-2 text-sm text-gray-700">Bao gồm tiêu đề cột</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" id="includeTimestamp" checked class="text-green-600 focus:ring-green-500">
-                                    <span class="ml-2 text-sm text-gray-700">Thêm thời gian xuất</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" id="includeStats" class="text-green-600 focus:ring-green-500">
-                                    <span class="ml-2 text-sm text-gray-700">Thêm thống kê tổng quan</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Preview Summary -->
-                <div class="mt-6 bg-gray-50 rounded-lg p-4">
-                    <div id="exportSummary" class="text-sm text-gray-600">
-                        <p>Sẽ xuất: <span class="font-medium text-gray-900">8 sản phẩm</span></p>
-                        <p>Định dạng: <span class="font-medium text-gray-900">Excel (.xlsx)</span></p>
-                        <p>Cột: <span class="font-medium text-gray-900">9 cột</span></p>
-                    </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="flex justify-between items-center mt-6 pt-4 border-t border-gray-200">
-                    <div class="flex items-center text-sm text-gray-500">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.586-6.586a2 2 0 00-2.828-2.828z"></path>
-                        </svg>
-                        File sẽ được tải xuống tự động
-                    </div>
-                    <div class="flex space-x-3">
-                        <button onclick="closeExcelPreview()" class="bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg border border-gray-300 transition-colors">
-                            Hủy
-                        </button>
-                        <button onclick="downloadExcel()" class="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-6 py-2 rounded-lg flex items-center space-x-2 transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3"></path>
-                            </svg>
-                            <span>Xuất Excel</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Product Details Modal -->

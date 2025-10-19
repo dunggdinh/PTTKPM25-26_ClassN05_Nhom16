@@ -1,166 +1,152 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\admin;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Product; // Model Product để tương tác với bảng products
-use Maatwebsite\Excel\Facades\Excel; // Package để xuất Excel/CSV
-use App\Exports\InventoryExport; // Class Export (sẽ được tạo)
-use Illuminate\Support\Facades\DB;
+use App\Models\admin\product;
+use App\Models\admin\category;
 
 class InventoryController extends Controller
 {
-    /**
-     * Hiển thị trang quản lý tồn kho
-     */
-    public function index()
+    public function index(Request $request)
     {
-        // Lấy thống kê
-        $totalProducts = Product::count();
-        $lowStock = Product::where('stock', '<=', DB::raw('min_stock'))->where('stock', '>', 0)->count();
-        $outOfStock = Product::where('stock', 0)->count();
-        $inStock = $totalProducts - $lowStock - $outOfStock;
+        $query = product::with('category');
 
-        // Danh sách danh mục (có thể lấy từ DB hoặc hardcode)
-        $categories = [
-            'smartphone' => 'Điện thoại',
-            'laptop' => 'Laptop',
-            'tablet' => 'Tablet',
-            'accessory' => 'Phụ kiện',
-        ];
 
-        return view('inventory', compact('totalProducts', 'lowStock', 'outOfStock', 'inStock', 'categories'));
-    }
+        // Lấy danh mục để hiển thị dropdown
+        $categories = category::all();
 
-    /**
-     * API: Lấy danh sách sản phẩm với bộ lọc
-     */
-    public function getProducts(Request $request)
-    {
-        $query = Product::query();
-
-        // Bộ lọc tìm kiếm
-        if ($search = $request->input('search')) {
-            $query->where('name', 'like', "%{$search}%")
-                  ->orWhere('sku', 'like', "%{$search}%");
+        // Lọc theo danh mục nếu có
+        if ($request->has('category') && $request->category != 'all') {
+            $query->where('category_id', $request->category);
         }
 
-        // Bộ lọc danh mục
-        if ($category = $request->input('category')) {
-            $query->where('category', $category);
+        // Tìm kiếm theo tên, brand hoặc product_id
+        if ($request->has('search') && !empty($request->search)) {
+            $search = strtolower($request->search);
+            $query->where(function($q) use ($search) {
+                $q->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('LOWER(brand) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('LOWER(product_id) LIKE ?', ["%{$search}%"]);
+            });
         }
 
-        // Bộ lọc trạng thái
-        if ($status = $request->input('status')) {
-            if ($status === 'in-stock') {
-                $query->where('stock', '>', DB::raw('min_stock'));
-            } elseif ($status === 'low-stock') {
-                $query->where('stock', '<=', DB::raw('min_stock'))->where('stock', '>', 0);
-            } elseif ($status === 'out-of-stock') {
-                $query->where('stock', 0);
-            }
-        }
+        // Sắp xếp
+        $sortBy = $request->get('sort_by', 'name');
+        $sortDirection = $request->get('sort_direction', 'asc');
+        $products = $query->orderBy($sortBy, $sortDirection)
+                        ->paginate(10)
+                        ->withQueryString();
 
-        $products = $query->get()->map(function ($product) {
-            // Cập nhật trạng thái động
-            $product->status = $this->determineStatus($product->stock, $product->min_stock);
-            return $product;
+        // Thêm trạng thái
+        $products->transform(function ($item) {
+            $item->status = $item->quantity == 0 ? 'Hết hàng'
+                              : ($item->quantity < 10 ? 'Sắp hết hàng' : 'Còn hàng');
+            return $item;
         });
 
-        return response()->json($products);
+        // Thống kê
+        $totalProducts = product::count(); // Tổng sản phẩm
+        $inStock = product::where('quantity', '>=', 10)->count(); // Còn hàng
+        $lowStock = product::where('quantity', '>', 0)->where('quantity', '<', 10)->count(); // Sắp hết hàng
+        $outOfStock = product::where('quantity', 0)->count(); // Hết hàng
+
+        return view('admin.inventory', compact(
+            'products', 'categories', 'totalProducts', 'inStock', 'lowStock', 'outOfStock'
+        ));
     }
 
     /**
-     * API: Lấy danh sách cảnh báo tồn kho
+     * Thêm sản phẩm mới
      */
-    public function getAlerts()
-    {
-        $alerts = Product::where('stock', '<=', DB::raw('min_stock'))->get()->map(function ($product) {
-            $product->status = $this->determineStatus($product->stock, $product->min_stock);
-            return $product;
-        });
-
-        return response()->json($alerts);
-    }
-
-    /**
-     * API: Lấy chi tiết sản phẩm
-     */
-    public function getProductDetails($id)
-    {
-        $product = Product::findOrFail($id);
-        $product->status = $this->determineStatus($product->stock, $product->min_stock);
-        return response()->json($product);
-    }
-
-    /**
-     * API: Cập nhật tồn kho sản phẩm
-     */
-    public function updateStock(Request $request, $id)
+    public function store(Request $request)
     {
         $request->validate([
-            'stock' => 'required|integer|min:0',
-            'min_stock' => 'required|integer|min:0',
+            'product_id' => 'required|string|unique:products,product_id',
+            'name' => 'required|string|max:255',
+            'brand' => 'required|string|max:255',
+            'category_id' => 'required|string',
+            'price' => 'required|numeric',
+            'quantity' => 'required|integer',
+            'warranty' => 'nullable|string',
         ]);
 
-        $product = Product::findOrFail($id);
-        $product->update([
-            'stock' => $request->stock,
-            'min_stock' => $request->min_stock,
-            'last_updated' => now(),
-            'status' => $this->determineStatus($request->stock, $request->min_stock),
-        ]);
+        product::create($request->all());
 
-        return response()->json([
-            'message' => 'Cập nhật tồn kho thành công',
-            'product' => $product
-        ]);
+        return redirect()->back()->with('success', 'Thêm sản phẩm thành công!');
     }
 
     /**
-     * API: Xóa sản phẩm
+     * Cập nhật sản phẩm
      */
-    public function delete($id)
+    public function update(Request $request, $id)
     {
-        $product = Product::findOrFail($id);
-        $productName = $product->name;
+        $product = product::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'brand' => 'required|string|max:255',
+            'category_id' => 'required|string',
+            'price' => 'required|numeric',
+            'quantity' => 'required|integer',
+            'warranty' => 'nullable|string',
+        ]);
+
+        $product->update($request->all());
+
+        return redirect()->back()->with('success', 'Cập nhật sản phẩm thành công!');
+    }
+
+    /**
+     * Xóa sản phẩm
+     */
+    public function destroy($id)
+    {
+        $product = product::findOrFail($id);
         $product->delete();
 
-        return response()->json(['message' => "Xóa sản phẩm '$productName' thành công"]);
+        return redirect()->back()->with('success', 'Xóa sản phẩm thành công!');
     }
 
-    /**
-     * API: Xuất dữ liệu ra Excel/CSV
-     */
-    public function export(Request $request)
+    public function exportExcel()
     {
-        $request->validate([
-            'range' => 'required|in:all,current,selected',
-            'format' => 'required|in:xlsx,csv',
-            'file_name' => 'required|string|max:255',
-            'include_headers' => 'boolean',
-            'include_timestamp' => 'boolean',
-            'include_stats' => 'boolean',
-            'statuses' => 'array',
-            'columns' => 'array',
-            'selected_ids' => 'array|required_if:range,selected',
-        ]);
-
-        $fileName = $request->file_name . '-' . now()->format('Y-m-d') . '.' . $request->format;
-
-        return Excel::download(new InventoryExport($request->all()), $fileName);
+        return Excel::download(new InventoryExport, 'inventorys.xlsx');
     }
 
-    /**
-     * Helper: Xác định trạng thái sản phẩm
-     */
-    private function determineStatus($stock, $minStock)
+    public function reload()
     {
-        if ($stock == 0) {
-            return 'out-of-stock';
-        } elseif ($stock <= $minStock) {
-            return 'low-stock';
+        // Lấy danh sách sản phẩm sắp xếp theo tên, phân trang 10
+        $products = product::orderBy('name', 'asc')->paginate(10);
+
+        // Thống kê
+        $totalProducts = product::count(); // Tổng sản phẩm
+        $inStock = product::where('quantity', '>=', 10)->count(); // Còn hàng
+        $lowStock = product::where('quantity', '>', 0)->where('quantity', '<', 10)->count(); // Sắp hết hàng
+        $outOfStock = product::where('quantity', 0)->count(); // Hết hàng
+
+        // Tính số sản phẩm mới hôm nay và hôm qua
+        $newToday = product::whereDate('created_at', now()->toDateString())->count();
+        $newYesterday = product::whereDate('created_at', now()->subDay()->toDateString())->count();
+
+        // Tính tăng trưởng
+        if ($newYesterday == 0) {
+            $growth = $newToday > 0 ? '+100%' : '0%';
+        } else {
+            $growthValue = (($newToday - $newYesterday) / $newYesterday) * 100;
+            $growth = ($growthValue >= 0 ? '+' : '') . number_format($growthValue, 1) . '%';
         }
-        return 'in-stock';
+
+        // Thêm trạng thái cho mỗi sản phẩm
+        $products->transform(function ($item) {
+            $item->status = $item->quantity == 0 ? 'Hết hàng'
+                            : ($item->quantity < 10 ? 'Sắp hết hàng' : 'Còn hàng');
+            return $item;
+        });
+
+        return view('admin.product', compact(
+            'products', 'totalProducts', 'inStock', 'lowStock', 'outOfStock', 'newToday', 'growth'
+        ));
     }
+
 }
