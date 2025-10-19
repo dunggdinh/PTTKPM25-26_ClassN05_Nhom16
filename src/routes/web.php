@@ -9,6 +9,8 @@ use App\Http\Controllers\admin\CustomerController;
 use App\Http\Controllers\admin\OrderController;
 use App\Http\Controllers\admin\ReturnController; // 
 use App\Http\Controllers\admin\InventoryController;
+use App\Http\Controllers\admin\WarrantyController;
+
 
 // routes/api.php
 use App\Http\Controllers\TrackingController;
@@ -54,7 +56,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::view('/report', 'admin.report')->name('report');
     // Route::view('/return', 'admin.return')->name('return');
     Route::get('/return', [ReturnController::class, 'index'])->name('admin.return'); // mới để kết nối đến Controller và Returncontroller
-    Route::view('/warranties', 'admin.warranties')->name('warranties');
+    // Route::view('/warranties', 'admin.warranties')->name('warranties');
+    Route::get('/warranties', [WarrantyController::class, 'index'])->name('admin.warranties');
 });
 Route::prefix('auth')->name('auth.')->group(function () {
     // LOGIN
