@@ -4,6 +4,20 @@
 @section('content')
 <div class="bg-gradient-to-br from-blue-50 to-indigo-100">
     <main class="container mx-auto px-4 py-8 max-w-7xl">
+        @if (session('success'))
+            <div class="mb-4 p-3 bg-green-100 text-green-800 rounded">{{ session('success') }}</div>
+        @endif
+
+        @if ($errors->any())
+            <div class="mb-4 p-3 bg-red-100 text-red-800 rounded">
+                <ul class="list-disc pl-5">
+                    @foreach ($errors->all() as $err)
+                        <li>{{ $err }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <!-- Header -->
         <header class="mb-8">
             <h1 class="text-3xl font-bold text-gray-800 mb-2">Hồ sơ của tôi</h1>
@@ -55,98 +69,105 @@
 
             <!-- Main Content -->
             <div class="lg:col-span-3">
-                <!-- Profile Tab -->
-                <div id="profile" class="tab-content active">
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-6">Thông Tin Cá Nhân</h2>
-                        
-                        <form onsubmit="updateProfile(event)" class="space-y-6">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label for="firstName" class="block text-sm font-medium text-gray-700 mb-2">Họ</label>
-                                    <input type="text" id="firstName" value="Nguyễn Văn" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                </div>
-                                <div>
-                                    <label for="lastName" class="block text-sm font-medium text-gray-700 mb-2">Tên</label>
-                                    <input type="text" id="lastName" value="A" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                                <input type="email" id="email" value="nguyenvana@email.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            </div>
-                            
-                            <div>
-                                <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Số Điện Thoại</label>
-                                <input type="tel" id="phone" value="0123456789" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            </div>
-                            
-                            <div>
-                                <label for="birthdate" class="block text-sm font-medium text-gray-700 mb-2">Ngày Sinh</label>
-                                <input type="date" id="birthdate" value="1990-01-01" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            </div>
-                            
-                            <div>
-                                <label for="gender" class="block text-sm font-medium text-gray-700 mb-2">Giới Tính</label>
-                                <select id="gender" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                    <option value="male">Nam</option>
-                                    <option value="female">Nữ</option>
-                                    <option value="other">Khác</option>
-                                </select>
-                            </div>
-                            
-                            <div class="flex justify-end">
-                                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transition-colors">
-                                    Cập Nhật Thông Tin
-                                </button>
-                            </div>
-                        </form>
+                <!-- Thông Tin Cá Nhân -->
+                <form method="POST" action="{{ route('customer.profile.update') }}" class="space-y-6">
+                    @csrf
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Họ & Tên</label>
+                            <input name="name" type="text"
+                                value="{{ old('name', $user->name) }}"
+                                class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            @error('name') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <input name="email" type="email"
+                                value="{{ old('email', $user->email) }}"
+                                class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            @error('email') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+                        </div>
                     </div>
-                </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Số điện thoại</label>
+                            <input name="phone" type="text"
+                                value="{{ old('phone', $user->phone) }}"
+                                class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Ngày sinh</label>
+                            <input name="birth_date" type="date"
+                                value="{{ old('birth_date', optional($user->birth_date)->format('Y-m-d')) }}"
+                                class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Giới tính</label>
+                            <select name="gender" class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                @php $g = old('gender', $user->gender); @endphp
+                                <option value="">-- Chọn --</option>
+                                <option value="male"   {{ $g==='male'?'selected':'' }}>Nam</option>
+                                <option value="female" {{ $g==='female'?'selected':'' }}>Nữ</option>
+                                <option value="other"  {{ $g==='other'?'selected':'' }}>Khác</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Địa chỉ</label>
+                            <input name="address" type="text"
+                                value="{{ old('address', $user->address) }}"
+                                class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button type="submit"
+                                class="px-6 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
+                            Lưu thay đổi
+                        </button>
+                    </div>
+                </form>
+
 
                 <!-- Password Tab -->
-                <div id="password" class="tab-content">
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-6">Đổi Mật Khẩu</h2>
-                        
-                        <form onsubmit="changePassword(event)" class="space-y-6">
-                            <div>
-                                <label for="currentPassword" class="block text-sm font-medium text-gray-700 mb-2">Mật Khẩu Hiện Tại</label>
-                                <input type="password" id="currentPassword" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
-                            </div>
-                            
-                            <div>
-                                <label for="newPassword" class="block text-sm font-medium text-gray-700 mb-2">Mật Khẩu Mới</label>
-                                <input type="password" id="newPassword" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
-                                <p class="text-sm text-gray-600 mt-2">Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số</p>
-                            </div>
-                            
-                            <div>
-                                <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-2">Xác Nhận Mật Khẩu Mới</label>
-                                <input type="password" id="confirmPassword" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
-                            </div>
-                            
-                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                                <div class="flex">
-                                    <svg class="w-5 h-5 text-yellow-400 mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                    </svg>
-                                    <div>
-                                        <h3 class="text-sm font-medium text-yellow-800">Lưu ý bảo mật</h3>
-                                        <p class="text-sm text-yellow-700 mt-1">Sau khi đổi mật khẩu, bạn sẽ cần đăng nhập lại trên tất cả thiết bị.</p>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="flex justify-end">
-                                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-medium transition-colors">
-                                    Đổi Mật Khẩu
-                                </button>
-                            </div>
-                        </form>
+                <form method="POST" action="{{ route('customer.profile.password') }}" class="space-y-6">
+                    @csrf
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Mật khẩu hiện tại</label>
+                        <input type="password" name="current_password"
+                            class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        @error('current_password') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
                     </div>
-                </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Mật khẩu mới</label>
+                        <input type="password" name="password"
+                            class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        @error('password') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Xác nhận mật khẩu mới</label>
+                        <input type="password" name="password_confirmation"
+                            class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button type="submit"
+                                class="px-6 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
+                            Đổi mật khẩu
+                        </button>
+                    </div>
+                </form>
+
 
                 <!-- Orders Tab -->
                 <div id="orders" class="tab-content">

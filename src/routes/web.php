@@ -11,12 +11,32 @@ use App\Http\Controllers\admin\InventoryController;
 use App\Http\Controllers\admin\WarrantyController;
 use App\Http\Controllers\admin\DeliveryController;
 use App\Http\Controllers\admin\DashboardController;
+use App\Http\Controllers\customer\ProfileController;
+use App\Http\Controllers\customer\ProductController; // ✅ CHỈ 1 import, không alias
+
+// /customer/product dùng Controller -> trả view có $products, $categories
+Route::get('/customer/product', [ProductController::class, 'index'])
+    ->name('customer.product'); // ✅ chỉ 1 route này cho /customer/product
+
+// Nhóm /products (có thể dùng chung controller)
+Route::prefix('products')->name('products.')->group(function () {
+    Route::get('/', [ProductController::class, 'index'])->name('index');              // /products
+    Route::get('/_list.json', [ProductController::class, 'listJson'])->name('json'); // /products/_list.json
+    Route::get('/_show/{product_id}.json', [ProductController::class, 'showJson'])->name('show.json'); // /products/_show/{id}.json
+});
 
 
-// routes/api.php
-use App\Http\Controllers\TrackingController;
-Route::get('/tracking/{trackingId}', [TrackingController::class, 'show']);
 
+
+Route::get('/test-auth', function () {
+    dd(Auth::user());
+})->middleware('auth');
+
+Route::middleware(['auth'])->prefix('customer')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'show'])->name('customer.profile');
+    Route::post('/profile', [ProfileController::class, 'update'])->name('customer.profile.update');
+    Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('customer.profile.password');
+});
 
 // Nhóm route admin 
 #Route::prefix('admin')->name('admin.')->middleware(['auth','ensure.admin'])->group(function () {
@@ -82,7 +102,7 @@ Route::prefix('auth')->name('auth.')->group(function () {
 Route::prefix('customer')->name('customer.')->group(function () {
     Route::view('/home', 'customer.home')->name('home');
     Route::view('/promotion', 'customer.promotion');
-    Route::view('/product', 'customer.product');
+    //Route::view('/product', 'customer.product');
     Route::view('/cart', 'customer.cart');
     Route::view('/order', 'customer.order');
     Route::view('/review', 'customer.review');
