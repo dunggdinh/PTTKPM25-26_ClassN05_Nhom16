@@ -1,5 +1,4 @@
 <?php
-//                      ĐÂY LÀ CODE MỚI
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
@@ -10,6 +9,8 @@ use App\Http\Controllers\admin\OrderController;
 use App\Http\Controllers\admin\ReturnController; // 
 use App\Http\Controllers\admin\InventoryController;
 use App\Http\Controllers\admin\DeliveryController;
+use App\Http\Controllers\admin\DashboardController;
+
 
 // routes/api.php
 use App\Http\Controllers\TrackingController;
@@ -19,7 +20,7 @@ Route::get('/tracking/{trackingId}', [TrackingController::class, 'show']);
 // Nhóm route admin 
 #Route::prefix('admin')->name('admin.')->middleware(['auth','ensure.admin'])->group(function () {
 Route::prefix('admin')->name('admin.')->group(function () {
-    Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
     Route::view('/support', 'admin.support')->name('support');
 
     Route::get('/customer', [CustomerController::class, 'index'])->name('customer'); // danh sách
