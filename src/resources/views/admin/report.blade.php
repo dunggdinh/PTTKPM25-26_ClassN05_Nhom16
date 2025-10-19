@@ -28,7 +28,9 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-white/80 text-sm">Tổng doanh thu</p>
-                        <p class="text-2xl font-bold" id="totalRevenue">2,450,000,000₫</p>
+                        <!-- <p class="text-2xl font-bold" id="totalRevenue">2,450,000,000₫</p> -->
+                         <!-- data riu -->
+                        <p class="text-2xl font-bold" id="totalRevenue">{{ number_format($totalRevenue, 0, ',', '.') }}₫</p>
                         <p class="text-white/80 text-xs mt-1">+12.5% so với tháng trước</p>
                     </div>
                     <div class="text-3xl">💰</div>
@@ -39,7 +41,8 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-white/80 text-sm">Đơn hàng</p>
-                        <p class="text-2xl font-bold" id="totalOrders">1,247</p>
+                        <!-- <p class="text-2xl font-bold" id="totalOrders">1,247</p> -->
+                         <p class="text-2xl font-bold" id="totalOrders">{{ $totalOrders }}</p>
                         <p class="text-white/80 text-xs mt-1">+8.3% so với tháng trước</p>
                     </div>
                     <div class="text-3xl">📦</div>
@@ -50,7 +53,8 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-white/80 text-sm">Khách hàng mới</p>
-                        <p class="text-2xl font-bold" id="newCustomers">342</p>
+                        <!-- <p class="text-2xl font-bold" id="newCustomers">342</p> -->
+                         <p class="text-2xl font-bold" id="newCustomers">{{ $newCustomers }}</p>
                         <p class="text-white/80 text-xs mt-1">+15.7% so với tháng trước</p>
                     </div>
                     <div class="text-3xl">👥</div>
@@ -61,7 +65,8 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-white/80 text-sm">Sản phẩm bán chạy</p>
-                        <p class="text-2xl font-bold" id="topProducts">89</p>
+                        <!-- <p class="text-2xl font-bold" id="topProducts">89</p> -->
+                        <p class="text-2xl font-bold" id="topProducts">{{ $topProducts->count() }}</p>
                         <p class="text-white/80 text-xs mt-1">+5.2% so với tháng trước</p>
                     </div>
                     <div class="text-3xl">🔥</div>
@@ -118,15 +123,20 @@
                         </thead>
                         <tbody id="topProductsTable">
                             <tr class="border-b border-gray-100">
-                                <td class="py-3">
-                                    <div class="flex items-center">
-                                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">📱</div>
-                                        <span class="text-sm font-medium">iPhone 15 Pro Max</span>
-                                    </div>
-                                </td>
-                                <td class="text-right py-3 text-sm">156</td>
-                                <td class="text-right py-3 text-sm font-medium text-green-600">468,000,000₫</td>
-                            </tr>
+                                @foreach($topProducts as $product)
+                                <tr class="border-b border-gray-100">
+                                    <td class="py-3">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">📦</div>
+                                            <span class="text-sm font-medium">{{ $product->product_name }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-right py-3 text-sm">{{ $product->total_sold }}</td>
+                                    <td class="text-right py-3 text-sm font-medium text-green-600">
+                                        {{ number_format($product->total_revenue, 0, ',', '.') }}₫
+                                    </td>
+                                </tr>
+                                @endforeach
                             <tr class="border-b border-gray-100">
                                 <td class="py-3">
                                     <div class="flex items-center">

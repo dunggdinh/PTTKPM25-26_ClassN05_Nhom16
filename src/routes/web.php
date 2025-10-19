@@ -13,6 +13,7 @@ use App\Http\Controllers\admin\DeliveryController;
 use App\Http\Controllers\admin\DashboardController;
 use App\Http\Controllers\customer\ProfileController;
 use App\Http\Controllers\customer\ProductController; // ✅ CHỈ 1 import, không alias
+use App\Http\Controllers\admin\ReportController;
 
 // /customer/product dùng Controller -> trả view có $products, $categories
 Route::get('/customer/product', [ProductController::class, 'index'])
@@ -71,7 +72,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 
     Route::view('/payments_gateway', 'admin.payments_gateway')->name('payments_gateway');
-    Route::view('/report', 'admin.report')->name('report');
+    // Route::view('/report', 'admin.report')->name('report');
+    Route::get('/report', [ReportController::class, 'index'])->name('report');
     // Route::view('/return', 'admin.return')->name('return');
     Route::get('/return', [ReturnController::class, 'index'])->name('admin.return'); // mới để kết nối đến Controller và Returncontroller
     // Route::view('/warranties', 'admin.warranties')->name('warranties');
