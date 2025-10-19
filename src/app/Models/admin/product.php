@@ -13,10 +13,14 @@ class product extends Model
 
     protected $fillable = [
         'product_id','name','brand','category_id',
-        'price','quantity','warranty','created_at',
+        'price','rating','quantity','warranty','created_at','supplier_id',
     ];
     public function category()
     {
         return $this->belongsTo(category::class, 'category_id', 'category_id');
+    }
+    public function supplier()
+    {
+        return $this->belongsTo(supplier::class, 'supplier_id', 'supplier_id');
     }
 }

@@ -164,6 +164,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giá</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bảo hành</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nhà cung cấp</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
                             </tr>
                         </thead>
@@ -196,7 +197,9 @@
 
                                     <td class="px-6 py-4 text-sm text-gray-900">{{ number_format($product->price, 0, ',', '.') }}₫</td>
                                     <td class="px-6 py-4 text-sm text-gray-900">{{ $product->warranty }} tháng</td>
-
+                                    <td class="px-6 py-4 text-sm text-gray-900">
+                                        {{ $product->supplier->name ?? '—' }}
+                                    </td>
                                     <td class="px-6 py-4 text-sm">
                                         <div class="flex space-x-2">
                                             <a href="{{ route('admin.inventory.update', $product->product_id) }}" 
