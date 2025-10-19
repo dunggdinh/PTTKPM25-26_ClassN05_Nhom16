@@ -23,9 +23,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::view('/support', 'admin.support')->name('support');
 
     Route::get('/customer', [CustomerController::class, 'index'])->name('customer'); // danh sách
-    Route::get('/customer/export', [CustomerController::class, 'exportExcel'])->name('customer.export'); // xuất Excel
-    Route::get('/customer/{id}', [CustomerController::class, 'show'])->name('customer.show'); // xem chi tiết
-    Route::delete('/customer/{id}', [CustomerController::class, 'destroy'])->name('customer.destroy'); // xóa
+    Route::get('/customer/export', [CustomerController::class, 'exportExcel'])->name('customer.export');
+    Route::get('/customer/reload', [CustomerController::class, 'reload'])->name('customer.reload');
 
     Route::view('/deliveries', 'admin.deliveries')->name('deliveries');
     Route::view('/inventory', 'admin.inventory')->name('inventory');

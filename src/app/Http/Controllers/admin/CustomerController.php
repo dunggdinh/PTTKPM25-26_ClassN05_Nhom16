@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\admin\Customer;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\CustomerExport;
+use App\Exports\admin\CustomerExport;
+
 
 class CustomerController extends Controller
 {
@@ -17,25 +18,57 @@ class CustomerController extends Controller
     {
         $query = Customer::query();
 
-        // Tìm kiếm theo tên hoặc email
+        // Tìm kiếm
         if ($request->has('search') && !empty($request->search)) {
-            $search = $request->search;
+            $search = strtolower($request->search);
             $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                $q->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"])
+                ->orWhereRaw('LOWER(email) LIKE ?', ["%{$search}%"])
+                ->orWhereRaw('LOWER(user_id) LIKE ?', ["%{$search}%"])
+                ->orWhereRaw('LOWER(phone) LIKE ?', ["%{$search}%"]);
             });
         }
 
-        // Lấy danh sách khách hàng phân trang 10 bản ghi/trang
-        $customers = $query->orderBy('name', 'asc')->paginate(10)->withQueryString();
+        // Sắp xếp
+        $sortBy = $request->get('sort_by', 'name');
+        $sortDirection = $request->get('sort_direction', 'asc');
+        $customers = $query->orderBy($sortBy, $sortDirection)
+                        ->paginate(10)
+                        ->withQueryString();
 
-        // Thống kê nhanh
+        // Thống kê
         $totalCustomers = Customer::where('role', 'customer')->count();
         $totalAdmins = Customer::where('role', 'admin')->count();
         $newToday = Customer::whereDate('created_at', now()->toDateString())->count();
         $newYesterday = Customer::whereDate('created_at', now()->subDay()->toDateString())->count();
 
-        // Tính tăng trưởng so với hôm qua
+        $growth = $newYesterday == 0 ? ($newToday > 0 ? '+100%' : '0%')
+                                    : (($newToday - $newYesterday) / $newYesterday * 100) . '%';
+
+        return view('admin.customer', compact(
+            'customers', 'totalCustomers', 'totalAdmins', 'newToday', 'growth'
+        ));
+    }
+
+
+    /**
+     * Xuất danh sách khách hàng ra Excel
+     */
+    public function exportExcel()
+    {
+        return Excel::download(new CustomerExport, 'customers.xlsx');
+    }
+
+    public function reload()
+    {
+        $customers = Customer::orderBy('name', 'asc')->paginate(10);
+
+        $totalCustomers = Customer::where('role', 'customer')->count();
+        $totalAdmins = Customer::where('role', 'admin')->count();
+        $newToday = Customer::whereDate('created_at', now()->toDateString())->count();
+        $newYesterday = Customer::whereDate('created_at', now()->subDay()->toDateString())->count();
+
+        // Tính tăng trưởng
         if ($newYesterday == 0) {
             $growth = $newToday > 0 ? '+100%' : '0%';
         } else {
@@ -43,7 +76,6 @@ class CustomerController extends Controller
             $growth = ($growthValue >= 0 ? '+' : '') . number_format($growthValue, 1) . '%';
         }
 
-        // Trả dữ liệu ra view
         return view('admin.customer', compact(
             'customers',
             'totalCustomers',
@@ -53,32 +85,6 @@ class CustomerController extends Controller
         ));
     }
 
-    /**
-     * Xuất danh sách khách hàng ra Excel
-     */
-    public function exportExcel()
-    {
-        return Excel::download(new CustomerExport, 'customer.xlsx');
-    }
 
-    /**
-     * Xem chi tiết khách hàng
-     */
-    public function show($id)
-    {
-        $customer = Customer::findOrFail($id);
-        return view('admin.customer_detail', compact('customer'));
-    }
 
-    /**
-     * Xóa khách hàng
-     */
-    public function destroy($id)
-    {
-        $customer = Customer::findOrFail($id);
-        $customer->delete();
-
-        return redirect()->route('admin.customer')
-                         ->with('success', 'Khách hàng đã được xóa thành công!');
-    }
 }

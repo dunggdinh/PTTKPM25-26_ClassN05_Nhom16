@@ -74,14 +74,57 @@
 
         <!-- Filters and Actions -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 p-6 flex flex-col sm:flex-row gap-4 justify-between items-center">
+            <!-- Form tìm kiếm -->
             <form method="GET" action="{{ route('admin.customer') }}" class="flex gap-2 items-center">
                 <input type="text" name="search" id="searchInput" placeholder="Tìm kiếm khách hàng..."
                     value="{{ request('search') }}" class="pl-3 pr-3 py-2 border rounded-lg w-full sm:w-80">
-                <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg">Tìm</button>
+                <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg">
+                    Tìm kiếm
+                </button>
             </form>
-            <a href="{{ route('admin.customer.export') }}"
-                class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Xuất Excel</a>
+
+            <!-- Nút tải lại -->
+            <a href="{{ route('admin.customer.reload') }}" 
+                class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-200">
+                Tải lại
+            </a>
+
+            <div class="flex items-center gap-2">
+                <span class="text-gray-700 font-medium">Sắp xếp:</span>
+
+                <form method="GET" action="{{ route('admin.customer') }}" id="sortForm" class="flex items-center gap-2">
+                    <!-- Giữ lại các param khác như search, page -->
+                    @foreach(request()->except(['sort_by','sort_direction']) as $key => $value)
+                        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                    @endforeach
+
+                    <select name="sort_by" id="sortSelect"
+                        class="px-2 py-1 border rounded bg-white text-gray-700 cursor-pointer">
+                        <option value="name" {{ request('sort_by')=='name' ? 'selected' : '' }}>Tên</option>
+                        <option value="user_id" {{ request('sort_by')=='user_id' ? 'selected' : '' }}>Mã KH</option>
+                        <option value="role" {{ request('sort_by')=='role' ? 'selected' : '' }}>Vai trò</option>
+                    </select>
+
+                    <!-- Hướng sắp xếp -->
+                    <button type="submit"
+                        name="sort_direction"
+                        value="{{ request('sort_direction')=='asc' ? 'desc' : 'asc' }}"
+                        class="px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
+                        {{ request('sort_direction')=='asc' ? '↑' : '↓' }}
+                    </button>
+                </form>
+            </div>
+
+            <!-- Nút xuất Excel -->
+            <form action="{{ route('admin.customer.export') }}" method="GET">
+                <button type="submit" class="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600">
+                    Xuất Excel
+                </button>
+            </form>
+
+
         </div>
+
 
         <!-- Customer Table -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
@@ -97,7 +140,6 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số điện thoại</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Địa chỉ</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày tham gia</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -123,4 +165,9 @@
         </div>
     </main>
 </div>
+<script>
+document.getElementById('sortSelect').addEventListener('change', function() {
+    document.getElementById('sortForm').submit();
+});
+</script>
 @endsection
