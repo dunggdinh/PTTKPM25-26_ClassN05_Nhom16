@@ -9,6 +9,7 @@ use App\Http\Controllers\admin\CustomerController;
 use App\Http\Controllers\admin\OrderController;
 use App\Http\Controllers\admin\ReturnController; // 
 use App\Http\Controllers\admin\InventoryController;
+use App\Http\Controllers\admin\DeliveryController;
 
 // routes/api.php
 use App\Http\Controllers\TrackingController;
@@ -25,17 +26,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/customer/export', [CustomerController::class, 'exportExcel'])->name('customer.export');
     Route::get('/customer/reload', [CustomerController::class, 'reload'])->name('customer.reload');
 
-    Route::view('/deliveries', 'admin.deliveries')->name('deliveries');
-    // Danh sách sản phẩm, phân trang, tìm kiếm, sắp xếp
+    Route::get('/deliveries', [DeliveryController::class, 'index'])->name('deliveries');
+    Route::post('/deliveries', [DeliveryController::class, 'store'])->name('deliveries.store');
+    Route::put('/deliveries/{id}', [DeliveryController::class, 'update'])->name('deliveries.update');
+    Route::delete('/deliveries/{id}', [DeliveryController::class, 'destroy'])->name('deliveries.destroy');
+    Route::get('/deliveries/export', [DeliveryController::class, 'exportExcel'])->name('deliveries.export');
+    Route::get('/deliveries/reload', [DeliveryController::class, 'reload'])->name('deliveries.reload');
+
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory');
-
-    // Thêm sản phẩm
     Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
-
-    // Cập nhật sản phẩm
     Route::put('/inventory/{id}', [InventoryController::class, 'update'])->name('inventory.update');
-
-    // Xóa sản phẩm
     Route::delete('/inventory/{id}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
     Route::get('/inventory/export', [InventoryController::class, 'exportExcel'])->name('inventory.export');
     Route::get('/inventory/reload', [InventoryController::class, 'reload'])->name('inventory.reload');
@@ -44,8 +44,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/order/export', [OrderController::class, 'exportExcel'])->name('order.export');
     Route::put('/order/{id}/update-status', [OrderController::class, 'updateStatus'])->name('order.updateStatus');
     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('order.show');
-
-    // ❌ Xóa đơn hàng
     Route::delete('/orders/{id}', [OrderController::class, 'destroy'])->name('order.destroy');
     Route::get('/order/reload', [OrderController::class, 'reload'])->name('order.reload');
 
