@@ -20,10 +20,9 @@
                     </div>
                     <div>
                         <p class="text-sm font-medium text-gray-600">Tổng Đơn Hàng</p>
-                        <p class="text-2xl font-bold text-gray-900">1,247</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $totalOrders }}</p>
                     </div>
                 </div>
-                <p class="text-sm text-green-600 mt-2">↗️ +12% so với tháng trước</p>
             </div>
 
             <div class="bg-white rounded-xl shadow-sm border p-6">
@@ -33,10 +32,9 @@
                     </div>
                     <div>
                         <p class="text-sm font-medium text-gray-600">Chờ Xử Lý</p>
-                        <p class="text-2xl font-bold text-yellow-600">23</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $pendingOrders }}</p>
                     </div>
                 </div>
-                <p class="text-sm text-gray-500 mt-2">Cần xử lý trong hôm nay</p>
             </div>
 
             <div class="bg-white rounded-xl shadow-sm border p-6">
@@ -46,10 +44,9 @@
                     </div>
                     <div>
                         <p class="text-sm font-medium text-gray-600">Doanh Thu</p>
-                        <p class="text-2xl font-bold text-green-600">₫2.4M</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $revenue }}</p>
                     </div>
                 </div>
-                <p class="text-sm text-green-600 mt-2">↗️ +8% so với tuần trước</p>
             </div>
 
             <div class="bg-white rounded-xl shadow-sm border p-6">
@@ -59,49 +56,63 @@
                     </div>
                     <div>
                         <p class="text-sm font-medium text-gray-600">Đã Giao</p>
-                        <p class="text-2xl font-bold text-purple-600">156</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $completedOrders }}</p>
                     </div>
                 </div>
-                <p class="text-sm text-gray-500 mt-2">Trong tuần này</p>
             </div>
         </div>
 
         <!-- Filters and Search -->
         <div class="bg-white rounded-xl shadow-sm border p-6 mb-6">
-            <div class="flex flex-col sm:flex-row gap-4 items-end">
+            <form action="{{ route('admin.order.index') }}" method="GET" class="flex flex-col sm:flex-row gap-4 items-end">
+                <!-- Ô tìm kiếm -->
                 <div class="flex-1">
                     <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Tìm Kiếm</label>
-                    <input type="text" id="search" placeholder="Tìm theo mã đơn, tên khách hàng..." 
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <input type="text" name="search" id="search"
+                        value="{{ request('search') }}"
+                        placeholder="Tìm theo mã đơn, tên khách hàng..."
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
+
+                <!-- Lọc trạng thái -->
                 <div class="w-full sm:w-40">
-                    <label for="status-filter" class="block text-sm font-medium text-gray-700 mb-2">Trạng Thái</label>
-                    <select id="status-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Tất cả</option>
-                        <option value="pending">Chờ xử lý</option>
-                        <option value="processing">Đang xử lý</option>
-                        <option value="shipped">Đã gửi hàng</option>
-                        <option value="delivered">Đã giao</option>
-                        <option value="cancelled">Đã hủy</option>
+                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Trạng Thái</label>
+                    <select name="status" id="status"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>Tất cả</option>
+                        <option value="Chờ xử lý" {{ request('status') == 'Chờ xử lý' ? 'selected' : '' }}>Chờ xử lý</option>
+                        <option value="Đang giao" {{ request('status') == 'Đang giao' ? 'selected' : '' }}>Đang giao</option>
+                        <option value="Đã giao" {{ request('status') == 'Đã giao' ? 'selected' : '' }}>Đã giao</option>
+                        <option value="Đã hủy" {{ request('status') == 'Đã hủy' ? 'selected' : '' }}>Đã hủy</option>
                     </select>
                 </div>
+
+                <!-- Lọc theo thời gian -->
                 <div class="w-full sm:w-36">
-                    <label for="date-filter" class="block text-sm font-medium text-gray-700 mb-2">Thời Gian</label>
-                    <select id="date-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <label for="date" class="block text-sm font-medium text-gray-700 mb-2">Thời Gian</label>
+                    <select name="date" id="date"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Tất cả</option>
-                        <option value="today">Hôm nay</option>
-                        <option value="week">Tuần này</option>
-                        <option value="month">Tháng này</option>
+                        <option value="today" {{ request('date') == 'today' ? 'selected' : '' }}>Hôm nay</option>
+                        <option value="week" {{ request('date') == 'week' ? 'selected' : '' }}>Tuần này</option>
+                        <option value="month" {{ request('date') == 'month' ? 'selected' : '' }}>Tháng này</option>
                     </select>
                 </div>
-                <button onclick="filterOrders()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors whitespace-nowrap">
-                    Tìm Kiếm
+
+                <!-- Nút tìm kiếm -->
+                <button type="submit"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors whitespace-nowrap">
+                    🔍 Tìm Kiếm
                 </button>
-                <button onclick="openExportModal()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors whitespace-nowrap">
+
+                <!-- Nút xuất Excel -->
+                <a href="{{ route('admin.order.export') }}"
+                class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors whitespace-nowrap">
                     ⬇ Xuất Excel
-                </button>
-            </div>
+                </a>
+            </form>
         </div>
+
 
         <!-- Orders Table -->
         <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
@@ -110,26 +121,102 @@
             </div>
             
             <div class="overflow-x-auto">
-                <table class="w-full">
+                <table class="w-full border border-gray-200 rounded-lg">
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                <input type="checkbox" id="select-all" onchange="toggleSelectAll()" class="text-blue-600 focus:ring-blue-500 rounded">
+                                <input type="checkbox" id="select-all" onchange="toggleSelectAll()" 
+                                    class="text-blue-600 focus:ring-blue-500 rounded">
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã Đơn</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã Đơn Hàng</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khách Hàng</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sản Phẩm</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tổng Tiền</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng Thái</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Địa Chỉ</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày Đặt</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao Tác</th>
                         </tr>
                     </thead>
-                    <tbody id="orders-table" class="bg-white divide-y divide-gray-200">
-                        <!-- Orders will be populated here -->
+
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @forelse ($orders as $order)
+                            <tr>
+
+                                <!-- Mã đơn -->
+                                <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                                    {{ $order->order_id }}
+                                </td>
+
+                                <!-- Khách hàng -->
+                                <td class="px-6 py-4 text-sm text-gray-700">
+                                    {{ $order->customer->name ?? 'Không xác định' }}
+                                </td>
+
+                                <!-- Sản phẩm -->
+                                <td class="px-6 py-4 text-sm text-gray-700">
+                                    @foreach ($order->orderItems as $item)
+                                        <div>{{ $item->product->name ?? 'Sản phẩm không tồn tại' }} (x{{ $item->quantity }})</div>
+                                    @endforeach
+                                </td>
+
+
+                                <!-- Tổng tiền -->
+                                <td class="px-6 py-4 text-sm text-gray-700">
+                                    {{ number_format($order->total_amount, 0, ',', '.') }} ₫
+                                </td>
+
+                                <!-- Trạng thái -->
+                                <td class="px-6 py-4 text-sm">
+                                    @php
+                                        $statusColors = [
+                                            'pending' => 'bg-yellow-100 text-yellow-800',
+                                            'processing' => 'bg-blue-100 text-blue-800',
+                                            'shipped' => 'bg-purple-100 text-purple-800',
+                                            'delivered' => 'bg-green-100 text-green-800',
+                                            'cancelled' => 'bg-red-100 text-red-800',
+                                        ];
+                                    @endphp
+                                    <span class="px-3 py-1 rounded-full text-xs font-semibold {{ $statusColors[$order->status] ?? 'bg-gray-100 text-gray-800' }}">
+                                        {{ ucfirst($order->status) }}
+                                    </span>
+                                </td>
+
+                                <!-- Địa chỉ -->
+                                <td class="px-6 py-4 text-sm text-gray-700">
+                                    {{ $order->shipping_address }}
+                                </td>
+
+                                <!-- Ngày đặt -->
+                                <td class="px-6 py-4 text-sm text-gray-700">
+                                    {{ \Carbon\Carbon::parse($order->created_at)->format('d/m/Y H:i') }}
+                                </td>
+
+                                <!-- Thao tác -->
+                                <td class="px-6 py-4 text-sm">
+                                    <div class="flex gap-2">
+                                        <a href="{{ route('order.show', $order->order_id) }}" 
+                                        class="text-blue-600 hover:underline">Xem</a>
+                                        <a href="{{ route('order.edit', $order->order_id) }}" 
+                                        class="text-green-600 hover:underline">Sửa</a>
+                                        <form action="{{ route('order.destroy', $order->order_id) }}" method="POST" onsubmit="return confirm('Xóa đơn hàng này?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-600 hover:underline">Xóa</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="9" class="text-center py-6 text-gray-500">Không có đơn hàng nào.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
+
+
 
             <!-- Pagination -->
             <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">

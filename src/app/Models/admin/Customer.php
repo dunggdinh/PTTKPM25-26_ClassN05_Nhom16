@@ -4,7 +4,7 @@ namespace App\Models\admin;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Customer extends Model
+class customer extends Model
 {
     protected $table = 'users'; 
     protected $primaryKey = 'user_id';

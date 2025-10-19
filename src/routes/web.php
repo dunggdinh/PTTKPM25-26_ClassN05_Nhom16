@@ -39,7 +39,20 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/inventory/export', [InventoryController::class, 'exportExcel'])->name('inventory.export');
     Route::get('/inventory/reload', [InventoryController::class, 'reload'])->name('inventory.reload');
 
-    Route::view('/order', 'admin.order')->name('order');
+    // Trang danh sách đơn hàng (lọc, tìm kiếm, thống kê)
+    Route::get('/order', [OrderController::class, 'index'])->name('order');
+
+    // Cập nhật trạng thái đơn hàng
+    Route::put('/order/{id}/update-status', [OrderController::class, 'updateStatus'])->name('order.updateStatus');
+
+    // Xóa đơn hàng
+    Route::delete('/order/{id}', [OrderController::class, 'destroy'])->name('order.destroy');
+
+    // Xuất danh sách ra Excel
+    Route::get('/order/export', [OrderController::class, 'exportExcel'])->name('order.export');
+
+    // Reload danh sách (không lọc)
+    Route::get('/order/reload', [OrderController::class, 'reload'])->name('order.reload');
     Route::view('/payments_gateway', 'admin.payments_gateway')->name('payments_gateway');
     Route::view('/report', 'admin.report')->name('report');
     Route::view('/return', 'admin.return')->name('return');

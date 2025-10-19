@@ -4,7 +4,7 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\admin\Customer;
+use App\Models\admin\customer;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\admin\CustomerExport;
 
@@ -16,7 +16,7 @@ class CustomerController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Customer::query();
+        $query = customer::query();
 
         // Tìm kiếm
         if ($request->has('search') && !empty($request->search)) {
@@ -37,10 +37,10 @@ class CustomerController extends Controller
                         ->withQueryString();
 
         // Thống kê
-        $totalCustomers = Customer::where('role', 'customer')->count();
-        $totalAdmins = Customer::where('role', 'admin')->count();
-        $newToday = Customer::whereDate('created_at', now()->toDateString())->count();
-        $newYesterday = Customer::whereDate('created_at', now()->subDay()->toDateString())->count();
+        $totalCustomers = customer::where('role', 'customer')->count();
+        $totalAdmins = customer::where('role', 'admin')->count();
+        $newToday = customer::whereDate('created_at', now()->toDateString())->count();
+        $newYesterday = customer::whereDate('created_at', now()->subDay()->toDateString())->count();
 
         $growth = $newYesterday == 0 ? ($newToday > 0 ? '+100%' : '0%')
                                     : (($newToday - $newYesterday) / $newYesterday * 100) . '%';
@@ -61,12 +61,12 @@ class CustomerController extends Controller
 
     public function reload()
     {
-        $customers = Customer::orderBy('name', 'asc')->paginate(10);
+        $customers = customer::orderBy('name', 'asc')->paginate(10);
 
-        $totalCustomers = Customer::where('role', 'customer')->count();
-        $totalAdmins = Customer::where('role', 'admin')->count();
-        $newToday = Customer::whereDate('created_at', now()->toDateString())->count();
-        $newYesterday = Customer::whereDate('created_at', now()->subDay()->toDateString())->count();
+        $totalCustomers = customer::where('role', 'customer')->count();
+        $totalAdmins = customer::where('role', 'admin')->count();
+        $newToday = customer::whereDate('created_at', now()->toDateString())->count();
+        $newYesterday = customer::whereDate('created_at', now()->subDay()->toDateString())->count();
 
         // Tính tăng trưởng
         if ($newYesterday == 0) {
