@@ -2,7 +2,6 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
-use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\auth\AuthController;
 use App\Http\Controllers\admin\CustomerController;
 use App\Http\Controllers\admin\OrderController;
@@ -14,6 +13,8 @@ use App\Http\Controllers\admin\DashboardController;
 use App\Http\Controllers\customer\ProfileController;
 use App\Http\Controllers\customer\ProductController; // ✅ CHỈ 1 import, không alias
 use App\Http\Controllers\admin\ReportController;
+use App\Http\Controllers\admin\PaymentController;
+
 
 // /customer/product dùng Controller -> trả view có $products, $categories
 Route::get('/customer/product', [ProductController::class, 'index'])
@@ -70,8 +71,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::delete('/orders/{id}', [OrderController::class, 'destroy'])->name('order.destroy');
     Route::get('/order/reload', [OrderController::class, 'reload'])->name('order.reload');
 
-
-    Route::view('/payments_gateway', 'admin.payments_gateway')->name('payments_gateway');
+    // Route::get('/payments-gateway', [PaymentController::class, 'index'])->name('admin.payments_gateway');
+    // Route::get('/payments_gateway', [PaymentController::class, 'index'])->name('admin.payments_gateway');
+    // Route::get('/payments/verify/{id}', [PaymentController::class, 'verify'])->name('admin.payments.verify');
+    // Route::get('/payments/reject/{id}', [PaymentController::class, 'reject'])->name('admin.payments.reject');
+    Route::get('/payments_gateway', [PaymentController::class, 'index'])->name('payments_gateway');
+    Route::get('/payments/verify/{id}', [PaymentController::class, 'verify'])->name('payments.verify');
+    Route::get('/payments/reject/{id}', [PaymentController::class, 'reject'])->name('payments.reject');
     // Route::view('/report', 'admin.report')->name('report');
     Route::get('/report', [ReportController::class, 'index'])->name('report');
     // Route::view('/return', 'admin.return')->name('return');

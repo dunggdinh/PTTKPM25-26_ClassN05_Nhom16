@@ -41,7 +41,7 @@
                     </div>
                     <div class="p-6">
                         <div class="space-y-4">
-                            <div class="border border-yellow-200 rounded-lg p-4 bg-yellow-50">
+                            <!-- <div class="border border-yellow-200 rounded-lg p-4 bg-yellow-50">
                                 <div class="flex items-center justify-between">
                                     <div class="flex-1">
                                         <div class="flex items-center space-x-3">
@@ -63,6 +63,30 @@
                                         </button>
                                     </div>
                                 </div>
+                            </div> -->
+                            <div class="space-y-4 mt-4">
+                            @foreach($pendingPayments as $p)
+                            <div class="border border-yellow-200 rounded-lg p-4 bg-yellow-50">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3">
+                                            <span class="text-lg">🏪</span>
+                                                <div>
+                                                    <h3 class="font-medium text-gray-900">Đơn hàng #{{ $p->payment_id }}</h3>
+                                                    <p class="text-sm text-gray-600">Khách hàng: {{ $p->name }}</p>
+                                                    <p class="text-sm text-gray-600">Số tiền: {{ number_format($p->amount, 0, ',', '.') }} VNĐ</p>
+                                                    <p class="text-sm text-gray-600">Phương thức: {{ $p->method_id }}</p>
+                                                    <p class="text-sm text-gray-600">Ngày: {{ \Carbon\Carbon::parse($p->transaction_date)->format('d/m/Y H:i') }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                            <div class="flex space-x-2">
+                                            <a href="{{ route('admin.payments.verify', $p->payment_id) }}" class="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700">✅ Xác Nhận</a>
+                                            <a href="{{ route('admin.payments.reject', $p->payment_id) }}" class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700">❌ Từ Chối</a>
+                                            </div>
+                                    </div>
+                                </div>
+                                @endforeach
                             </div>
 
                             <div class="border border-yellow-200 rounded-lg p-4 bg-yellow-50">
@@ -180,7 +204,7 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
+                            <!-- <tbody class="bg-white divide-y divide-gray-200">
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <input type="checkbox" class="transaction-checkbox text-blue-600 focus:ring-blue-500" data-transaction-id="TXN001" onchange="updateSelectedCount()">
@@ -244,7 +268,36 @@
                                         <button onclick="viewTransaction(\'TXN003\')" class="text-blue-600 hover:text-blue-800">Xem chi tiết</button>
                                     </td>
                                 </tr>
-                            </tbody>
+                            </tbody> -->
+                            <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach ($transactions as $t)
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <input type="checkbox" class="transaction-checkbox text-blue-600 focus:ring-blue-500"
+                                        data-transaction-id="{{ $t->payment_id }}" onchange="updateSelectedCount()">
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{{ $t->payment_id }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $t->name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ number_format($t->amount, 0, ',', '.') }} VNĐ</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $t->method_id }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full 
+                                        @if($t->status == 'completed') bg-green-100 text-green-800
+                                        @elseif($t->status == 'pending') bg-yellow-100 text-yellow-800
+                                        @elseif($t->status == 'failed') bg-red-100 text-red-800
+                                        @else bg-blue-100 text-blue-800 @endif">
+                                        {{ ucfirst($t->status) }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ \Carbon\Carbon::parse($t->transaction_date)->format('d/m/Y H:i') }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <button class="text-blue-600 hover:text-blue-800">Xem chi tiết</button>
+                                </td>
+                            </tr>
+                        @endforeach
+                        </tbody>
                         </table>
                     </div>
                 </div>
