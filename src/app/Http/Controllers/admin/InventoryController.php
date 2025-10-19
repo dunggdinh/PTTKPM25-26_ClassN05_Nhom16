@@ -4,14 +4,14 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\admin\product;
-use App\Models\admin\category;
+use App\Models\admin\Product;
+use App\Models\admin\Category;
 
 class InventoryController extends Controller
 {
     public function index(Request $request)
     {
-        $query = product::with('category');
+        $query = Product::with('category');
 
 
         // Lấy danh mục để hiển thị dropdown
@@ -47,10 +47,10 @@ class InventoryController extends Controller
         });
 
         // Thống kê
-        $totalProducts = product::count(); // Tổng sản phẩm
-        $inStock = product::where('quantity', '>=', 10)->count(); // Còn hàng
-        $lowStock = product::where('quantity', '>', 0)->where('quantity', '<', 10)->count(); // Sắp hết hàng
-        $outOfStock = product::where('quantity', 0)->count(); // Hết hàng
+        $totalProducts = Product::count(); // Tổng sản phẩm
+        $inStock = Product::where('quantity', '>=', 10)->count(); // Còn hàng
+        $lowStock = Product::where('quantity', '>', 0)->where('quantity', '<', 10)->count(); // Sắp hết hàng
+        $outOfStock = Product::where('quantity', 0)->count(); // Hết hàng
 
         return view('admin.inventory', compact(
             'products', 'categories', 'totalProducts', 'inStock', 'lowStock', 'outOfStock'

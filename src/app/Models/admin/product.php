@@ -4,7 +4,7 @@ namespace App\Models\admin;
 
 use Illuminate\Database\Eloquent\Model;
 
-class product extends Model
+class Product extends Model
 {
     protected $table = 'products'; 
     protected $primaryKey = 'product_id';
@@ -15,12 +15,12 @@ class product extends Model
         'product_id','name','brand','category_id',
         'price','rating','quantity','warranty','created_at','supplier_id',
     ];
-    public function category()
+    public function Category()
     {
-        return $this->belongsTo(category::class, 'category_id', 'category_id');
+        return $this->belongsTo(Category::class, 'category_id', 'category_id');
     }
-    public function supplier()
+    public function Supplier()
     {
-        return $this->belongsTo(supplier::class, 'supplier_id', 'supplier_id');
+        return $this->belongsTo(Supplier::class, 'supplier_id', 'supplier_id');
     }
 }
