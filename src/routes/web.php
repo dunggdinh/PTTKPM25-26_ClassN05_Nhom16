@@ -158,6 +158,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     // Return & Warranty
     Route::get('/return', [ReturnController::class, 'index'])->name('return');
+    Route::put('/return/{id}', [ReturnController::class, 'update'])->name('return.update');
+    Route::delete('/return/{id}', [ReturnController::class, 'destroy'])->name('return.destroy');
+    Route::get('/return/reload', [ReturnController::class, 'reload'])->name('return.reload');
+
     Route::get('/warranties', [WarrantyController::class, 'index'])->name('warranties');
 });
 
@@ -181,4 +185,35 @@ Route::prefix('auth')->name('auth.')->group(function () {
 
     // LOGOUT
     Route::post('/logout', [AuthController::class,'logout'])->name('logout');
+});
+// Thêm
+// Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+
+// Nhóm route customer
+// Route::prefix('customer')->group(function () {
+//     Route::view('/home', 'customer.home'); ẩn cho vui 
+Route::prefix('customer')->name('customer.')->group(function () {
+    Route::view('/home', 'customer.home')->name('home');
+    Route::view('/promotion', 'customer.promotion');
+    //Route::view('/product', 'customer.product');
+    Route::view('/cart', 'customer.cart');
+    Route::view('/order', 'customer.order');
+    Route::view('/review', 'customer.review');
+    Route::view('/support', 'customer.support');
+    // Route::view('/profile', 'customer.profile'); Cmt để tránh ghi đè
+});
+
+// Route::get('/profile', [ProfileController::class, 'show'])->name('customer.profile');
+// Route::post('/profile', [ProfileController::class, 'update'])->name('customer.profile.update');
+// Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('customer.profile.password');
+
+// Serve static files
+/*
+|--------------------------------------------------------------------------
+| STATIC FILES
+|--------------------------------------------------------------------------
+*/
+Route::get('/css/app.css', function () {
+    $path = resource_path('css/app.css');
+    return Response::make(File::get($path), 200, ['Content-Type' => 'text/css']);
 });

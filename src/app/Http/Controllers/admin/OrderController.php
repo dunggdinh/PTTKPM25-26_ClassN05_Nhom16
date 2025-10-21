@@ -64,6 +64,45 @@ class OrderController extends Controller
             'orders', 'totalOrders', 'pendingOrders', 'completedOrders', 'revenue'
         ));
     }
+    public function edit($id)
+    {
+        $returnRequest = ReturnRequest::findOrFail($id);
+
+        // Các trạng thái đổi trả có thể có
+        $statuses = ['Chờ xử lý', 'Đang xử lý', 'Hoàn tất', 'Từ chối'];
+
+        return view('admin.return.edit', compact('returnRequest', 'statuses'));
+    }
+
+    /**
+     * Cập nhật trạng thái yêu cầu đổi trả
+     */
+    public function update(Request $request, $id)
+    {
+        $returnRequest = ReturnRequest::findOrFail($id);
+
+        $request->validate([
+            'status' => 'required|in:Chờ xử lý,Đang xử lý,Hoàn tất,Từ chối',
+        ]);
+
+        $returnRequest->status = $request->status;
+        $returnRequest->save();
+
+        return redirect()->route('admin.return.index')
+                         ->with('success', 'Trạng thái yêu cầu đổi trả đã được cập nhật.');
+    }
+
+    /**
+     * Xóa yêu cầu đổi trả
+     */
+    public function destroy($id)
+    {
+        $returnRequest = ReturnRequest::findOrFail($id);
+
+        $returnRequest->delete();
+
+        return redirect()->back()->with('success', 'Yêu cầu đổi trả đã được xóa.');
+    }
     public function destroy($id)
     {
         $order = Order::with('orderItems')->findOrFail($id);
