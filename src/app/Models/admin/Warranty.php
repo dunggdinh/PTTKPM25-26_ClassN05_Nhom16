@@ -18,4 +18,8 @@ class Warranty extends Model
         'service_center',
         'notes'
     ];
+    public function orderItem()
+    {
+        return $this->belongsTo(OrderItem::class, 'order_item_id', 'order_item_id');
+    }
 }
