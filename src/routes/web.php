@@ -58,10 +58,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/deliveries/reload', [DeliveryController::class, 'reload'])->name('deliveries.reload');
 
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory');
-    Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
-    Route::put('/inventory/{id}', [InventoryController::class, 'update'])->name('inventory.update');
-    Route::delete('/inventory/{id}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
-    Route::get('/inventory/export', [InventoryController::class, 'exportExcel'])->name('inventory.export');
+    Route::post('/inventory/export', [InventoryController::class, 'export'])->name('inventory.export');
     Route::get('/inventory/reload', [InventoryController::class, 'reload'])->name('inventory.reload');
 
     Route::get('/order', [OrderController::class, 'index'])->name('order');
