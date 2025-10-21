@@ -128,9 +128,14 @@
                         </div>
                         <!-- User Name -->
                         <div class="text-right">
-                            <p class="text-xl font-bold text-gray-900">Nguyễn Văn Nam</p>
-                            <p class="text-sm font-semibold text-gray-600">Khách hàng</p>
+                            <p class="text-xl font-bold text-gray-900">
+                                {{ Auth::user()->name ?? 'Người dùng' }}
+                            </p>
+                            <p class="text-sm font-semibold text-gray-600">
+                                {{ Auth::user()->role ?? 'Khách hàng' }}
+                            </p>
                         </div>
+
                         <!-- Dropdown Arrow -->
                         <svg class="w-4 h-4 text-gray-600 transition-transform" id="dropdownArrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -144,14 +149,10 @@
                             <span>Hồ sơ của tôi</span>
                         </a>
                         <hr class="my-1 border-gray-100">
-                        <form action="{{ route('auth.logout') }}" method="POST" class="w-full">
-                            @csrf
-                            <button type="submit" 
-                                class="flex items-center w-full px-4 py-2 font-medium text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors">
-                                <span class="mr-3">🚪</span>
-                                <span>Đăng xuất</span>
-                            </button>
-                        </form>
+                        <a href="#" id="logout-link" class="flex items-center w-full px-4 py-2 font-medium text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors">
+                            <span class="mr-3">🚪</span>
+                            <span>Đăng xuất</span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -303,6 +304,25 @@
             sidebar.style.transform = hidden ? 'translateX(0)' : 'translateX(-100%)';
             main.style.marginLeft = hidden ? '16rem' : '0';
         }
+
     </script>
+    <!-- FORM ĐĂNG XUẤT ẨN (luôn tồn tại trên mọi trang) -->
+    <form id="logout-form" action="{{ route('auth.logout') }}" method="POST" style="display: none;">
+        @csrf
+    </form>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const logoutLink = document.getElementById('logout-link');
+        if (logoutLink) {
+            logoutLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                const form = document.getElementById('logout-form');
+                if (form) form.submit();
+            });
+        }
+    });
+    </script>
+
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement(\'script\');d.innerHTML="window.__CF$cv$params={r:\'98f4561c8249f995\',t:\'MTc2MDU4Mzk0NS4wMDAwMDA=\'};var a=document.createElement(\'script\');a.nonce=\'\';a.src=\'/cdn-cgi/challenge-platform/scripts/jsd/main.js\';document.getElementsByTagName(\'head\')[0].appendChild(a);";b.getElementsByTagName(\'head\')[0].appendChild(d)}}if(document.body){var a=document.createElement(\'iframe\');a.height=1;a.width=1;a.style.position=\'absolute\';a.style.top=0;a.style.left=0;a.style.border=\'none\';a.style.visibility=\'hidden\';document.body.appendChild(a);if(\'loading\'!==document.readyState)c();else if(window.addEventListener)document.addEventListener(\'DOMContentLoaded\',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);\'loading\'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
