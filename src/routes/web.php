@@ -35,7 +35,6 @@ Route::get('/customer/product', [ProductController::class, 'index'])
     ->name('customer.product');
  // ✅ chỉ 1 route này cho /customer/product
 
-
 // Nhóm /products (API JSON dùng chung controller)
 Route::prefix('products')->name('products.')->group(function () {
     Route::get('/', [ProductController::class, 'index'])->name('index');                       // /products
@@ -110,7 +109,6 @@ Route::get('/test-auth', function () {
     dd(Auth::user());
 })->middleware('auth');
 
-
 /*
 |--------------------------------------------------------------------------
 | ADMIN (prefix /admin)
@@ -182,3 +180,24 @@ Route::prefix('auth')->name('auth.')->group(function () {
     // LOGOUT
     Route::post('/logout', [AuthController::class,'logout'])->name('logout');
 });
+
+/*
+|--------------------------------------------------------------------------
+| STATIC FILES
+|--------------------------------------------------------------------------
+*/
+Route::get('/css/app.css', function () {
+    $path = resource_path('css/app.css');
+    return Response::make(File::get($path), 200, ['Content-Type' => 'text/css']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| PAYMENT (checkout + VNPAY)
+|--------------------------------------------------------------------------
+*/
+Route::get('/checkout', function () {
+    return view('checkout');
+});
+Route::post('/vnpay-payment', [PaymentController::class, 'createPayment']);
+Route::get('/vnpay-return',  [PaymentController::class, 'returnPayment']);
