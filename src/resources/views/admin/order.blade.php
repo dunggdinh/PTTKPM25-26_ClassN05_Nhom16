@@ -10,55 +10,74 @@
             </div>
 
         <!-- Stats Cards -->
-        <div class="grid grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-xl shadow-sm border p-6">
-                <div class="flex items-center gap-4">
-                    <div class="bg-blue-100 p-3 rounded-lg">
-                        <span class="text-2xl">📦</span>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+
+            <!-- Tổng đơn hàng -->
+            <div class="bg-white rounded-lg shadow-sm p-6 card-hover">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                        </svg>
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-600">Tổng Đơn Hàng</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ $totalOrders }}</p>
+                        <p class="text-gray-600 text-sm">Tổng Đơn Hàng</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ $totalOrders }}</p>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm border p-6">
-                <div class="flex items-center gap-4">
-                    <div class="bg-yellow-100 p-3 rounded-lg">
-                        <span class="text-2xl">⏳</span>
+            <!-- Chờ xử lý -->
+            <div class="bg-white rounded-lg shadow-sm p-6 card-hover">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-600">Chờ Xử Lý</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ $pendingOrders }}</p>
+                        <p class="text-gray-600 text-sm">Chờ Xử Lý</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ $pendingOrders }}</p>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm border p-6">
-                <div class="flex items-center gap-4">
-                    <div class="bg-green-100 p-3 rounded-lg">
-                        <span class="text-2xl">💰</span>
+            <!-- Đã giao -->
+            <div class="bg-white rounded-lg shadow-sm p-6 card-hover">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5 13l4 4L19 7"/>
+                        </svg>
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-600">Doanh Thu</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ $revenue }}</p>
+                        <p class="text-gray-600 text-sm">Đã Giao</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ $completedOrders }}</p>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm border p-6">
-                <div class="flex items-center gap-4">
-                    <div class="bg-purple-100 p-3 rounded-lg">
-                        <span class="text-2xl">✅</span>
+            <!-- Doanh Thu -->
+            <div class="bg-white rounded-lg shadow-sm p-6 card-hover">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                        </svg>
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-600">Đã Giao</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ $completedOrders }}</p>
+                        <p class="text-gray-600 text-sm">Doanh Thu</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ number_format($revenue,0,',','.') }} ₫</p>
                     </div>
                 </div>
             </div>
+
         </div>
+    
 
             <div class="bg-white rounded-xl shadow-md">
                 <div class="p-6 border-b border-gray-200">
@@ -167,14 +186,63 @@
                                 
                                 <td class="px-6 py-4 text-sm text-gray-700">
                                     <div class="flex space-x-2">
-                                        <a href="{{ route('admin.order.show', $order->order_id) }}" class="text-blue-600 hover:underline">Xem</a>
-                                        <form action="{{ route('admin.order.destroy', $order->order_id) }}" method="POST" onsubmit="return confirm('Xóa đơn hàng này?')" class="inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:underline">Xóa</button>
-                                        </form>
+                                        <!-- Nút Sửa -->
+                                        <div>
+                                            <button onclick="openEdit('{{ $order->order_id }}')" class="text-blue-600 hover:underline">Sửa</button>
+
+                                            <!-- Modal chỉnh trạng thái -->
+                                            <div id="edit-modal-{{ $order->order_id }}" style="display:none;"
+                                                class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-20">
+                                                <div class="bg-white p-4 rounded shadow-md w-80">
+                                                    <h3 class="font-semibold mb-2">Cập nhật trạng thái cho đơn: <span class="text-blue-600">{{ $order->order_id }}</span></h3>
+
+                                                    <form action="{{ route('admin.order.updateStatus', $order->order_id) }}" method="POST">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <select name="status" class="border rounded px-2 py-1 mb-4 w-full">
+                                                            <option value="pending" {{ $order->status=='pending' ? 'selected' : '' }}>Chờ xử lý</option>
+                                                            <option value="processing" {{ $order->status=='processing' ? 'selected' : '' }}>Đang giao</option>
+                                                            <option value="shipped" {{ $order->status=='shipped' ? 'selected' : '' }}>Đang vận chuyển</option>
+                                                            <option value="delivered" {{ $order->status=='delivered' ? 'selected' : '' }}>Đã giao</option>
+                                                            <option value="cancelled" {{ $order->status=='cancelled' ? 'selected' : '' }}>Đã hủy</option>
+                                                        </select>
+
+                                                        <div class="flex justify-end gap-2">
+                                                            <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Cập nhật</button>
+                                                            <button type="button" onclick="closeEdit('{{ $order->order_id }}')" class="px-3 py-1 rounded border hover:bg-gray-100">Hủy</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Nút Xóa -->
+                                        <div>
+                                            <button onclick="openDelete('{{ $order->order_id }}')" class="text-red-600 hover:underline">Xóa</button>
+
+                                            <!-- Modal xác nhận xóa -->
+                                            <div id="delete-modal-{{ $order->order_id }}" style="display:none;"
+                                                class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-20">
+                                                <div class="bg-white p-4 rounded shadow-md w-80">
+                                                    <h3 class="font-semibold mb-2">Xóa đơn: <span class="text-red-600">{{ $order->order_id }}</span></h3>
+                                                    <p class="mb-4">Bạn có chắc muốn xóa đơn hàng này?</p>
+
+                                                    <div class="flex justify-end gap-2">
+                                                        <form action="{{ route('admin.order.destroy', $order->order_id) }}" method="POST">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Xóa</button>
+                                                        </form>
+                                                        <button type="button" onclick="closeDelete('{{ $order->order_id }}')" class="px-3 py-1 rounded border hover:bg-gray-100">Hủy</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
+
+
+
                             </tr>
                         @empty
                             <tr>
@@ -244,6 +312,21 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 });
+    function openEdit(id) {
+        document.getElementById('edit-modal-' + id).style.display = 'flex';
+    }
+
+    function closeEdit(id) {
+        document.getElementById('edit-modal-' + id).style.display = 'none';
+    }
+
+    function openDelete(id) {
+        document.getElementById('delete-modal-' + id).style.display = 'flex';
+    }
+
+    function closeDelete(id) {
+        document.getElementById('delete-modal-' + id).style.display = 'none';
+    }
 </script>
 
 

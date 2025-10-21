@@ -35,6 +35,7 @@ Route::get('/customer/product', [ProductController::class, 'index'])
     ->name('customer.product');
  // ✅ chỉ 1 route này cho /customer/product
 
+
 // Nhóm /products (API JSON dùng chung controller)
 Route::prefix('products')->name('products.')->group(function () {
     Route::get('/', [ProductController::class, 'index'])->name('index');                       // /products
@@ -109,12 +110,14 @@ Route::get('/test-auth', function () {
     dd(Auth::user());
 })->middleware('auth');
 
+
 /*
 |--------------------------------------------------------------------------
 | ADMIN (prefix /admin)
 |--------------------------------------------------------------------------
 */
-Route::prefix('admin')->name('admin.')->middleware(['auth','ensure.admin'])->group(function () {
+// Route::prefix('admin')->name('admin.')->middleware(['auth','ensure.admin'])->group(function () {
+Route::prefix('admin')->name('admin.')->group(function () {
     // Lưu ý: trong group đã có prefix name "admin.", bên trong đặt name ngắn gọn để tránh "admin.admin.*"
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::view('/support', 'admin.support')->name('support');
@@ -141,8 +144,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','ensure.admin'])->gro
     // Orders
     Route::get('/order', [OrderController::class, 'index'])->name('order');
     Route::get('/order/export', [OrderController::class, 'exportExcel'])->name('order.export');
-    Route::put('/order/{id}/update-status', [OrderController::class, 'updateStatus'])->name('order.updateStatus');
-    Route::get('/orders/{id}', [OrderController::class, 'show'])->name('order.show');
+    Route::put('order/{id}/update-status', [OrderController::class, 'updateStatus'])->name('order.updateStatus');
     Route::delete('/orders/{id}', [OrderController::class, 'destroy'])->name('order.destroy');
     Route::get('/order/reload', [OrderController::class, 'reload'])->name('order.reload');
 
@@ -180,24 +182,3 @@ Route::prefix('auth')->name('auth.')->group(function () {
     // LOGOUT
     Route::post('/logout', [AuthController::class,'logout'])->name('logout');
 });
-
-/*
-|--------------------------------------------------------------------------
-| STATIC FILES
-|--------------------------------------------------------------------------
-*/
-Route::get('/css/app.css', function () {
-    $path = resource_path('css/app.css');
-    return Response::make(File::get($path), 200, ['Content-Type' => 'text/css']);
-});
-
-/*
-|--------------------------------------------------------------------------
-| PAYMENT (checkout + VNPAY)
-|--------------------------------------------------------------------------
-*/
-Route::get('/checkout', function () {
-    return view('checkout');
-});
-Route::post('/vnpay-payment', [PaymentController::class, 'createPayment']);
-Route::get('/vnpay-return',  [PaymentController::class, 'returnPayment']);

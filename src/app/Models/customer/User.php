@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\customer;
+namespace App\Models; // Sửa từ App\Models\customer
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -9,7 +9,7 @@ class User extends Authenticatable
 {
     use Notifiable;
 
-    protected $table = 'users'; // bảng bạn đang dùng
+    protected $table = 'users';
     protected $primaryKey = 'user_id';
     public $incrementing = false;
     protected $keyType = 'string';
@@ -32,6 +32,7 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
-        'birth_date' => 'date:Y-m-d',
+        'birth_date' => 'date',
+        'email_verified_at' => 'datetime',
     ];
 }
