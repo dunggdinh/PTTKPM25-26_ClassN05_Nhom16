@@ -182,23 +182,3 @@ Route::prefix('auth')->name('auth.')->group(function () {
     // LOGOUT
     Route::post('/logout', [AuthController::class,'logout'])->name('logout');
 });
-
-/*
-|--------------------------------------------------------------------------
-| STATIC FILES
-|--------------------------------------------------------------------------
-*/
-Route::get('/css/app.css', function () {
-    $path = resource_path('css/app.css');
-    return Response::make(File::get($path), 200, ['Content-Type' => 'text/css']);
-});
-
-/*
-|--------------------------------------------------------------------------
-| PAYMENT (checkout + VNPAY)
-|--------------------------------------------------------------------------
-*/
-Route::get('/checkout', function () {
-    return view('checkout');
-});
-

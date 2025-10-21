@@ -78,19 +78,4 @@ class ProfileController extends Controller
 
         return back()->with('success', 'Đổi mật khẩu thành công!');
     }
-    public function getUsername()
-    {
-        $user = Auth::user();
-
-        // Nếu cột lưu tên là 'name' thì:
-        return response()->json([
-            'username' => $user->name,
-        ]);
-
-        // Hoặc nếu cột là 'username' thì:
-        // return response()->json(['username' => $user->username]);
-    }
-
 }
-
-
