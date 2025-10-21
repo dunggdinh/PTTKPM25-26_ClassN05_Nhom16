@@ -6,6 +6,7 @@
     <title>@yield('title', 'Cửa Hàng Điện Tử')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ url('css/app.css') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body class="bg-gray-50 font-sans">
     <!-- Header Bar -->
@@ -41,7 +42,7 @@
                     </div>
                     
                     <!-- Notifications Dropdown -->
-                    <div class="dropdown absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 py-2" id="notificationsDropdown">
+                    <div class="dropdown absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 py-2 hidden" id="notificationsDropdown">
                         <div class="px-4 py-3 border-b border-gray-100">
                             <h3 class="font-semibold text-gray-800">Thông báo</h3>
                         </div>
@@ -310,6 +311,131 @@
     <form id="logout-form" action="{{ route('auth.logout') }}" method="POST" style="display: none;">
         @csrf
     </form>
+    <script>
+        const dropdown = document.getElementById('notificationsDropdown');
+        const badge = document.querySelector('.notification-badge');
+
+        async function loadNotifications() {
+            try {
+                const res = await fetch(`{{ route('customer.notifications') }}`, {
+                    headers: {'X-Requested-With':'XMLHttpRequest'}
+                });
+                const data = await res.json();
+                renderNotifications(data.items);
+                renderBadge(data.unread);
+            } catch (e) {
+                console.error('Load notifications error', e);
+            }
+        }
+
+        function renderBadge(unread) {
+            if (!badge) return;
+            badge.textContent = unread > 99 ? '99+' : unread;
+            badge.style.display = unread > 0 ? 'flex' : 'none';
+        }
+
+        function pillColor(icon) {
+            switch(icon){
+                case 'blue': return 'bg-blue-500';
+                case 'green': return 'bg-green-500';
+                case 'red': return 'bg-red-500';
+                default: return 'bg-gray-300';
+            }
+        }
+
+        function itemTemplate(n) {
+            return `
+            <div class="px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50">
+            <div class="flex items-start space-x-3">
+                <div class="w-2 h-2 ${pillColor(n.icon)} rounded-full mt-2 flex-shrink-0"></div>
+                <div class="flex-1">
+                <p class="font-bold ${n.read_at ? 'text-gray-700' : 'text-gray-800'} text-sm">${n.title}</p>
+                <p class="text-xs ${n.read_at ? 'text-gray-400' : 'text-gray-500'} mt-1">${n.message ?? ''}</p>
+                <div class="flex items-center justify-between mt-1">
+                    <p class="text-xs ${n.read_at ? 'text-gray-400' : 'text-blue-600'}">${n.time}</p>
+                    <div class="flex items-center gap-2">
+                    ${n.url ? `<a href="${n.url}" class="text-xs text-blue-600 hover:underline">Xem</a>` : ''}
+                    ${!n.read_at ? `<button data-id="${n.id}" class="mark-read text-xs text-gray-600 hover:text-gray-800">Đã đọc</button>` : ''}
+                    <button data-id="${n.id}" class="remove text-xs text-red-600 hover:text-red-700">Xóa</button>
+                    </div>
+                </div>
+                </div>
+            </div>
+            </div>`;
+        }
+
+        function renderNotifications(items) {
+            const container = dropdown.querySelector('.max-h-96');
+            if (!container) return;
+            if (!items || items.length === 0) {
+                container.innerHTML = `
+                <div class="px-4 py-6 text-center text-gray-500">
+                    Không có thông báo nào
+                </div>`;
+                return;
+            }
+            container.innerHTML = items.map(itemTemplate).join('');
+
+            // Gắn handler "Đã đọc" & "Xóa"
+            container.querySelectorAll('.mark-read').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    await fetch(`/customer/notifications/${id}/read`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': `{{ csrf_token() }}`,
+                            'X-Requested-With':'XMLHttpRequest'
+                        }
+                    });
+                    await loadNotifications();
+                });
+            });
+            container.querySelectorAll('.remove').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    await fetch(`/customer/notifications/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': `{{ csrf_token() }}`,
+                            'X-Requested-With':'XMLHttpRequest'
+                        }
+                    });
+                    await loadNotifications();
+                });
+            });
+        }
+
+        // Khi mở dropdown, đánh dấu tất cả là đã đọc (tuỳ chọn)
+        async function markAllRead() {
+            await fetch(`{{ route('customer.notifications.read_all') }}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': `{{ csrf_token() }}`,
+                    'X-Requested-With':'XMLHttpRequest'
+                }
+            });
+            await loadNotifications();
+        }
+
+        // Gắn vào nút chuông của bạn
+        function toggleNotifications() {
+            const dd = document.getElementById('notificationsDropdown');
+            dd.classList.toggle('hidden');
+            if (!dd.classList.contains('hidden')) {
+                // vừa mở dropdown → load và (tuỳ chọn) mark read
+                loadNotifications();
+                // Nếu muốn chỉ mark read khi người dùng bấm nút riêng thì bỏ dòng dưới:
+                // markAllRead();
+            }
+        }
+
+        // Tải khi trang mở & refresh định kỳ
+        document.addEventListener('DOMContentLoaded', () => {
+            loadNotifications();
+            // fallback polling mỗi 30s (nếu chưa dùng realtime)
+            setInterval(loadNotifications, 30000);
+        });
+    </script>
 
     <script>
     document.addEventListener('DOMContentLoaded', function () {

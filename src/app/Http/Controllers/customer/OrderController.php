@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\admin\Order;
+use App\Notifications\OrderConfirmedNotification;
 
 class OrderController extends Controller
 {
@@ -88,5 +89,13 @@ class OrderController extends Controller
         ];
 
         return response()->json($payload);
+    }
+
+    public function confirm($orderId) {
+        $order = Order::with('user')->findOrFail($orderId);
+        // ... logic xác nhận
+
+        $order->user->notify(new OrderConfirmedNotification($order->order_code, $order->product_name));
+        // ...
     }
 }

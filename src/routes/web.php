@@ -23,6 +23,7 @@ use App\Http\Controllers\customer\ProductController;     // ✅ chỉ 1 import
 use App\Http\Controllers\customer\CartController;
 use App\Http\Controllers\customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\customer\PromotionController;
+use App\Http\Controllers\customer\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -193,11 +194,12 @@ Route::get('/css/app.css', function () {
 
 /*
 |--------------------------------------------------------------------------
-| PAYMENT (checkout + VNPAY)
+| Notification
 |--------------------------------------------------------------------------
 */
-Route::get('/checkout', function () {
-    return view('checkout');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/customer/notifications', [NotificationController::class, 'list'])->name('customer.notifications');
+    Route::post('/customer/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('customer.notifications.read_all');
+    Route::post('/customer/notifications/{id}/read', [NotificationController::class, 'markOneRead'])->name('customer.notifications.read_one');
+    Route::delete('/customer/notifications/{id}', [NotificationController::class, 'remove'])->name('customer.notifications.remove');
 });
-Route::post('/vnpay-payment', [PaymentController::class, 'createPayment']);
-Route::get('/vnpay-return',  [PaymentController::class, 'returnPayment']);
