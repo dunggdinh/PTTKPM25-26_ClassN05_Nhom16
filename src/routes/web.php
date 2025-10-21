@@ -32,7 +32,9 @@ use App\Http\Controllers\customer\PromotionController;
 
 // /customer/product dùng Controller -> trả view có $products, $categories
 Route::get('/customer/product', [ProductController::class, 'index'])
-    ->name('customer.product'); // ✅ chỉ 1 route này cho /customer/product
+    ->name('customer.product');
+ // ✅ chỉ 1 route này cho /customer/product
+
 
 // Nhóm /products (API JSON dùng chung controller)
 Route::prefix('products')->name('products.')->group(function () {
@@ -46,17 +48,16 @@ Route::prefix('products')->name('products.')->group(function () {
 | CART (top-level, yêu cầu đăng nhập)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth'])->group(function () {
-    // Trang giỏ + JSON cho UI
-    Route::get('/cart',              [CartController::class, 'index'])->name('customer.cart');
-    Route::get('/cart/data',         [CartController::class, 'data'])->name('customer.cart.data');
+Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(function () {
+    Route::get('/cart',              [CartController::class, 'index'])->name('cart');
+    Route::get('/cart/data',         [CartController::class, 'data'])->name('cart.data');
 
-    // API thao tác giỏ
-    Route::post('/cart/add',         [CartController::class, 'add'])->name('customer.cart.add');
-    Route::patch('/cart/item/{id}',  [CartController::class, 'updateItem'])->name('customer.cart.update');
-    Route::delete('/cart/item/{id}', [CartController::class, 'removeItem'])->name('customer.cart.remove');
-    Route::delete('/cart/clear',     [CartController::class, 'clear'])->name('customer.cart.clear');
+    Route::post('/cart/add',         [CartController::class, 'add'])->name('cart.add');
+    Route::patch('/cart/item/{id}',  [CartController::class, 'updateItem'])->name('cart.update');
+    Route::delete('/cart/item/{id}', [CartController::class, 'removeItem'])->name('cart.remove');
+    Route::delete('/cart/clear',     [CartController::class, 'clear'])->name('cart.clear');
 });
+
 
 /*
 |--------------------------------------------------------------------------
