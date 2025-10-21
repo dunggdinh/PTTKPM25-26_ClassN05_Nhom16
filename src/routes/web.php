@@ -31,8 +31,8 @@ use App\Http\Controllers\customer\PromotionController;
 */
 
 // /customer/product dùng Controller -> trả view có $products, $categories
-Route::get('/user/product', [ProductController::class, 'index'])
-    ->name('user.product'); // ✅ chỉ 1 route này cho /customer/product
+Route::get('/customer/product', [ProductController::class, 'index'])
+    ->name('customer.product'); // ✅ chỉ 1 route này cho /customer/product
 
 // Nhóm /products (API JSON dùng chung controller)
 Route::prefix('products')->name('products.')->group(function () {
@@ -108,6 +108,7 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/test-auth', function () {
     dd(Auth::user());
 })->middleware('auth');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -199,5 +200,4 @@ Route::get('/css/app.css', function () {
 Route::get('/checkout', function () {
     return view('checkout');
 });
-Route::post('/vnpay-payment', [PaymentController::class, 'createPayment']);
-Route::get('/vnpay-return',  [PaymentController::class, 'returnPayment']);
+
