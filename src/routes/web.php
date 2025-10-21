@@ -100,6 +100,8 @@ Route::prefix('auth')->name('auth.')->group(function () {
 
 });
 
+// Thêm
+// Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 
 // Nhóm route customer
 // Route::prefix('customer')->group(function () {
@@ -112,8 +114,12 @@ Route::prefix('customer')->name('customer.')->group(function () {
     Route::view('/order', 'customer.order');
     Route::view('/review', 'customer.review');
     Route::view('/support', 'customer.support');
-    Route::view('/profile', 'customer.profile');
+    Route::view('/profile', 'customer.profile'); Cmt để tránh ghi đè
 });
+
+// Route::get('/profile', [ProfileController::class, 'show'])->name('customer.profile');
+// Route::post('/profile', [ProfileController::class, 'update'])->name('customer.profile.update');
+// Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('customer.profile.password');
 
 // Serve static files
 Route::get('/css/app.css', function () {

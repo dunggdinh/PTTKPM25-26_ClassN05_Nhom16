@@ -72,4 +72,78 @@ class ProfileController extends Controller
 
         return back()->with('success', 'Đổi mật khẩu thành công!');
     }
-}
+} 
+// Lỗi
+
+
+// namespace App\Http\Controllers\customer;
+
+// use App\Http\Controllers\Controller;
+// use Illuminate\Http\Request;
+// use Illuminate\Support\Facades\Auth;
+// use Illuminate\Support\Facades\Hash;
+
+// class ProfileController extends Controller
+// {
+//     public function __construct()
+//     {
+//         // Bắt buộc đăng nhập mới vào được profile
+//         $this->middleware('auth');
+//     }
+
+//     // Hiển thị hồ sơ của CHÍNH mình
+//     public function show()
+//     {
+//         $user = Auth::user();
+        
+//         // Kiểm tra thêm để đảm bảo user tồn tại
+//         if (!$user) {
+//             return redirect()->route('auth.login')
+//                 ->withErrors(['error' => 'Vui lòng đăng nhập để xem hồ sơ.']);
+//         }
+        
+//         return view('customer.profile', compact('user'));
+//     }
+
+//     // Cập nhật thông tin cơ bản
+//     public function update(Request $request)
+//     {
+//         $user = Auth::user();
+
+//         $validated = $request->validate([
+//             'name'       => 'required|string|max:255',
+//             'email'      => 'required|email|max:255|unique:users,email,' . $user->user_id . ',user_id',
+//             'phone'      => 'nullable|string|max:20',
+//             'address'    => 'nullable|string|max:255',
+//             'birth_date' => 'nullable|date',
+//             'gender'     => 'nullable|in:male,female,other',
+//         ]);
+
+//         $user->fill($validated);
+//         $user->save();
+
+//         return back()->with('success', 'Cập nhật hồ sơ thành công!');
+//     }
+
+//     // Đổi mật khẩu
+//     public function updatePassword(Request $request)
+//     {
+//         $request->validate([
+//             'current_password' => 'required',
+//             'password'         => 'required|min:8|confirmed',
+//         ], [
+//             'password.confirmed' => 'Xác nhận mật khẩu mới không khớp.',
+//         ]);
+
+//         $user = Auth::user();
+
+//         if (!Hash::check($request->current_password, $user->password)) {
+//             return back()->withErrors(['current_password' => 'Mật khẩu hiện tại không đúng.']);
+//         }
+
+//         $user->password = Hash::make($request->password);
+//         $user->save();
+
+//         return back()->with('success', 'Đổi mật khẩu thành công!');
+//     }
+// }
