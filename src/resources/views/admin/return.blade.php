@@ -156,7 +156,9 @@
                             <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                         </td>
                         <td class="px-6 py-4 font-medium text-gray-900">{{ $item->return_id }}</td>
-                        <td class="px-6 py-4">{{ $item->order_item_id }}</td>
+                        <!-- <td class="px-6 py-4">{{ $item->order_item_id }}</td> -->
+                        <td class="px-6 py-4">{{ $item->customer->name ?? 'Không xác định' }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ $item->type }}</td>
                         <td class="px-6 py-4 text-sm text-gray-900">{{ $item->reason }}</td>
                         <td class="px-6 py-4 text-sm">
                             <span class="px-2 py-1 text-xs rounded-full
