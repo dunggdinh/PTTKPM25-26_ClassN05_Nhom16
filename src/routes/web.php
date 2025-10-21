@@ -35,7 +35,6 @@ Route::get('/customer/product', [ProductController::class, 'index'])
     ->name('customer.product');
  // ✅ chỉ 1 route này cho /customer/product
 
-
 // Nhóm /products (API JSON dùng chung controller)
 Route::prefix('products')->name('products.')->group(function () {
     Route::get('/', [ProductController::class, 'index'])->name('index');                       // /products
@@ -109,7 +108,6 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/test-auth', function () {
     dd(Auth::user());
 })->middleware('auth');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -186,6 +184,7 @@ Route::prefix('auth')->name('auth.')->group(function () {
     // LOGOUT
     Route::post('/logout', [AuthController::class,'logout'])->name('logout');
 });
+
 // Thêm
 // Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 
@@ -208,6 +207,7 @@ Route::prefix('customer')->name('customer.')->group(function () {
 // Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('customer.profile.password');
 
 // Serve static files
+
 /*
 |--------------------------------------------------------------------------
 | STATIC FILES
@@ -217,3 +217,4 @@ Route::get('/css/app.css', function () {
     $path = resource_path('css/app.css');
     return Response::make(File::get($path), 200, ['Content-Type' => 'text/css']);
 });
+

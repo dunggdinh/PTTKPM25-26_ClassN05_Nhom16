@@ -55,8 +55,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
 
         // 👉 alias bạn cần để khóa trang admin
-        // 'auth' => \App\Http\Middleware\Authenticate::class,
         'ensure.admin' => \App\Http\Middleware\EnsureAdmin::class,
-
     ];
 }

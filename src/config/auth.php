@@ -59,10 +59,6 @@ return [
     |
     */
 
-
-// Test
-
-
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
@@ -74,13 +70,6 @@ return [
         //     'table' => 'users',
         // ],
     ],
-// Test
-    // 'providers' => [
-    //     'users' => [
-    //         'driver' => 'eloquent',
-    //         'model' => App\Models\User::class,
-    //     ],
-    // ],
 
     /*
     |--------------------------------------------------------------------------
