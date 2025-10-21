@@ -116,7 +116,8 @@ Route::get('/test-auth', function () {
 | ADMIN (prefix /admin)
 |--------------------------------------------------------------------------
 */
-Route::prefix('admin')->name('admin.')->middleware(['auth','ensure.admin'])->group(function () {
+// Route::prefix('admin')->name('admin.')->middleware(['auth','ensure.admin'])->group(function () {
+Route::prefix('admin')->name('admin.')->group(function () {
     // Lưu ý: trong group đã có prefix name "admin.", bên trong đặt name ngắn gọn để tránh "admin.admin.*"
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::view('/support', 'admin.support')->name('support');
@@ -143,8 +144,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','ensure.admin'])->gro
     // Orders
     Route::get('/order', [OrderController::class, 'index'])->name('order');
     Route::get('/order/export', [OrderController::class, 'exportExcel'])->name('order.export');
-    Route::put('/order/{id}/update-status', [OrderController::class, 'updateStatus'])->name('order.updateStatus');
-    Route::get('/orders/{id}', [OrderController::class, 'show'])->name('order.show');
+    Route::put('order/{id}/update-status', [OrderController::class, 'updateStatus'])->name('order.updateStatus');
     Route::delete('/orders/{id}', [OrderController::class, 'destroy'])->name('order.destroy');
     Route::get('/order/reload', [OrderController::class, 'reload'])->name('order.reload');
 

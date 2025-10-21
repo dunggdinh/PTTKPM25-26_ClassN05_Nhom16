@@ -64,52 +64,33 @@ class OrderController extends Controller
             'orders', 'totalOrders', 'pendingOrders', 'completedOrders', 'revenue'
         ));
     }
+    public function destroy($id)
+    {
+        $order = Order::with('orderItems')->findOrFail($id);
 
-    /**
-     * ✅ Cập nhật trạng thái đơn hàng
-     */
+        // Nếu muốn xóa luôn các OrderItems liên quan
+        foreach ($order->orderItems as $item) {
+            $item->delete();
+        }
+
+        $order->delete();
+
+        return redirect()->back()->with('success', 'Đơn hàng đã được xóa.');
+    }
+
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|string'
+            'status' => 'required|in:Chờ xử lý,Đang giao,Đã giao,Đã hủy'
         ]);
 
         $order = Order::findOrFail($id);
         $order->status = $request->status;
         $order->save();
 
-        return redirect()->back()->with('success', 'Cập nhật trạng thái đơn hàng thành công!');
+        return redirect()->back()->with('success', 'Cập nhật trạng thái thành công!');
     }
 
-    /**
-     * ❌ Xóa đơn hàng
-     */
-    public function destroy($id)
-    {
-        $order = Order::findOrFail($id);
-        $order->delete();
-
-        return redirect()->back()->with('success', 'Xóa đơn hàng thành công!');
-    }
-
-    /**
-     * ⬇ Xuất danh sách đơn hàng ra Excel
-     */
-    public function exportExcel()
-    {
-        return Excel::download(new OrderExport, 'orders.xlsx');
-    }
-
-
-    public function show($id)
-    {
-        // Lấy đơn hàng cùng với thông tin khách hàng và các sản phẩm trong đơn
-        $order = Order::with(['user', 'orderItems.product'])
-                    ->where('order_id', $id)
-                    ->firstOrFail();
-
-        return view('admin.order_show', compact('order'));
-    }
     public function reload()
     {
         $orders = Order::with(['user', 'orderItems.product'])
@@ -122,11 +103,10 @@ class OrderController extends Controller
 
             // Trạng thái với màu
             $statusColors = [
-                'pending' => 'bg-yellow-100 text-yellow-800',
-                'processing' => 'bg-blue-100 text-blue-800',
-                'shipped' => 'bg-purple-100 text-purple-800',
-                'delivered' => 'bg-green-100 text-green-800',
-                'cancelled' => 'bg-red-100 text-red-800',
+                'Chờ xử lý' => 'bg-yellow-100 text-yellow-800',
+                'Đang giao' => 'bg-blue-100 text-blue-800',
+                'Đã giao' => 'bg-green-100 text-green-800',
+                'Đã hủy' => 'bg-red-100 text-red-800',
             ];
             $statusClass = $statusColors[$order->status] ?? 'bg-gray-100 text-gray-800';
 
