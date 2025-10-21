@@ -1,4 +1,4 @@
-<?php
+  <?php
 
 namespace App\Models\admin;
 
@@ -21,6 +21,8 @@ class CartItem extends Model
         'quantity',
     ];
 
+    protected $with = ['product']; // auto load product để render UI
+
     public function cart()
     {
         return $this->belongsTo(Cart::class, 'cart_id', 'cart_id');
@@ -29,5 +31,9 @@ class CartItem extends Model
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id', 'product_id');
+    }
+    public static function newId(): string
+    {
+        return 'CI_'.str_pad((string)random_int(1, 99999), 5, '0', STR_PAD_LEFT);
     }
 }
