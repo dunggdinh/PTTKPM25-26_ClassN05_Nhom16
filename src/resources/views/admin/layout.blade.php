@@ -100,7 +100,7 @@
             </a>
             <div class="menu-divider"></div>
 
-            <a href="/admin/customer" class="menu-item flex items-center px-6 py-4 text-gray-600 hover:bg-gray-100">
+            <a href="/admin/user" class="menu-item flex items-center px-6 py-4 text-gray-600 hover:bg-gray-100">
                 <span class="mr-4 text-lg">👥</span>
                 <span class="text-base">Quản lý người dùng</span>
             </a>
@@ -163,7 +163,7 @@
     <script>
         const routes = {
             'Dashboard': '/admin/dashboard',
-            'Quản lý người dùng': '/admin/customer',
+            'Quản lý người dùng': '/admin/user',
             'Quản lý kho': '/admin/inventory',
             'Quản lý đơn hàng': '/admin/order',
             'Đổi/Trả hàng': '/admin/return',

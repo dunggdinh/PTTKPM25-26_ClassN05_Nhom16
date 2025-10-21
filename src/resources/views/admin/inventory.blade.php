@@ -4,7 +4,6 @@
 <div class="bg-gradient-to-br from-blue-50 to-indigo-100">
     <main class="container mx-auto px-4 py-8 max-w-7xl">
         <!-- Main Content -->
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <!-- Page Title -->
             <div class="mb-8">
                 <h1 class="text-3xl font-bold text-gray-900">Quản Lý Kho</h1>
@@ -213,12 +212,9 @@
 
                     </table>
                     <div class="flex flex-col items-center mt-4 bg-white px-4 py-2 rounded-b-xl">
-                        <!-- Nút Previous / Next -->
                         <div>
                             {{ $products->withQueryString()->links('pagination::simple-tailwind') }}
                         </div>
-
-                        <!-- Chữ hiển thị trang hiện tại -->
                         <div class="text-sm text-gray-500 mt-1">
                             Trang {{ $products->currentPage() }} / {{ $products->lastPage() }}
                         </div>
@@ -227,7 +223,6 @@
 
                 </div>
             </div>
-        </main>
     </div>
     <!-- Export Excel Modal -->
     <div id="exportProductModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">

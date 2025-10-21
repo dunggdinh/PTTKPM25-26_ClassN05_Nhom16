@@ -16,9 +16,9 @@ class Order extends Model
         'shipping_address', 'created_at',
     ];
 
-    public function Customer()
+    public function User()
     {
-        return $this->belongsTo(Customer::class, 'user_id', 'user_id');
+        return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
 
     public function Supplier()

@@ -11,6 +11,12 @@ use App\Models\admin\Customer; // hoặc App\Models\User nếu bạn dùng User 
 
 class ProfileController extends Controller
 {
+    public function index()
+    {
+        $user = Auth::user();
+        return view('customer.profile', compact('user'));
+    }
+
     public function __construct()
     {
         // bắt buộc đăng nhập mới vào được profile
@@ -72,6 +78,7 @@ class ProfileController extends Controller
 
         return back()->with('success', 'Đổi mật khẩu thành công!');
     }
+<<<<<<< HEAD
 } 
 // Lỗi
 
@@ -147,3 +154,21 @@ class ProfileController extends Controller
 //         return back()->with('success', 'Đổi mật khẩu thành công!');
 //     }
 // }
+=======
+    public function getUsername()
+    {
+        $user = Auth::user();
+
+        // Nếu cột lưu tên là 'name' thì:
+        return response()->json([
+            'username' => $user->name,
+        ]);
+
+        // Hoặc nếu cột là 'username' thì:
+        // return response()->json(['username' => $user->username]);
+    }
+
+}
+
+
+>>>>>>> 08f49c4fe2cbf8a2278695ac29cc7b4c4a4d7aed

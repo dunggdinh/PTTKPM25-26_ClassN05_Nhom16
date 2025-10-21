@@ -5,7 +5,7 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\admin\Order;
-use App\Models\admin\Customer;
+use App\Models\admin\User;
 use App\Models\admin\Product;
 use App\Models\admin\OrderItem;
 use Carbon\Carbon;
@@ -22,7 +22,7 @@ class DashboardController extends Controller
         $totalOrders = Order::count();
 
         // ==== Khách hàng ====
-        $totalCustomers = Customer::where('role', 'customer')->count();
+        $totalCustomers = User::where('role', 'customer')->count();
 
         // ==== Sản phẩm ====
         $totalProducts = Product::count();
