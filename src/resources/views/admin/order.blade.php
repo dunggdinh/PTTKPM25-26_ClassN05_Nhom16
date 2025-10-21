@@ -60,64 +60,66 @@
             </div>
         </div>
 
-        <!-- Filters and Search -->
-        <div class="bg-white rounded-xl shadow-sm border p-6 mb-6">
-            <form action="{{ route('admin.order') }}" class="flex flex-col sm:flex-row gap-4 items-end">
-                <!-- Ô tìm kiếm -->
-                <div class="flex-1">
-                    <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Tìm Kiếm</label>
-                    <input type="text" name="search" id="search"
-                        value="{{ request('search') }}"
-                        placeholder="Tìm theo mã đơn, tên khách hàng..."
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                </div>
+            <div class="bg-white rounded-xl shadow-md">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Danh sách đơn hàng</h2>
+                    <!-- Filters and Search -->
+                        <form method="GET" action="{{ route('admin.order') }}" 
+                            class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
 
-                <!-- Lọc trạng thái -->
-                <div class="w-full sm:w-40">
-                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Trạng Thái</label>
-                    <select name="status" id="status"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>Tất cả</option>
-                        <option value="Chờ xử lý" {{ request('status') == 'Chờ xử lý' ? 'selected' : '' }}>Chờ xử lý</option>
-                        <option value="Đang giao" {{ request('status') == 'Đang giao' ? 'selected' : '' }}>Đang giao</option>
-                        <option value="Đã giao" {{ request('status') == 'Đã giao' ? 'selected' : '' }}>Đã giao</option>
-                        <option value="Đã hủy" {{ request('status') == 'Đã hủy' ? 'selected' : '' }}>Đã hủy</option>
-                    </select>
-                </div>
+                            <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+                                <div class="relative">
+                                    <input type="text" name="search" placeholder="Tìm kiếm đơn hàng..." 
+                                        class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent w-full md:w-64"
+                                        value="{{ request('search') }}">
+                                    <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                </div>
 
-                <!-- Lọc theo thời gian -->
-                <div class="w-full sm:w-36">
-                    <label for="date" class="block text-sm font-medium text-gray-700 mb-2">Thời Gian</label>
-                    <select name="date" id="date"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Tất cả</option>
-                        <option value="today" {{ request('date') == 'today' ? 'selected' : '' }}>Hôm nay</option>
-                        <option value="week" {{ request('date') == 'week' ? 'selected' : '' }}>Tuần này</option>
-                        <option value="month" {{ request('date') == 'month' ? 'selected' : '' }}>Tháng này</option>
-                    </select>
-                </div>
+                                <!-- Lọc trạng thái -->
+                                <select name="status" id="status"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">Tất cả trạng thái</option>
+                                    <option value="Chờ xử lý" {{ request('status') == 'Chờ xử lý' ? 'selected' : '' }}>Chờ xử lý</option>
+                                    <option value="Đang giao" {{ request('status') == 'Đang giao' ? 'selected' : '' }}>Đang giao</option>
+                                    <option value="Đã giao" {{ request('status') == 'Đã giao' ? 'selected' : '' }}>Đã giao</option>
+                                    <option value="Đã hủy" {{ request('status') == 'Đã hủy' ? 'selected' : '' }}>Đã hủy</option>
+                                </select>
 
-                <!-- Nút tìm kiếm -->
-                <button type="submit"
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors whitespace-nowrap">
-                    🔍 Tìm Kiếm
-                </button>
+                                <!-- Lọc theo thời gian -->
+                                <select name="date" id="date"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">Tất cả</option>
+                                    <option value="today" {{ request('date') == 'today' ? 'selected' : '' }}>Hôm nay</option>
+                                    <option value="week" {{ request('date') == 'week' ? 'selected' : '' }}>Tuần này</option>
+                                    <option value="month" {{ request('date') == 'month' ? 'selected' : '' }}>Tháng này</option>
+                                </select>
+                            </div>
 
-                <!-- Nút xuất Excel -->
-                <a href="{{ route('admin.order.export') }}"
-                class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors whitespace-nowrap">
-                    ⬇ Xuất Excel
-                </a>
+                            <div class="flex space-x-3">
+                                <button onclick="exportInventory()" class="bg-green-600 hover:bg-green-700 text-white border border-green-600 px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    <span>Xuất Excel</span>
+                                </button>
+
+                                <a href="{{ route('admin.order') }}"
+                                    class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                    </svg>
+                                    <span>Làm mới</span>
+                                </a>
+                            </div>
+
             </form>
         </div>
-
-
-        <!-- Orders Table -->
-        <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-900">Danh Sách Đơn Hàng</h2>
-            </div>
-            
+        <!-- Orders Table -->          
             <div class="overflow-x-auto">
                 <table class="w-full border border-gray-200 rounded-lg">
                     <thead class="bg-gray-50">
@@ -133,34 +135,18 @@
                         </tr>
                     </thead>
 
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody id="orderTable" class="bg-white divide-y divide-gray-200">
                         @forelse ($orders as $order)
-                            <tr>
-
-                                <!-- Mã đơn -->
-                                <td class="px-6 py-4 text-sm font-medium text-gray-900">
-                                    {{ $order->order_id }}
-                                </td>
-
-                                <!-- Khách hàng -->
-                                <td class="px-6 py-4 text-sm text-gray-700">
-                                    {{ $order->customer->name ?? 'Không xác định' }}
-                                </td>
-
-                                <!-- Sản phẩm -->
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4 text-sm text-gray-900 font-medium">{{ $order->order_id }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-700">{{ $order->user->name ?? 'Không xác định' }}</td>
                                 <td class="px-6 py-4 text-sm text-gray-700">
                                     @foreach ($order->orderItems as $item)
                                         <div>{{ $item->product->name ?? 'Sản phẩm không tồn tại' }} (x{{ $item->quantity }})</div>
                                     @endforeach
                                 </td>
+                                <td class="px-6 py-4 text-sm text-gray-700">{{ number_format($order->total_amount, 0, ',', '.') }} ₫</td>
 
-
-                                <!-- Tổng tiền -->
-                                <td class="px-6 py-4 text-sm text-gray-700">
-                                    {{ number_format($order->total_amount, 0, ',', '.') }} ₫
-                                </td>
-
-                                <!-- Trạng thái -->
                                 <td class="px-6 py-4 text-sm">
                                     @php
                                         $statusColors = [
@@ -176,666 +162,91 @@
                                     </span>
                                 </td>
 
-                                <!-- Địa chỉ -->
+                                <td class="px-6 py-4 text-sm text-gray-700">{{ $order->shipping_address }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-700">{{ \Carbon\Carbon::parse($order->created_at)->format('d/m/Y H:i') }}</td>
+                                
                                 <td class="px-6 py-4 text-sm text-gray-700">
-                                    {{ $order->shipping_address }}
-                                </td>
-
-                                <!-- Ngày đặt -->
-                                <td class="px-6 py-4 text-sm text-gray-700">
-                                    {{ \Carbon\Carbon::parse($order->created_at)->format('d/m/Y H:i') }}
-                                </td>
-
-                                <!-- Thao tác -->
-                                <td class="px-6 py-4 text-sm text-gray-700">
-                                    <a href="{{ route('admin.order.show', $order->order_id) }}" class="text-blue-600 hover:underline">Xem</a>
-                                    <form action="{{ route('admin.order.destroy', $order->order_id) }}" method="POST" onsubmit="return confirm('Xóa đơn hàng này?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:underline">Xóa</button>
-                                    </form>
+                                    <div class="flex space-x-2">
+                                        <a href="{{ route('admin.order.show', $order->order_id) }}" class="text-blue-600 hover:underline">Xem</a>
+                                        <form action="{{ route('admin.order.destroy', $order->order_id) }}" method="POST" onsubmit="return confirm('Xóa đơn hàng này?')" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-600 hover:underline">Xóa</button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9" class="text-center py-6 text-gray-500">Không có đơn hàng nào.</td>
+                                <td colspan="8" class="px-6 py-4 text-center text-gray-500 text-sm">Không có đơn hàng nào.</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
-            </div>
-
-
-
-            <!-- Pagination -->
-            <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-                <div class="text-sm text-gray-700">
-                    Hiển thị <span class="font-medium">1</span> đến <span class="font-medium">10</span> 
-                    trong tổng số <span class="font-medium">247</span> đơn hàng
-                </div>
-                <div class="flex items-center gap-2">
-                    <button class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50" disabled>
-                        Trước
-                    </button>
-                    <button class="px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md">1</button>
-                    <button class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">2</button>
-                    <button class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">3</button>
-                    <button class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-                        Sau
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Export Excel Modal -->
-        <div id="export-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
-            <div class="flex items-center justify-center min-h-screen p-4">
-                <div class="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                    <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-green-100 p-2 rounded-lg">
-                                <span class="text-xl">📊</span>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-900">Xuất dữ liệu Excel</h3>
-                                <p class="text-sm text-gray-600">Tùy chỉnh dữ liệu xuất theo nhu cầu</p>
-                            </div>
-                        </div>
-                        <button onclick="closeExportModal()" class="text-gray-400 hover:text-gray-600">
-                            <span class="text-2xl">×</span>
-                        </button>
-                    </div>
-                    
-                    <div class="p-6">
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <!-- Left Column -->
-                            <div class="space-y-6">
-                                <!-- Phạm vi xuất -->
-                                <div>
-                                    <h4 class="font-semibold text-gray-900 mb-3">Phạm vi xuất</h4>
-                                    <div class="space-y-2">
-                                        <label class="flex items-center">
-                                            <input type="radio" name="export-range" value="all" checked class="text-blue-600 focus:ring-blue-500">
-                                            <span class="ml-2 text-sm text-gray-700">Tất cả đơn hàng (247 đơn hàng)</span>
-                                        </label>
-                                        <label class="flex items-center">
-                                            <input type="radio" name="export-range" value="current" class="text-blue-600 focus:ring-blue-500">
-                                            <span class="ml-2 text-sm text-gray-700">Kết quả hiện tại (5 đơn hàng)</span>
-                                        </label>
-                                        <label class="flex items-center">
-                                            <input type="radio" name="export-range" value="selected" class="text-blue-600 focus:ring-blue-500">
-                                            <span class="ml-2 text-sm text-gray-700">Đơn hàng đã chọn (<span id="selected-count">0</span> đơn hàng)</span>
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <!-- Định dạng file -->
-                                <div>
-                                    <label for="file-format" class="block text-sm font-medium text-gray-700 mb-2">Định dạng file</label>
-                                    <select id="file-format" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                        <option value="xlsx">Excel (.xlsx)</option>
-                                        <option value="csv">CSV (.csv)</option>
-                                    </select>
-                                </div>
-
-                                <!-- Tên file -->
-                                <div>
-                                    <label for="file-name" class="block text-sm font-medium text-gray-700 mb-2">Tên file</label>
-                                    <input type="text" id="file-name" value="danh-sach-don-hang" 
-                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                    <p class="text-xs text-gray-500 mt-1">Tên file sẽ được thêm ngày tháng tự động</p>
-                                </div>
-
-                                <!-- Lọc theo trạng thái -->
-                                <div>
-                                    <h4 class="font-semibold text-gray-900 mb-3">Lọc theo trạng thái</h4>
-                                    <div class="space-y-2">
-                                        <label class="flex items-center">
-                                            <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500 rounded">
-                                            <span class="ml-2 text-sm text-gray-700">Chờ xử lý</span>
-                                        </label>
-                                        <label class="flex items-center">
-                                            <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500 rounded">
-                                            <span class="ml-2 text-sm text-gray-700">Đang xử lý</span>
-                                        </label>
-                                        <label class="flex items-center">
-                                            <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500 rounded">
-                                            <span class="ml-2 text-sm text-gray-700">Đã gửi hàng</span>
-                                        </label>
-                                        <label class="flex items-center">
-                                            <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500 rounded">
-                                            <span class="ml-2 text-sm text-gray-700">Đã giao</span>
-                                        </label>
-                                        <label class="flex items-center">
-                                            <input type="checkbox" class="text-blue-600 focus:ring-blue-500 rounded">
-                                            <span class="ml-2 text-sm text-gray-700">Đã hủy</span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Right Column -->
-                            <div class="space-y-6">
-                                <!-- Chọn cột xuất -->
-                                <div>
-                                    <h4 class="font-semibold text-gray-900 mb-3">Chọn cột xuất</h4>
-                                    <div class="border rounded-lg p-4 max-h-64 overflow-y-auto">
-                                        <div class="space-y-2">
-                                            <label class="flex items-center">
-                                                <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500 rounded">
-                                                <span class="ml-2 text-sm text-gray-700">Mã đơn hàng</span>
-                                            </label>
-                                            <label class="flex items-center">
-                                                <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500 rounded">
-                                                <span class="ml-2 text-sm text-gray-700">Tên khách hàng</span>
-                                            </label>
-                                            <label class="flex items-center">
-                                                <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500 rounded">
-                                                <span class="ml-2 text-sm text-gray-700">Email</span>
-                                            </label>
-                                            <label class="flex items-center">
-                                                <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500 rounded">
-                                                <span class="ml-2 text-sm text-gray-700">Số điện thoại</span>
-                                            </label>
-                                            <label class="flex items-center">
-                                                <input type="checkbox" class="text-blue-600 focus:ring-blue-500 rounded">
-                                                <span class="ml-2 text-sm text-gray-700">Địa chỉ</span>
-                                            </label>
-                                            <label class="flex items-center">
-                                                <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500 rounded">
-                                                <span class="ml-2 text-sm text-gray-700">Sản phẩm</span>
-                                            </label>
-                                            <label class="flex items-center">
-                                                <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500 rounded">
-                                                <span class="ml-2 text-sm text-gray-700">Tổng tiền</span>
-                                            </label>
-                                            <label class="flex items-center">
-                                                <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500 rounded">
-                                                <span class="ml-2 text-sm text-gray-700">Trạng thái</span>
-                                            </label>
-                                            <label class="flex items-center">
-                                                <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500 rounded">
-                                                <span class="ml-2 text-sm text-gray-700">Ngày đặt</span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="flex gap-2 mt-3">
-                                        <button onclick="selectAllColumns()" class="text-sm text-blue-600 hover:text-blue-800">Chọn tất cả</button>
-                                        <button onclick="deselectAllColumns()" class="text-sm text-gray-600 hover:text-gray-800">Bỏ chọn tất cả</button>
-                                    </div>
-                                </div>
-
-                                <!-- Tùy chọn bổ sung -->
-                                <div>
-                                    <h4 class="font-semibold text-gray-900 mb-3">Tùy chọn bổ sung</h4>
-                                    <div class="space-y-2">
-                                        <label class="flex items-center">
-                                            <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500 rounded">
-                                            <span class="ml-2 text-sm text-gray-700">Bao gồm tiêu đề cột</span>
-                                        </label>
-                                        <label class="flex items-center">
-                                            <input type="checkbox" checked class="text-blue-600 focus:ring-blue-500 rounded">
-                                            <span class="ml-2 text-sm text-gray-700">Thêm thời gian xuất</span>
-                                        </label>
-                                        <label class="flex items-center">
-                                            <input type="checkbox" class="text-blue-600 focus:ring-blue-500 rounded">
-                                            <span class="ml-2 text-sm text-gray-700">Thêm thống kê tổng quan</span>
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <!-- Xem trước -->
-                                <div class="bg-gray-50 rounded-lg p-4">
-                                    <h5 class="font-medium text-gray-900 mb-2">Xem trước thông tin xuất</h5>
-                                    <div class="text-sm text-gray-600 space-y-1">
-                                        <div>Sẽ xuất: <span class="font-medium">247 đơn hàng</span></div>
-                                        <div>Định dạng: <span class="font-medium">Excel (.xlsx)</span></div>
-                                        <div>Cột: <span class="font-medium">8 cột</span></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Footer Actions -->
-                        <div class="flex items-center justify-between pt-6 border-t border-gray-200 mt-6">
-                            <div class="flex items-center text-sm text-gray-500">
-                                <span class="mr-1">📎</span>
-                                File sẽ được tải xuống tự động
-                            </div>
-                            <div class="flex gap-3">
-                                <button onclick="closeExportModal()" 
-                                        class="px-6 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium">
-                                    Hủy
-                                </button>
-                                <button onclick="exportToExcel()" 
-                                        class="px-6 py-2 text-white bg-green-600 hover:bg-green-700 rounded-lg font-medium flex items-center gap-2">
-                                    <span>📊</span>
-                                    Xuất Excel
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Order Detail Modal -->
-        <div id="order-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
-            <div class="flex items-center justify-center min-h-screen p-4">
-                <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                    <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                        <h3 class="text-lg font-semibold text-gray-900">Chi Tiết Đơn Hàng</h3>
-                        <button onclick="closeOrderModal()" class="text-gray-400 hover:text-gray-600">
-                            <span class="text-2xl">×</span>
-                        </button>
-                    </div>
-                    <div id="order-detail-content" class="p-6">
-                        <!-- Order details will be populated here -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <script>
-
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('vi-VN', {
-                style: 'currency',
-                currency: 'VND'
-            }).format(amount);
-        }
-
-        function formatDate(dateString) {
-            return new Date(dateString).toLocaleDateString('vi-VN');
-        }
-
-        function getStatusBadge(status) {
-            return `<span class="px-2 py-1 text-xs font-medium rounded-full status-${status}">
-                ${statusLabels[status]}
-            </span>`;
-        }
-
-        function renderOrders(ordersToRender = orders) {
-            const tbody = document.getElementById('orders-table');
-            tbody.innerHTML = ordersToRender.map(order => `
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <input type="checkbox" class="order-checkbox text-blue-600 focus:ring-blue-500 rounded" 
-                               value="${order.id}" onchange="updateSelectedCount()">
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
-                        ${order.id}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-medium text-gray-900">${order.customer}</div>
-                        <div class="text-sm text-gray-500">${order.email}</div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="text-sm text-gray-900">
-                            ${order.products.length} sản phẩm
-                        </div>
-                        <div class="text-sm text-gray-500">
-                            ${order.products[0].name}${order.products.length > 1 ? '...' : ''}
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        ${formatCurrency(order.total)}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        ${getStatusBadge(order.status)}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        ${formatDate(order.date)}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div class="flex items-center gap-2">
-                            <button onclick="viewOrder('${order.id}')" 
-                                    class="text-blue-600 hover:text-blue-900">Xem</button>
-                            <button onclick="updateOrderStatus('${order.id}')" 
-                                    class="text-green-600 hover:text-green-900">Cập nhật</button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function viewOrder(orderId) {
-            const order = orders.find(o => o.id === orderId);
-            if (!order) return;
-
-            const content = `
-                <div class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="flex flex-col items-center mt-4 bg-white px-4 py-2 rounded-b-xl">
                         <div>
-                            <h4 class="font-semibold text-gray-900 mb-3">Thông Tin Đơn Hàng</h4>
-                            <div class="space-y-2 text-sm">
-                                <div><span class="font-medium">Mã đơn:</span> ${order.id}</div>
-                                <div><span class="font-medium">Ngày đặt:</span> ${formatDate(order.date)}</div>
-                                <div><span class="font-medium">Trạng thái:</span> ${getStatusBadge(order.status)}</div>
-                                <div><span class="font-medium">Tổng tiền:</span> ${formatCurrency(order.total)}</div>
-                            </div>
+                            {{ $orders->withQueryString()->links('pagination::simple-tailwind') }}
                         </div>
-                        <div>
-                            <h4 class="font-semibold text-gray-900 mb-3">Thông Tin Khách Hàng</h4>
-                            <div class="space-y-2 text-sm">
-                                <div><span class="font-medium">Tên:</span> ${order.customer}</div>
-                                <div><span class="font-medium">Email:</span> ${order.email}</div>
-                                <div><span class="font-medium">Điện thoại:</span> ${order.phone}</div>
-                                <div><span class="font-medium">Địa chỉ:</span> ${order.address}</div>
-                            </div>
+                        <div class="text-sm text-gray-500 mt-1">
+                            Trang {{ $orders->currentPage() }} / {{ $orders->lastPage() }}
                         </div>
-                    </div>
-                    
-                    <div>
-                        <h4 class="font-semibold text-gray-900 mb-3">Sản Phẩm</h4>
-                        <div class="border rounded-lg overflow-hidden">
-                            <table class="w-full text-sm">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-4 py-2 text-left">Sản phẩm</th>
-                                        <th class="px-4 py-2 text-center">Số lượng</th>
-                                        <th class="px-4 py-2 text-right">Đơn giá</th>
-                                        <th class="px-4 py-2 text-right">Thành tiền</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200">
-                                    ${order.products.map(product => `
-                                        <tr>
-                                            <td class="px-4 py-2">${product.name}</td>
-                                            <td class="px-4 py-2 text-center">${product.quantity}</td>
-                                            <td class="px-4 py-2 text-right">${formatCurrency(product.price)}</td>
-                                            <td class="px-4 py-2 text-right">${formatCurrency(product.price * product.quantity)}</td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    
-                    <div class="flex justify-end gap-3 pt-4 border-t">
-                        <button onclick="closeOrderModal()" 
-                                class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg">
-                            Đóng
-                        </button>
-                        <button onclick="updateOrderStatus('${order.id}')" 
-                                class="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg">
-                            Cập Nhật Trạng Thái
-                        </button>
                     </div>
                 </div>
-            `;
+            </div>
+        </div>   
+    </div>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const searchInput = document.querySelector("input[name='search']");
+    const statusFilter = document.querySelector("select[name='status']");
+    const dateFilter = document.querySelector("select[name='date']");
+    const reloadBtn = document.getElementById("reload-btn"); // nếu có nút reload
+    const tableBody = document.getElementById("orderTable");
 
-            document.getElementById('order-detail-content').innerHTML = content;
-            document.getElementById('order-modal').classList.remove('hidden');
+    // --- Lọc dữ liệu khi thay đổi ---
+    [statusFilter, dateFilter].forEach(select => {
+        if (select) {
+            select.addEventListener("change", () => applyFilters());
         }
+    });
 
-        function closeOrderModal() {
-            document.getElementById('order-modal').classList.add('hidden');
-        }
-
-        function updateOrderStatus(orderId) {
-            const order = orders.find(o => o.id === orderId);
-            if (!order) return;
-
-            const statusOptions = [
-                { value: 'pending', label: 'Chờ xử lý' },
-                { value: 'processing', label: 'Đang xử lý' },
-                { value: 'shipped', label: 'Đã gửi hàng' },
-                { value: 'delivered', label: 'Đã giao' },
-                { value: 'cancelled', label: 'Đã hủy' }
-            ];
-
-            const content = `
-                <div class="space-y-4">
-                    <div>
-                        <h4 class="font-semibold text-gray-900 mb-3">Cập Nhật Trạng Thái Đơn Hàng</h4>
-                        <p class="text-sm text-gray-600 mb-4">Đơn hàng: <span class="font-medium">${orderId}</span></p>
-                        
-                        <label for="new-status" class="block text-sm font-medium text-gray-700 mb-2">Trạng thái mới</label>
-                        <select id="new-status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            ${statusOptions.map(option => `
-                                <option value="${option.value}" ${option.value === order.status ? 'selected' : ''}>
-                                    ${option.label}
-                                </option>
-                            `).join('')}
-                        </select>
-                    </div>
-                    
-                    <div class="flex justify-end gap-3 pt-4 border-t">
-                        <button onclick="closeOrderModal()" 
-                                class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg">
-                            Hủy
-                        </button>
-                        <button onclick="saveOrderStatus('${orderId}')" 
-                                class="px-4 py-2 text-white bg-green-600 hover:bg-green-700 rounded-lg">
-                            Lưu Thay Đổi
-                        </button>
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('order-detail-content').innerHTML = content;
-            document.getElementById('order-modal').classList.remove('hidden');
-        }
-
-        function saveOrderStatus(orderId) {
-            const newStatus = document.getElementById('new-status').value;
-            const orderIndex = orders.findIndex(o => o.id === orderId);
-            
-            if (orderIndex !== -1) {
-                orders[orderIndex].status = newStatus;
-                renderOrders();
-                closeOrderModal();
-                
-                // Show success message
-                showNotification('Cập nhật trạng thái đơn hàng thành công!', 'success');
-            }
-        }
-
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 ${
-                type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
-            }`;
-            notification.textContent = message;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-
-        function filterOrders() {
-            const searchTerm = document.getElementById('search').value.toLowerCase();
-            const statusFilter = document.getElementById('status-filter').value;
-            const dateFilter = document.getElementById('date-filter').value;
-
-            let filteredOrders = orders.filter(order => {
-                const matchesSearch = order.id.toLowerCase().includes(searchTerm) ||
-                                    order.customer.toLowerCase().includes(searchTerm) ||
-                                    order.email.toLowerCase().includes(searchTerm);
-                
-                const matchesStatus = !statusFilter || order.status === statusFilter;
-                
-                let matchesDate = true;
-                if (dateFilter) {
-                    const orderDate = new Date(order.date);
-                    const today = new Date();
-                    
-                    switch (dateFilter) {
-                        case 'today':
-                            matchesDate = orderDate.toDateString() === today.toDateString();
-                            break;
-                        case 'week':
-                            const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-                            matchesDate = orderDate >= weekAgo;
-                            break;
-                        case 'month':
-                            matchesDate = orderDate.getMonth() === today.getMonth() &&
-                                        orderDate.getFullYear() === today.getFullYear();
-                            break;
-                    }
-                }
-                
-                return matchesSearch && matchesStatus && matchesDate;
-            });
-
-            renderOrders(filteredOrders);
-        }
-
-        // Event listeners
-        document.getElementById('search').addEventListener('input', filterOrders);
-        document.getElementById('status-filter').addEventListener('change', filterOrders);
-        document.getElementById('date-filter').addEventListener('change', filterOrders);
-
-        function openExportModal() {
-            document.getElementById('export-modal').classList.remove('hidden');
-        }
-
-        function closeExportModal() {
-            document.getElementById('export-modal').classList.add('hidden');
-        }
-
-        function selectAllColumns() {
-            const checkboxes = document.querySelectorAll('#export-modal input[type="checkbox"]');
-            const columnCheckboxes = Array.from(checkboxes).slice(8, 17); // Only column checkboxes
-            columnCheckboxes.forEach(checkbox => checkbox.checked = true);
-        }
-
-        function deselectAllColumns() {
-            const checkboxes = document.querySelectorAll('#export-modal input[type="checkbox"]');
-            const columnCheckboxes = Array.from(checkboxes).slice(8, 17); // Only column checkboxes
-            columnCheckboxes.forEach(checkbox => checkbox.checked = false);
-        }
-
-        function exportToExcel() {
-            // Get selected options
-            const range = document.querySelector('input[name="export-range"]:checked').value;
-            const format = document.getElementById('file-format').value;
-            const fileName = document.getElementById('file-name').value;
-            
-            // Determine which orders to export
-            let ordersToExport = [];
-            switch (range) {
-                case 'all':
-                    ordersToExport = orders;
-                    break;
-                case 'current':
-                    // Get currently displayed orders (filtered results)
-                    const currentRows = document.querySelectorAll('#orders-table tr');
-                    const currentIds = Array.from(currentRows).map(row => {
-                        const checkbox = row.querySelector('.order-checkbox');
-                        return checkbox ? checkbox.value : null;
-                    }).filter(id => id);
-                    ordersToExport = orders.filter(order => currentIds.includes(order.id));
-                    break;
-                case 'selected':
-                    ordersToExport = getSelectedOrders();
-                    if (ordersToExport.length === 0) {
-                        showNotification('Vui lòng chọn ít nhất một đơn hàng để xuất!', 'error');
-                        return;
-                    }
-                    break;
-            }
-            
-            // Create CSV content
-            const headers = ['Mã Đơn', 'Khách Hàng', 'Email', 'Điện Thoại', 'Sản Phẩm', 'Tổng Tiền', 'Trạng Thái', 'Ngày Đặt'];
-            let csvContent = headers.join(',') + '\n';
-            
-            ordersToExport.forEach(order => {
-                const row = [
-                    order.id,
-                    `"${order.customer}"`,
-                    order.email,
-                    order.phone,
-                    `"${order.products[0].name}${order.products.length > 1 ? '...' : ''}"`,
-                    order.total,
-                    statusLabels[order.status],
-                    formatDate(order.date)
-                ];
-                csvContent += row.join(',') + '\n';
-            });
-            
-            // Create and download file
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            
-            const today = new Date().toISOString().split('T')[0];
-            const extension = format === 'xlsx' ? 'xlsx' : 'csv';
-            link.setAttribute('download', `${fileName}-${today}.${extension}`);
-            
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            closeExportModal();
-            showNotification(`Xuất file thành công! (${ordersToExport.length} đơn hàng)`, 'success');
-        }
-
-        // Close modal when clicking outside
-        document.getElementById('order-modal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeOrderModal();
+    if (searchInput) {
+        searchInput.addEventListener("keypress", function(e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                applyFilters();
             }
         });
+    }
 
-        document.getElementById('export-modal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeExportModal();
+    function applyFilters() {
+        const params = new URLSearchParams(window.location.search);
+        params.set("search", searchInput?.value || '');
+        params.set("status", statusFilter?.value || '');
+        params.set("date", dateFilter?.value || '');
+        window.location.search = params.toString();
+    }
+
+    // --- AJAX reload ---
+    if (reloadBtn) {
+        reloadBtn.addEventListener("click", async function(e) {
+            e.preventDefault();
+            tableBody.innerHTML = `<tr><td colspan="8" class="text-center py-4">Đang tải dữ liệu...</td></tr>`;
+            try {
+                const response = await fetch(this.dataset.url, {
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                });
+                const data = await response.json();
+                tableBody.innerHTML = data.html || `<tr><td colspan="8" class="text-center text-red-500">Không có dữ liệu.</td></tr>`;
+            } catch (error) {
+                tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-red-500">Lỗi khi tải dữ liệu.</td></tr>`;
             }
         });
+    }
+});
+</script>
 
-        // Checkbox functions
-        function toggleSelectAll() {
-            const selectAllCheckbox = document.getElementById('select-all');
-            const orderCheckboxes = document.querySelectorAll('.order-checkbox');
-            
-            orderCheckboxes.forEach(checkbox => {
-                checkbox.checked = selectAllCheckbox.checked;
-            });
-            
-            updateSelectedCount();
-        }
 
-        function updateSelectedCount() {
-            const selectedCheckboxes = document.querySelectorAll('.order-checkbox:checked');
-            const count = selectedCheckboxes.length;
-            
-            // Update count in export modal
-            const selectedCountElement = document.getElementById('selected-count');
-            if (selectedCountElement) {
-                selectedCountElement.textContent = count;
-            }
-            
-            // Update select all checkbox state
-            const selectAllCheckbox = document.getElementById('select-all');
-            const allCheckboxes = document.querySelectorAll('.order-checkbox');
-            
-            if (count === 0) {
-                selectAllCheckbox.indeterminate = false;
-                selectAllCheckbox.checked = false;
-            } else if (count === allCheckboxes.length) {
-                selectAllCheckbox.indeterminate = false;
-                selectAllCheckbox.checked = true;
-            } else {
-                selectAllCheckbox.indeterminate = true;
-            }
-        }
-
-        function getSelectedOrders() {
-            const selectedCheckboxes = document.querySelectorAll('.order-checkbox:checked');
-            const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.value);
-            return orders.filter(order => selectedIds.includes(order.id));
-        }
-
-        // Initialize
-        renderOrders();
-    </script>
 </div>
 </html>
 @endsection

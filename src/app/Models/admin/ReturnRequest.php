@@ -57,7 +57,7 @@ class ReturnRequest extends Model
     ];
 
     // 🧩 Liên kết với bảng users (khách hàng)
-    public function customer()
+    public function User()
     {
         return $this->belongsTo(User::class, 'customer_id', 'user_id');
     }

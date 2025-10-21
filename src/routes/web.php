@@ -3,7 +3,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
 use App\Http\Controllers\auth\AuthController;
-use App\Http\Controllers\admin\CustomerController;
+use App\Http\Controllers\admin\UserController;
 use App\Http\Controllers\admin\OrderController;
 use App\Http\Controllers\admin\ReturnController; // 
 use App\Http\Controllers\admin\InventoryController;
@@ -17,8 +17,8 @@ use App\Http\Controllers\admin\PaymentController;
 
 
 // /customer/product dùng Controller -> trả view có $products, $categories
-Route::get('/customer/product', [ProductController::class, 'index'])
-    ->name('customer.product'); // ✅ chỉ 1 route này cho /customer/product
+Route::get('/user/product', [ProductController::class, 'index'])
+    ->name('user.product'); // ✅ chỉ 1 route này cho /customer/product
 
 // Nhóm /products (có thể dùng chung controller)
 Route::prefix('products')->name('products.')->group(function () {
@@ -34,10 +34,10 @@ Route::get('/test-auth', function () {
     dd(Auth::user());
 })->middleware('auth');
 
-Route::middleware(['auth'])->prefix('customer')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'show'])->name('customer.profile');
-    Route::post('/profile', [ProfileController::class, 'update'])->name('customer.profile.update');
-    Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('customer.profile.password');
+Route::middleware(['auth'])->prefix('user')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'show'])->name('user.profile');
+    Route::post('/profile', [ProfileController::class, 'update'])->name('user.profile.update');
+    Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('user.profile.password');
 });
 
 // Nhóm route admin 
@@ -46,9 +46,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
     Route::view('/support', 'admin.support')->name('support');
 
-    Route::get('/customer', [CustomerController::class, 'index'])->name('customer'); // danh sách
-    Route::get('/customer/export', [CustomerController::class, 'exportExcel'])->name('customer.export');
-    Route::get('/customer/reload', [CustomerController::class, 'reload'])->name('customer.reload');
+    Route::get('/user', [UserController::class, 'index'])->name('user'); // danh sách
+    Route::get('/user/export', [UserController::class, 'exportExcel'])->name('user.export');
+    Route::get('/user/reload', [UserController::class, 'reload'])->name('user.reload');
 
     Route::get('/deliveries', [DeliveryController::class, 'index'])->name('deliveries');
     Route::post('/deliveries', [DeliveryController::class, 'store'])->name('deliveries.store');
