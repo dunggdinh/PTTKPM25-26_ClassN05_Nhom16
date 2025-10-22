@@ -24,6 +24,9 @@ use App\Http\Controllers\customer\CartController;
 use App\Http\Controllers\customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\customer\PromotionController;
 
+use App\Http\Controllers\admin\SupportConversationController;
+use App\Http\Controllers\admin\SupportMessageController;
+
 /*
 |--------------------------------------------------------------------------
 | PUBLIC / CUSTOMER PRODUCT
@@ -77,8 +80,11 @@ Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(functi
     Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 
     // Các trang tĩnh còn lại
-    Route::view('/review', 'customer.review')->name('review');
-    Route::view('/support', 'customer.support')->name('support');
+    // Route::view('/review', 'customer.review')->name('review');
+    Route::get('/support/{conversation}', function (\App\Models\admin\SupportConversation $conversation) {
+        return view('customer.support', compact('conversation'));
+    })->name('support');
+    // Route::view('/support', 'customer.support')->name('support');
 });
 
 /*
@@ -118,7 +124,10 @@ Route::get('/test-auth', function () {
 Route::prefix('admin')->name('admin.')->group(function () {
     // Lưu ý: trong group đã có prefix name "admin.", bên trong đặt name ngắn gọn để tránh "admin.admin.*"
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::view('/support', 'admin.support')->name('support');
+    // Route::view('/support', 'admin.support')->name('support');
+    Route::get('/support/{conversation}', function (\App\Models\admin\SupportConversation $conversation) {
+        return view('admin.support', compact('conversation'));
+    })->name('support');
 
     // Customer
     Route::get('/user', [UserController::class, 'index'])->name('user');
@@ -195,16 +204,16 @@ Route::prefix('auth')->name('auth.')->group(function () {
 // Nhóm route customer
 // Route::prefix('customer')->group(function () {
 //     Route::view('/home', 'customer.home'); ẩn cho vui 
-Route::prefix('customer')->name('customer.')->group(function () {
-    Route::view('/home', 'customer.home')->name('home');
-    Route::view('/promotion', 'customer.promotion');
-    //Route::view('/product', 'customer.product');
-    Route::view('/cart', 'customer.cart');
-    Route::view('/order', 'customer.order');
-    Route::view('/review', 'customer.review');
-    Route::view('/support', 'customer.support');
-    // Route::view('/profile', 'customer.profile'); Cmt để tránh ghi đè
-});
+// Route::prefix('customer')->name('customer.')->group(function () {
+//     Route::view('/home', 'customer.home')->name('home');
+//     Route::view('/promotion', 'customer.promotion');
+//     //Route::view('/product', 'customer.product');
+//     Route::view('/cart', 'customer.cart');
+//     Route::view('/order', 'customer.order');
+//     Route::view('/review', 'customer.review');
+//     Route::view('/support', 'customer.support');
+//     // Route::view('/profile', 'customer.profile'); Cmt để tránh ghi đè
+// });
 
 // Route::get('/profile', [ProfileController::class, 'show'])->name('customer.profile');
 // Route::post('/profile', [ProfileController::class, 'update'])->name('customer.profile.update');
@@ -221,4 +230,40 @@ Route::get('/css/app.css', function () {
     $path = resource_path('css/app.css');
     return Response::make(File::get($path), 200, ['Content-Type' => 'text/css']);
 });
+/*
+|--------------------------------------------------------------------------
+| SUPPORT CHAT API (auth)
+|--------------------------------------------------------------------------
+*/
+// Route::middleware('auth')->group(function () {
+Route::prefix('admin')->middleware('auth')->group(function () {
+    // 1) Danh sách conversation
+    Route::get('/conversations', [SupportConversationController::class, 'index'])
+        ->name('conversations.index');
+
+    // 2) Lấy lịch sử tin nhắn theo conversation
+    Route::get('/conversations/{id}/messages', [SupportMessageController::class, 'index'])
+        ->whereNumber('id')->name('conversations.messages.index');
+
+    // 3) Gửi tin nhắn vào conversation
+    Route::post('/conversations/{id}/messages', [SupportMessageController::class, 'store'])
+        ->whereNumber('id')->name('conversations.messages.store');
+});
+/*
+|--------------------------------------------------------------------------
+| SUPPORT CHAT API (CUSTOMER)
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth')->group(function () {
+    // 1) Lấy danh sách tin nhắn theo conversation
+    Route::get('/conversations/{id}/messages', [SupportMessageController::class, 'index'])
+        ->whereNumber('id')
+        ->name('customer.conversations.messages.index');
+
+    // 2) Gửi tin nhắn mới
+    Route::post('/conversations/{id}/messages', [SupportMessageController::class, 'store'])
+        ->whereNumber('id')
+        ->name('customer.conversations.messages.store');
+});
+
 
