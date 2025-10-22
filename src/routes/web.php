@@ -16,13 +16,18 @@ use App\Http\Controllers\admin\DeliveryController;
 use App\Http\Controllers\admin\DashboardController;
 use App\Http\Controllers\admin\ReportController;
 use App\Http\Controllers\admin\PaymentController;
+use App\Http\Controllers\admin\NotificationController as AdminNotificationController;
+use App\Http\Controllers\admin\DiscountController;
+
 
 // Customer Controllers
+use App\Http\Controllers\customer\GoogleController;
 use App\Http\Controllers\customer\ProfileController;
 use App\Http\Controllers\customer\ProductController;     // ✅ chỉ 1 import
 use App\Http\Controllers\customer\CartController;
 use App\Http\Controllers\customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\customer\PromotionController;
+use App\Http\Controllers\customer\NotificationController;
 
 use App\Http\Controllers\admin\SupportConversationController;
 use App\Http\Controllers\admin\SupportMessageController;
@@ -54,7 +59,7 @@ Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(functi
     Route::get('/cart',              [CartController::class, 'index'])->name('cart');
     Route::get('/cart/data',         [CartController::class, 'data'])->name('cart.data');
 
-    Route::post('/cart/add',         [CartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/add',         [CartController::class, 'addToCart'])->name('cart.add');
     Route::patch('/cart/item/{id}',  [CartController::class, 'updateItem'])->name('cart.update');
     Route::delete('/cart/item/{id}', [CartController::class, 'removeItem'])->name('cart.remove');
     Route::delete('/cart/clear',     [CartController::class, 'clear'])->name('cart.clear');
@@ -129,6 +134,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         return view('admin.support', compact('conversation'));
     })->name('support');
 
+    // Promotion
+    Route::get('/promotion',        [DiscountController::class, 'index'])->name('promotions');        // admin.promotions
+    // API cho JS
+    Route::get('/promotions/list',  [DiscountController::class, 'list'])->name('promotions.list');    // admin.promotions.list
+    Route::post('/promotions',      [DiscountController::class, 'store'])->name('promotions.store');  // admin.promotions.store
+    Route::put('/promotions/{id}',  [DiscountController::class, 'update'])->name('promotions.update');// admin.promotions.update
+    Route::delete('/promotions/{id}', [DiscountController::class, 'destroy'])->name('promotions.destroy'); // admin.promotions.destroy
     // Customer
     Route::get('/user', [UserController::class, 'index'])->name('user');
     Route::get('/user/export', [UserController::class, 'exportExcel'])->name('user.export');
@@ -165,10 +177,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     // Return & Warranty
     Route::get('/return', [ReturnController::class, 'index'])->name('return');
-    Route::put('/return/{id}', [ReturnController::class, 'update'])->name('return.update');
-    Route::delete('/return/{id}', [ReturnController::class, 'destroy'])->name('return.destroy');
-    Route::get('/return/reload', [ReturnController::class, 'reload'])->name('return.reload');
-
     Route::get('/warranties', [WarrantyController::class, 'index'])->name('warranties');
     Route::put('/warranties/{id}/update-status', [WarrantyController::class, 'updateStatus'])->name('warranties.updateStatus');
     Route::delete('/warranties/{id}', [WarrantyController::class, 'destroy'])->name('warranties.destroy');
@@ -267,3 +275,40 @@ Route::middleware('auth')->group(function () {
 });
 
 
+/*
+|--------------------------------------------------------------------------
+| Notification
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])->group(function () {
+    Route::get('/customer/notifications', [NotificationController::class, 'list'])->name('customer.notifications');
+    Route::post('/customer/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('customer.notifications.read_all');
+    Route::post('/customer/notifications/{id}/read', [NotificationController::class, 'markOneRead'])->name('customer.notifications.read_one');
+    Route::delete('/customer/notifications/{id}', [NotificationController::class, 'remove'])->name('customer.notifications.remove');
+});
+
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+    Route::get('/notifications',             [AdminNotificationController::class, 'list'])->name('admin.notifications');
+    Route::post('/notifications/read-all',   [AdminNotificationController::class, 'markAllRead'])->name('admin.notifications.read_all');
+    Route::post('/notifications/{id}/read',  [AdminNotificationController::class, 'markOneRead'])->name('admin.notifications.read_one');
+    Route::delete('/notifications/{id}',     [AdminNotificationController::class, 'remove'])->name('admin.notifications.remove');
+});
+
+
+
+
+
+
+// Map
+Route::get('/map', [GoogleController::class, 'showMap']);
+Route::get('google-autocomplete', [GoogleController::class, 'index']);
+
+
+// Save address route
+Route::post('/save-address', [GoogleController::class, 'saveAddress'])->name('save-address');
+
+Route::prefix('api/map')->group(function () {
+    Route::get('/test', [GoogleController::class, 'index']);
+    Route::get('/address-from-latlng', [GoogleController::class, 'getAddressFromLatLng']);
+    Route::get('/search-address', [GoogleController::class, 'searchAddress']);
+});

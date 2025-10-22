@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\admin\Cart;
 use App\Models\admin\CartItem;
+use App\Models\admin\Discount;
 use App\Models\admin\Product;
+use App\Notifications\LowStockInCartNotification;
 
 class CartController extends Controller
 {
@@ -27,60 +29,88 @@ class CartController extends Controller
     // Trang giỏ hàng (render Blade của cậu)
     public function index(Request $request)
     {
-        $user = Auth::user(); // yêu cầu user đã đăng nhập
+        $user = Auth::user();
         $userId = $user->user_id ?? null;
 
         if (!$userId) {
-            return redirect()->route('customer.login')->with('error','Vui lòng đăng nhập để xem giỏ hàng');
+            return redirect()->route('customer.login')->with('error', 'Vui lòng đăng nhập để xem giỏ hàng');
         }
 
+        // ✅ Lấy hoặc tạo giỏ hàng cho user
         $cart = $this->getOrCreateCart($userId);
-        $cart->load('items.product');
 
-        // Tính tổng tiền từ price sản phẩm trong bảng products (cột price) 
-        // (theo schema DB) 
-        $subtotal = $cart->items->reduce(function($carry, $item) {
+        // ✅ Tải dữ liệu liên kết (cart_items + product)
+        $cart->load('CartItem.product');
+
+        // ✅ Tính tổng tiền (subtotal)
+        $subtotal = $cart->CartItem->reduce(function ($carry, $item) {
             $price = $item->product->price ?? 0;
             return $carry + ($price * ($item->quantity ?? 1));
         }, 0);
 
+        // ✅ VAT 10%
+        $tax = $subtotal * 0.1;
+
+        // ✅ Tổng cộng
+        $total = $subtotal + $tax;
+
+        // ✅ Lấy danh sách discount hợp lệ
+        $discounts = $this->getActiveDiscounts();
+
         return view('customer.cart', [
             'cart' => $cart,
             'subtotal' => $subtotal,
+            'tax' => $tax,
+            'total' => $total,
+            'discounts' => $discounts,
         ]);
     }
+    protected function getActiveDiscounts()
+    {
+        $today = now()->toDateString(); // Lấy ngày hôm nay
+
+        return Discount::where('status', 'Đang diễn ra')
+            ->where('start_date', '<=', $today)
+            ->where('end_date', '>=', $today)
+            ->get();
+    }
+
 
     // Thêm vào giỏ
-    public function add(Request $request)
+    public function addToCart(Request $request)
     {
-        $request->validate([
-            'product_id' => 'required|string|exists:products,product_id',
-            'quantity'   => 'nullable|integer|min:1',
-        ]);
+        if (!Auth::check()) {
+            return response()->json(['success' => false, 'message' => 'Bạn cần đăng nhập trước khi thêm sản phẩm vào giỏ!'], 401);
+        }
 
-        $userId = Auth::user()->user_id;
-        $cart   = $this->getOrCreateCart($userId);
+        $userId = Auth::id();
+        $productId = $request->input('product_id');
+        $quantity = max(1, intval($request->input('quantity', 1)));
 
-        $qty = (int)($request->quantity ?? 1);
+        // ✅ Tìm hoặc tạo giỏ hàng cho user
+        $cart = Cart::firstOrCreate(
+            ['user_id' => $userId],
+            ['cart_id' => 'CART_' . str_pad(Cart::count() + 1, 3, '0', STR_PAD_LEFT)]
+        );
 
-        // Nếu item đã tồn tại thì cộng dồn, ngược lại tạo mới
+        // ✅ Kiểm tra nếu sản phẩm đã có trong giỏ thì tăng số lượng
         $item = CartItem::where('cart_id', $cart->cart_id)
-                        ->where('product_id', $request->product_id)
+                        ->where('product_id', $productId)
                         ->first();
 
         if ($item) {
-            $item->quantity += $qty;
+            $item->quantity += $quantity;
             $item->save();
         } else {
             CartItem::create([
-                'cart_item_id' => CartItem::newId(),
+                'cart_item_id' => 'CI_' . str_pad(CartItem::count() + 1, 3, '0', STR_PAD_LEFT),
                 'cart_id'      => $cart->cart_id,
-                'product_id'   => $request->product_id,
-                'quantity'     => $qty,
+                'product_id'   => $productId,
+                'quantity'     => $quantity,
             ]);
         }
 
-        return response()->json(['ok' => true, 'message' => 'Đã thêm vào giỏ']);
+        return response()->json(['success' => true, 'message' => 'Đã thêm sản phẩm vào giỏ hàng!']);
     }
 
     // Cập nhật số lượng

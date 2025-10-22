@@ -1,12 +1,4 @@
 @extends('customer.layout')
-@php($categories = $categories ?? collect())
-@php
-    $currentCat = request()->query('category', 'all');
-    $sortBy = $sortBy ?? request('sort_by', 'name');
-    $sortDirection = $sortDirection ?? request('sort_direction', 'asc');
-
-    $categories = $categories ?? collect();
-@endphp
 
 @section('title', 'Sản phẩm')
 
@@ -54,43 +46,45 @@
             </div>
 
             <!-- Client-side Filters (giá/brand) -->
-            <div class="flex flex-wrap justify-center gap-8 mt-6">
-                <div>
-                    <h3 class="font-bold text-gray-800 mb-3 text-center">Lọc theo giá</h3>
-                    <div class="flex flex-wrap gap-4 justify-center">
-                        <label class="flex items-center">
-                            <input type="checkbox" class="mr-2" onchange="filterByPrice('under-10m')">
-                            <span class="text-sm">Dưới 10 triệu</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" class="mr-2" onchange="filterByPrice('10m-20m')">
-                            <span class="text-sm">10 - 20 triệu</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" class="mr-2" onchange="filterByPrice('over-20m')">
-                            <span class="text-sm">Trên 20 triệu</span>
-                        </label>
+            <form method="GET" action="{{ route('customer.product') }}" id="clientFilterForm" class="mt-6">
+                <div class="flex flex-wrap justify-center gap-10 md:gap-20 items-end">
+                    {{-- Lọc theo giá --}}
+                    <div class="flex flex-col items-center">
+                        <h3 class="font-bold text-gray-800 mb-3 text-center">Lọc theo giá</h3>
+                        <select name="price_range"
+                            class="filter-select w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm">
+                            <option value="">Tất cả mức giá</option>
+                            <option value="0-20" {{ request('price_range') == '0-20' ? 'selected' : '' }}>Dưới 20 triệu</option>
+                            <option value="20-40" {{ request('price_range') == '20-40' ? 'selected' : '' }}>20 - 40 triệu</option>
+                            <option value="40+" {{ request('price_range') == '40+' ? 'selected' : '' }}>Trên 40 triệu</option>
+                        </select>
                     </div>
-                </div>
 
-                <div>
-                    <h3 class="font-bold text-gray-800 mb-3 text-center">Thương hiệu</h3>
-                    <div class="flex flex-wrap gap-4 justify-center">
-                        <label class="flex items-center">
-                            <input type="checkbox" class="mr-2" onchange="filterByBrand('apple')">
-                            <span class="text-sm">Apple</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" class="mr-2" onchange="filterByBrand('samsung')">
-                            <span class="text-sm">Samsung</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" class="mr-2" onchange="filterByBrand('xiaomi')">
-                            <span class="text-sm">Xiaomi</span>
-                        </label>
+                    {{-- Lọc theo thương hiệu --}}
+                    <div class="flex flex-col items-center">
+                        <h3 class="font-bold text-gray-800 mb-3 text-center">Thương hiệu</h3>
+                        <select name="brand"
+                            class="filter-select w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm">
+                            <option value="">Tất cả thương hiệu</option>
+                            @foreach ($brands as $brand)
+                                <option value="{{ $brand }}" {{ request('brand') == $brand ? 'selected' : '' }}>
+                                    {{ ucfirst($brand) }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    {{-- 🔁 Nút tải lại --}}
+                    <div class="flex flex-col items-center">
+                        <h3 class="font-bold text-gray-800 mb-3 text-center invisible">Reload</h3>
+                        <a href="{{ route('customer.product') }}"
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-200 transition text-sm">
+                            
+                            Tất cả
+                        </a>
                     </div>
                 </div>
-            </div>
+            </form>
+
         </div>
     </header>
 
@@ -104,10 +98,10 @@
                     <div class="flex items-center space-x-4">
                         <select onchange="sortProducts(this.value)"
                                 class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300">
-                            <option value="server">Sắp xếp (server)</option>
-                            <option value="price-low">Giá thấp đến cao (client)</option>
-                            <option value="price-high">Giá cao đến thấp (client)</option>
-                            <option value="newest">Mới nhất (client)</option>
+                            <option value="server">Sắp xếp</option>
+                            <option value="price-low">Giá thấp đến cao</option>
+                            <option value="price-high">Giá cao đến thấp</option>
+                            <option value="newest">Mới nhất </option>
                         </select>
                         <!-- Server-side sort controls (ẩn) -->
                         <select id="server_sort_by" class="hidden">
@@ -129,15 +123,13 @@
                         @php
                             $brandSlug = strtolower(preg_replace('/\s+/', '', $p->brand ?? ''));
                             $price = (int)($p->price ?? 0);
-                            $priceRange = $price < 10000000 ? 'under-10m' : ($price <= 20000000 ? '10m-20m' : 'over-20m');
                         @endphp
                         <div class="product-card bg-white rounded-xl shadow-md overflow-hidden"
                              data-product-id="{{ $p->product_id }}"
                              data-category="{{ $p->category_id }}"
                              data-brand="{{ $brandSlug }}"
                              data-price="{{ $price }}"
-                             data-created="{{ optional($p->created_at)->timestamp ?? 0 }}"
-                             data-price-range="{{ $priceRange }}">
+                             data-created="{{ optional($p->created_at)->timestamp ?? 0 }}">
                             <div class="relative">
                                 <div class="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                                     <span class="text-6xl">📦</span>
@@ -174,8 +166,13 @@
                 </div>
 
                 <!-- Pagination -->
-                <div class="mt-8">
-                    {{ $products->links() }}
+                <div class="flex flex-col items-center mt-4 bg-white px-4 py-2 rounded-b-xl">
+                    <div>
+                        {{ $products->withQueryString()->links('pagination::simple-tailwind') }}
+                    </div>
+                    <div class="text-sm text-gray-500 mt-1">
+                        Trang {{ $products->currentPage() }} / {{ $products->lastPage() }}
+                    </div>
                 </div>
             </div>
 
@@ -204,8 +201,6 @@
                             <h1 id="detail-title" class="text-3xl font-bold text-gray-800 mb-4">—</h1>
                             <div class="flex items-center mb-4">
                                 <div class="flex text-yellow-400 text-lg">⭐⭐⭐⭐⭐</div>
-                                <span class="text-gray-600 ml-2">(— đánh giá)</span>
-                                <span class="text-blue-600 ml-4 cursor-pointer hover:underline">Viết đánh giá</span>
                             </div>
 
                             <div class="mb-6">
@@ -259,9 +254,6 @@
                                     class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold text-lg transition-colors">
                                     Thêm vào giỏ hàng
                                 </button>
-                                <button class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-bold text-lg transition-colors">
-                                    Mua ngay
-                                </button>
                             </div>
 
                             <div class="border-t pt-6">
@@ -307,42 +299,7 @@
         </main>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white mt-16">
-        <div class="container mx-auto px-4 py-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <h3 class="font-bold text-lg mb-4">TechStore</h3>
-                    <p class="text-gray-300">Cửa hàng điện tử uy tín với sản phẩm chính hãng và dịch vụ tốt nhất.</p>
-                </div>
-                <div>
-                    <h4 class="font-bold mb-4">Liên kết</h4>
-                    <ul class="space-y-2 text-gray-300">
-                        <li><a href="#" class="hover:text-white">Về chúng tôi</a></li>
-                        <li><a href="#" class="hover:text-white">Chính sách bảo hành</a></li>
-                        <li><a href="#" class="hover:text-white">Hướng dẫn mua hàng</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-bold mb-4">Hỗ trợ</h4>
-                    <ul class="space-y-2 text-gray-300">
-                        <li><a href="#" class="hover:text-white">Liên hệ</a></li>
-                        <li><a href="#" class="hover:text-white">FAQ</a></li>
-                        <li><a href="#" class="hover:text-white">Đổi trả</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-bold mb-4">Theo dõi</h4>
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-2xl hover:text-blue-400">📘</a>
-                        <a href="#" class="text-2xl hover:text-pink-400">📷</a>
-                        <a href="#" class="text-2xl hover:text-blue-300">🐦</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
-
+    
     <script>
         // ==== STATE ====
         let currentQuantity = 1;
@@ -540,32 +497,39 @@
         }
 
         // ==== CART (giữ nguyên kiểu bạn đang dùng) ====
-        function addToCart(productName, price){
-            // yêu cầu chọn color + storage (tùy policy)
-            if(!selectedColor || !selectedStorage){
-                showToast('Vui lòng chọn Màu sắc và Dung lượng trước khi thêm vào giỏ!', false);
-                return;
-            }
-            // cộng delta theo storage
-            let finalPrice = Number(price||0) + (storagePriceDelta[selectedStorage]||0);
-
-            let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            const qty = parseInt(document.getElementById('quantity')?.textContent, 10) || 1;
-
-            const product = {
-                id: Date.now(),
-                name: productName,
-                price: finalPrice,
-                quantity: qty,
-                image: 'default',
-                variant: { color: selectedColor, storage: selectedStorage }
-            };
-
-            cart.push(product);
-            localStorage.setItem('cart', JSON.stringify(cart));
-
-            showToast(`Đã thêm ${productName} (${selectedStorage}, ${selectedColor}) (x${qty}) vào giỏ hàng!`, true);
+        async function addToCart(productName, price) {
+        if (!selectedColor || !selectedStorage) {
+            showToast('Vui lòng chọn Màu sắc và Dung lượng trước khi thêm vào giỏ!', false);
+            return;
         }
+
+        const productId = document.getElementById('detail-id').textContent.trim();
+        const qty = parseInt(document.getElementById('quantity').textContent, 10) || 1;
+
+        try {
+            const res = await fetch("{{ route('customer.cart.add') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({
+                    product_id: productId,
+                    quantity: qty
+                })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                showToast(data.message, true);
+            } else {
+                showToast(data.message || 'Không thể thêm sản phẩm', false);
+            }
+        } catch (err) {
+            showToast('Lỗi kết nối máy chủ!', false);
+        }
+    }
+
 
         // ==== TABS ====
         function showTab(tabName){
@@ -578,5 +542,11 @@
             document.getElementById('tab-'+tabName).classList.add('border-blue-600','text-blue-600');
             document.getElementById('tab-'+tabName).classList.remove('text-gray-600');
         }
+        document.querySelectorAll('.filter-select').forEach(select => {
+            select.addEventListener('change', () => {
+                document.getElementById('clientFilterForm').submit();
+            });
+        });
+
     </script>
 @endsection

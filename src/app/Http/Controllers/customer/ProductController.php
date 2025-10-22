@@ -14,42 +14,58 @@ class ProductController extends Controller
     {
         $query = Product::with('category');
 
-        // lọc theo category_id nếu có (?category=abc hoặc ?category=all)
+        // === Lọc theo danh mục ===
         if ($request->filled('category') && $request->category !== 'all') {
             $query->where('category_id', $request->category);
         }
 
-        // search
-        if ($request->filled('search')) {
-            $search = mb_strtolower(trim($request->search));
-            $query->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"])
-                    ->orWhereRaw('LOWER(brand) LIKE ?', ["%{$search}%"])
-                    ->orWhereRaw('LOWER(product_id) LIKE ?', ["%{$search}%"]);
-            });
+        // === Lọc theo giá ===
+        if ($request->filled('price_range')) {
+            switch ($request->price_range) {
+                case '0-20':
+                    $query->whereBetween('price', [0, 20000000]);
+                    break;
+                case '20-40':
+                    $query->whereBetween('price', [20000000, 40000000]);
+                    break;
+                case '40+':
+                    $query->where('price', '>', 40000000);
+                    break;
+            }
         }
 
-        // sort
+        // === Lọc theo thương hiệu ===
+        if ($request->filled('brand')) {
+            $query->where('brand', $request->brand);
+        }
+
+        // === Sắp xếp ===
         $allowedSorts = ['name', 'price', 'brand', 'created_at'];
-        $sortBy = in_array($request->get('sort_by'), $allowedSorts) ? $request->get('sort_by') : 'name';
+        $sortBy = in_array($request->get('sort_by'), $allowedSorts)
+            ? $request->get('sort_by')
+            : 'name';
         $sortDirection = $request->get('sort_direction') === 'desc' ? 'desc' : 'asc';
 
         $products = $query->orderBy($sortBy, $sortDirection)
             ->paginate(12)
             ->withQueryString();
 
-        // trạng thái tồn kho
+        // === Gắn trạng thái tồn kho ===
         $products->getCollection()->transform(function ($p) {
-            $p->status = $p->quantity == 0 ? 'Hết hàng' : ($p->quantity < 10 ? 'Sắp hết hàng' : 'Còn hàng');
+            $p->status = $p->quantity == 0
+                ? 'Hết hàng'
+                : ($p->quantity < 10 ? 'Sắp hết hàng' : 'Còn hàng');
             return $p;
         });
 
-        // ✅ BẮT BUỘC: truyền $categories sang view
+        // === Lấy danh sách danh mục và thương hiệu ===
         $categories = Category::select('category_id', 'name')->get();
+        $brands = Product::select('brand')->distinct()->pluck('brand');
 
-        // ✅ Trả đúng view đang dùng
-        return view('customer.product', compact('products', 'categories', 'sortBy', 'sortDirection'));
+        // === Trả về view ===
+        return view('customer.product', compact('products', 'categories', 'brands', 'sortBy', 'sortDirection'));
     }
+
 
     // JSON list cho AJAX (giữ nguyên nếu bạn đang dùng)
     public function listJson(Request $request)

@@ -65,7 +65,6 @@ class OrderController extends Controller
         ));
     }
 
-
     public function destroy($id)
     {
         $order = Order::with('orderItems')->findOrFail($id);
