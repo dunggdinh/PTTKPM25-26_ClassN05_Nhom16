@@ -4,115 +4,93 @@
 <div class="bg-gradient-to-br from-blue-50 to-indigo-100">
     <main class="container mx-auto px-4 py-8 max-w-7xl">
         <div class="grid lg:grid-cols-3 gap-8">
-            <!-- Cart Items Section -->
+            <!-- 🛒 Cart Items Section -->
             <div class="lg:col-span-2">
                 <div class="bg-white rounded-xl shadow-lg p-6">
                     <h2 class="text-xl font-semibold mb-6 text-gray-800">Sản Phẩm Trong Giỏ</h2>
-                    
-                    <!-- Cart Items Container -->
-                    <div id="cart-items-container">
-                        <!-- Items will be dynamically loaded here -->
-                    </div>
+
+                    <form id="cart-form">
+                        @foreach ($cart->CartItem as $item)
+                        <div class="flex items-center justify-between border-b py-4">
+                            <input type="checkbox" 
+                                class="cart-checkbox mr-3" 
+                                data-id="{{ $item->cart_item_id  }}"
+                                data-name="{{ $item->product->name }}"
+                                data-price="{{ $item->product->price }}"
+                                data-quantity="{{ $item->quantity }}">
+
+                            <div class="flex-1">
+                                <div class="font-semibold">{{ $item->product->name }}</div>
+                                <div class="text-gray-600 text-sm">
+                                    Giá: {{ number_format($item->product->price, 0, ',', '.') }}₫
+                                </div>
+                            </div>
+
+                            <div class="flex items-center space-x-2">
+                                <button type="button" class="decrease bg-gray-200 px-2 rounded" data-id="{{ $item->cart_item_id }}">−</button>
+                                <input type="number" class="w-12 text-center border rounded quantity-input" value="{{ $item->quantity }}" min="1" data-id="{{ $item->cart_item_id }}">
+                                <button type="button" class="increase bg-gray-200 px-2 rounded" data-id="{{ $item->cart_item_id }}">+</button>
+                            </div>
+                        </div>
+                        @endforeach
+
+
+                        <div class="mt-6 text-right">
+                            <button type="button" 
+                                    id="confirm-selection" 
+                                    class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+                                Xác nhận thanh toán
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
-            <!-- Checkout Section -->
+            <!-- 💳 Checkout Section -->
             <div class="lg:col-span-1">
-                <!-- Order Summary -->
                 <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
                     <h2 class="text-xl font-semibold mb-4 text-gray-800">Tóm Tắt Đơn Hàng</h2>
-                    
-                    <div class="space-y-3 mb-4">
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Tạm tính:</span>
-                            <span id="subtotal" class="font-semibold">76.970.000₫</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Phí vận chuyển:</span>
-                            <span class="font-semibold text-green-600">Miễn phí</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Thuế VAT (10%):</span>
-                            <span id="tax" class="font-semibold">7.697.000₫</span>
-                        </div>
-                        <hr class="my-3">
-                        <div class="flex justify-between text-lg">
-                            <span class="font-semibold text-gray-800">Tổng cộng:</span>
-                            <span id="total" class="font-bold text-blue-600">84.667.000₫</span>
-                        </div>
-                    </div>
-
-                    <!-- Promo Code -->
-                    <div class="mb-6">
-                        <label for="promo-code" class="block text-sm font-medium text-gray-700 mb-2">Mã giảm giá</label>
-                        <select id="promo-code" onchange="applyPromo()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-3">
-                            <option value="">Chọn mã giảm giá</option>
-                            <option value="GIAM10">GIAM10 - Giảm 10%</option>
-                            <option value="GIAM50K">GIAM50K - Giảm 50.000₫</option>
-                            <option value="FREESHIP">FREESHIP - Miễn phí vận chuyển</option>
-                            <option value="NEWUSER">NEWUSER - Giảm 15% cho khách mới</option>
-                        </select>
-                        <div class="flex">
-                            <input type="text" id="custom-promo" placeholder="Hoặc nhập mã giảm giá khác" class="flex-1 px-3 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            <button onclick="applyCustomPromo()" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-r-lg transition-colors">
-                                Áp dụng
-                            </button>
-                        </div>
-                    </div>
-
-                    <button onclick="proceedToCheckout()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105">
-                        Tiến Hành Thanh Toán
-                    </button>
-                </div>
-
-                <!-- Payment Methods -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h3 class="text-lg font-semibold mb-4 text-gray-800">Phương Thức Thanh Toán</h3>
-                    <div class="space-y-3">
-                        <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                            <input type="radio" name="payment" value="card" class="mr-3" checked>
-                            <div class="flex items-center">
-                                <span class="text-2xl mr-2">💳</span>
-                                <span>Thẻ tín dụng/ghi nợ</span>
-                            </div>
-                        </label>
-                        <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                            <input type="radio" name="payment" value="vnpay" class="mr-3">
-                            <div class="flex items-center">
-                                <span class="text-2xl mr-2">📱</span>
-                                <span>VNPay</span>
-                            </div>
-                        </label>
-                        <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                            <input type="radio" name="payment" value="banking" class="mr-3">
-                            <div class="flex items-center">
-                                <span class="text-2xl mr-2">🏦</span>
-                                <span>Chuyển khoản ngân hàng</span>
-                            </div>
-                        </label>
-                        <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                            <input type="radio" name="payment" value="cod" class="mr-3">
-                            <div class="flex items-center">
-                                <span class="text-2xl mr-2">💰</span>
-                                <span>Thanh toán khi nhận hàng</span>
-                            </div>
-                        </label>
+                    <div id="order-summary">
+                        <p class="text-gray-500">Chưa chọn sản phẩm nào.</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Success Message (Hidden by default) -->
-        <div id="success-message" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div class="bg-white rounded-xl p-8 max-w-md mx-4 text-center fade-in">
-                <div class="text-6xl mb-4">✅</div>
-                <h3 class="text-2xl font-bold text-gray-800 mb-2">Đặt Hàng Thành Công!</h3>
-                <p class="text-gray-600 mb-6">Cảm ơn bạn đã mua sắm. Chúng tôi sẽ liên hệ sớm nhất để xác nhận đơn hàng.</p>
-                <button onclick="closeSuccess()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">
-                    Đóng
+        <!-- Promo Code -->
+        <div class="mb-6">
+            <label for="promo-code" class="block text-sm font-medium text-gray-700 mb-2">Mã giảm giá</label>
+
+            <!-- Dropdown load dynamic -->
+            <select id="promo-code" onchange="applyPromo()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-3">
+                <option value="">Chọn mã giảm giá</option>
+                @foreach ($discounts as $discount)
+                    <option value="{{ $discount->code }}"
+                            data-type="{{ $discount->type }}"
+                            data-value="{{ $discount->value }}">
+                        {{ $discount->code }} - 
+                        @if($discount->type === 'percent')
+                            Giảm {{ $discount->value }}%
+                        @else
+                            Giảm {{ number_format($discount->value,0,',','.') }}₫
+                        @endif
+                    </option>
+                @endforeach
+            </select>
+
+            <div class="flex">
+                <input type="text" id="custom-promo" placeholder="Hoặc nhập mã giảm giá khác" class="flex-1 px-3 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <button onclick="applyCustomPromo()" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-r-lg transition-colors">
+                    Áp dụng
                 </button>
             </div>
         </div>
+
+        <!-- Nút tiến hành thanh toán -->
+        <button onclick="proceedToCheckout()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105">
+            Tiến Hành Thanh Toán
+        </button>
+
     </main>
 
     <script>
@@ -167,54 +145,13 @@
         return res.json();
     }
 
-    /* ====== Load từ DB (và fallback localStorage nếu API lỗi) ====== */
-    function parseStoredPrice(p){
-        // nhận cả số hoặc chuỗi "29.990.000₫"
-        if (p==null) return 0;
-        if (typeof p === 'number') return Number(p);
-        try {
-            const digits = String(p).replace(/[^\d]/g,'');
-            return Number(digits || 0);
-        } catch { return 0; }
-    }
-
+    /* ====== Load từ DB ====== */
     async function loadCart() {
-        try {
-            const data = await apiGet('/cart/data');
-            CART.cart_id = data.cart_id;
-            CART.items = data.items || [];
-            CART.subtotal = data.subtotal || 0;
-            // ensure items have cart_item_id
-            CART.items = CART.items.map((it, idx) => {
-                if(!it.cart_item_id) it.cart_item_id = 'srv-' + (it.product_id||idx) + '-' + Date.now();
-                return it;
-            });
-        } catch (err) {
-            // Fallback: đọc từ localStorage 'cart' (format client-side)
-            try {
-                const ls = JSON.parse(localStorage.getItem('cart') || '[]');
-                if (!Array.isArray(ls) || ls.length===0) {
-                    CART.items = [];
-                    CART.subtotal = 0;
-                    CART.cart_id = '';
-                    return;
-                }
-                CART.items = ls.map((it, idx) => ({
-                    cart_item_id: it._local_id || ('local-' + (it.id || idx) + '-' + (Date.now()%100000)),
-                    product_id: it.id || null,
-                    name: it.name || ('Sản phẩm ' + (idx+1)),
-                    price: parseStoredPrice(it.price),
-                    quantity: Number(it.quantity || it.qty || 1),
-                    _local: true
-                }));
-                CART.subtotal = CART.items.reduce((s,i)=>s + (Number(i.price)||0) * (Number(i.quantity)||0), 0);
-                CART.cart_id = '';
-            } catch(e) {
-                CART.items = [];
-                CART.subtotal = 0;
-                CART.cart_id = '';
-            }
-        }
+        const data = await apiGet('/cart/data');
+        CART.cart_id = data.cart_id;
+        // server trả: items = [{cart_item_id, product_id, name, price, quantity}]
+        CART.items = data.items || [];
+        CART.subtotal = data.subtotal || 0;
     }
 
     /* ====== Render ====== */
@@ -222,9 +159,8 @@
         const container = document.getElementById('cart-items-container');
         const items = CART.items;
 
-        if (!items.length) {
-            container.innerHTML = `<div class="text-gray-500">Giỏ hàng trống.</div>`;
-            updateTotals();
+        if (selectedItems.length === 0) {
+            orderSummary.innerHTML = '<p class="text-gray-500">Chưa chọn sản phẩm nào.</p>';
             return;
         }
 
@@ -273,32 +209,7 @@
     async function changeQuantity(cartItemId, delta) {
         const item = CART.items.find(x=>x.cart_item_id===cartItemId);
         if (!item) return;
-
         const newQty = Math.max(1, (Number(item.quantity)||1) + Number(delta));
-
-        if (item._local || String(cartItemId).startsWith('local-')) {
-            // cập nhật localStorage
-            item.quantity = newQty;
-            // sync back to localStorage format (search by id/name)
-            try {
-                const ls = JSON.parse(localStorage.getItem('cart') || '[]');
-                const idx = ls.findIndex(x => (x._local_id && ('local-'+(x._local_id) ).includes(cartItemId)) || x.id==item.product_id || x.name==item.name);
-                if (idx>-1) {
-                    ls[idx].quantity = newQty;
-                } else {
-                    // fallback: try by name
-                    const idx2 = ls.findIndex(x=>x.name==item.name);
-                    if(idx2>-1) ls[idx2].quantity = newQty;
-                }
-                localStorage.setItem('cart', JSON.stringify(ls));
-            } catch(e){}
-            document.getElementById(`qty-${cartItemId}`).textContent = newQty;
-            renderCartItems();
-            showNotification(`Đã cập nhật số lượng: ${newQty}`, 'success');
-            return;
-        }
-
-        // server-side update
         await apiJson(`/cart/item/${cartItemId}`, 'PATCH', {quantity: newQty});
         item.quantity = newQty;
         document.getElementById(`qty-${cartItemId}`).textContent = newQty;
@@ -308,23 +219,6 @@
 
     /* ====== Xoá item (DELETE /cart/item/{id}) ====== */
     async function removeItem(cartItemId) {
-        const item = CART.items.find(x=>x.cart_item_id===cartItemId);
-        if (!item) return;
-
-        if (item._local || String(cartItemId).startsWith('local-')) {
-            // remove from localStorage
-            try {
-                let ls = JSON.parse(localStorage.getItem('cart') || '[]');
-                ls = ls.filter(x => !( (x._local_id && ('local-'+x._local_id)===cartItemId) || x.id==item.product_id || x.name==item.name ));
-                localStorage.setItem('cart', JSON.stringify(ls));
-            } catch(e){}
-            CART.items = CART.items.filter(x=>x.cart_item_id!==cartItemId);
-            renderCartItems();
-            showNotification('Đã xóa sản phẩm khỏi giỏ hàng', 'success');
-            return;
-        }
-
-        // server-side delete
         await apiJson(`/cart/item/${cartItemId}`, 'DELETE');
         CART.items = CART.items.filter(x=>x.cart_item_id !== cartItemId);
         renderCartItems();
@@ -334,53 +228,40 @@
     /* ====== Tổng tiền (dựa trên checkbox + discount client) ====== */
     function updateTotals() {
         let subtotal = 0;
-        CART.items.forEach(it => {
-            const cb = document.getElementById(`select-${it.cart_item_id}`);
-            const selected = cb ? cb.checked : true;
-            if (selected) subtotal += (Number(it.price)||0) * (Number(it.quantity)||0);
+        let html = '<ul class="space-y-2">';
+        selectedItems.forEach(item => {
+            const itemTotal = item.price * item.quantity;
+            subtotal += itemTotal;
+            html += `<li class="flex justify-between">
+                        <span>${item.name} x ${item.quantity}</span>
+                        <span>${itemTotal.toLocaleString('vi-VN')}₫</span>
+                     </li>`;
         });
+        html += '</ul>';
 
-        // discount client như cũ
+        // Áp dụng giảm giá
         let discountAmount = 0;
-        if (appliedDiscount.type === 'percentage') {
-            discountAmount = subtotal * (appliedDiscount.amount/100);
-        } else if (appliedDiscount.type === 'fixed') {
-            discountAmount = Number(appliedDiscount.amount)||0;
-        }
-        discountAmount = Math.max(0, Math.min(discountAmount, subtotal));
-
-        const discountedSubtotal = subtotal - discountAmount;
-        const tax = discountedSubtotal * 0.1;
-        const total = discountedSubtotal + tax;
-
-        document.getElementById('subtotal').textContent = formatCurrency(subtotal);
-        document.getElementById('tax').textContent = formatCurrency(tax);
-        document.getElementById('total').textContent = formatCurrency(total);
-
-        // dòng "Giảm giá"
-        const discountElement = document.getElementById('discount-row');
-        if (discountAmount > 0) {
-            if (!discountElement) {
-            const discountRow = document.createElement('div');
-            discountRow.id = 'discount-row';
-            discountRow.className = 'flex justify-between text-green-600';
-            discountRow.innerHTML = `<span>Giảm giá:</span><span id="discount-amount">-${formatCurrency(discountAmount)}</span>`;
-            document.getElementById('tax').parentElement.insertAdjacentElement('beforebegin', discountRow);
+        if (appliedDiscount) {
+            if (appliedDiscount.type === 'percent') {
+                discountAmount = subtotal * (appliedDiscount.value / 100);
             } else {
-            document.getElementById('discount-amount').textContent = `-${formatCurrency(discountAmount)}`;
+                discountAmount = appliedDiscount.value;
             }
-        } else if (discountElement) {
-            discountElement.remove();
         }
-    }
 
-    /* ====== Áp mã giảm giá (giữ nguyên logic) ====== */
-    function applyPromo(){ const v=document.getElementById('promo-code').value; if(v) document.getElementById('custom-promo').value=''; applyPromoCode(v); }
-        function applyCustomPromo(){
-        const v=document.getElementById('custom-promo').value.trim().toUpperCase();
-        if(!v) return showNotification('Vui lòng nhập mã giảm giá','error');
-        document.getElementById('promo-code').value='';
-        applyPromoCode(v);
+        const tax = (subtotal - discountAmount) * 0.1;
+        const total = subtotal - discountAmount + tax;
+
+        html += `
+            <div class="mt-2 border-t pt-2">
+                <div class="flex justify-between"><span>Tạm tính:</span><span>${subtotal.toLocaleString('vi-VN')}₫</span></div>
+                ${appliedDiscount ? `<div class="flex justify-between text-green-600"><span>Giảm giá (${appliedDiscount.code}):</span><span>-${discountAmount.toLocaleString('vi-VN')}₫</span></div>` : ''}
+                <div class="flex justify-between"><span>VAT 10%:</span><span>${tax.toLocaleString('vi-VN')}₫</span></div>
+                <div class="flex justify-between font-semibold text-lg mt-1"><span>Tổng cộng:</span><span>${total.toLocaleString('vi-VN')}₫</span></div>
+            </div>
+        `;
+
+        orderSummary.innerHTML = html;
     }
     function applyPromoCode(code){
         appliedDiscount={type:'',amount:0};
@@ -411,12 +292,6 @@
         apiJson('/cart/clear', 'DELETE').then(()=>{
             CART.items = [];
             renderCartItems();
-            try { localStorage.removeItem('cart'); } catch(e){}
-        }).catch(()=>{
-            // nếu API lỗi thì clear localStorage fallback
-            CART.items = [];
-            renderCartItems();
-            try { localStorage.removeItem('cart'); } catch(e){}
         });
     }
 
@@ -427,9 +302,84 @@
             renderCartItems();
         } catch (err) {
             console.error(err);
-            showNotification('Không thể tải giỏ hàng. Hãy thử lại!', 'error');
         }
+    }
+
+    // ✅ Checkbox chọn sản phẩm
+    cartForm.querySelectorAll('.cart-checkbox').forEach(cb => {
+        cb.addEventListener('change', updateOrderSummary);
     });
-    </script>
+
+    // ✅ Áp dụng mã discount chọn từ dropdown
+    window.applyPromo = function() {
+        const opt = promoSelect.selectedOptions[0];
+        if (!opt || !opt.value) {
+            appliedDiscount = null;
+        } else {
+            appliedDiscount = {
+                code: opt.value,
+                type: opt.dataset.type,
+                value: parseFloat(opt.dataset.value)
+            };
+        }
+        updateOrderSummary();
+    }
+
+    // ✅ Áp dụng mã custom nhập tay
+    window.applyCustomPromo = function() {
+        const code = customPromoInput.value.trim();
+        if (!code) return alert('Vui lòng nhập mã giảm giá');
+
+        // Cậu có thể gọi API validate mã giảm giá
+        // Ví dụ: /cart/validate-discount?code=xxx
+        fetch(`/cart/validate-discount?code=${code}`)
+            .then(res => res.json())
+            .then(data => {
+                if (!data.valid) return alert(data.message || 'Mã không hợp lệ');
+                appliedDiscount = {
+                    code: data.code,
+                    type: data.type,
+                    value: parseFloat(data.value)
+                };
+                promoSelect.value = '';
+                updateOrderSummary();
+            });
+    }
+
+    // ✅ Xác nhận thanh toán
+    window.proceedToCheckout = function() {
+        const selectedItems = [...cartForm.querySelectorAll('.cart-checkbox')]
+            .filter(cb => cb.checked)
+            .map(cb => cb.dataset.id);
+
+        if (selectedItems.length === 0) return alert('Vui lòng chọn sản phẩm để thanh toán');
+
+        // Gửi lên server để tạo order
+        fetch('/checkout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                items: selectedItems,
+                discount: appliedDiscount ? appliedDiscount.code : null
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert('Thanh toán thành công!');
+                window.location.reload();
+            } else {
+                alert(data.message || 'Thanh toán thất bại');
+            }
+        });
+    }
+
+    // ✅ Chạy lần đầu
+    updateOrderSummary();
+});
+</script>
 
 @endsection

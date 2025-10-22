@@ -1,0 +1,62 @@
+<?php
+
+namespace App\Http\Controllers\admin;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\SendSupportMessageRequest;
+use App\Models\admin\SupportMessage;
+use App\Models\admin\SupportParticipant;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class SupportMessageController extends Controller
+{
+    // GET /conversations/{id}/messages
+    public function index(int $id)
+    {
+        $messages = SupportMessage::with('sender')
+            ->where('conversation_id', $id)
+            ->orderBy('sent_at')
+            ->get();
+
+        return response()->json($messages);
+    }
+
+    // POST /conversations/{id}/messages
+    public function store(SendSupportMessageRequest $req, int $id)
+    {
+        $user = $req->user(); // có user_id & role ('admin'|'customer')
+        $data = $req->validated();
+
+        $message = DB::transaction(function () use ($id, $user, $data) {
+            // 1) tạo message
+            $msg = SupportMessage::create([
+                'conversation_id' => $id,
+                'sender_id'       => $user->user_id,
+                'sender_role'     => $user->role ?? 'admin',
+                'content'         => $data['content'],
+                'sent_at'         => now(),
+            ]);
+
+            // 2) upsert participant theo người gửi (KHÔNG hardcode admin)
+            SupportParticipant::updateOrCreate(
+                ['conversation_id' => $id, 'user_id' => $user->user_id],
+                ['role' => $user->role ?? 'admin', 'last_read_at' => now()]
+            );
+
+            //3) (tuỳ chọn) broadcast realtime
+            // event(new \App\Event\SupportMessageCreated($id, [
+            //     'message_id'      => $msg->message_id ?? null,
+            //     'conversation_id' => $msg->conversation_id,
+            //     'sender_id'       => $msg->sender_id,
+            //     'sender_role'     => $msg->sender_role,
+            //     'content'         => $msg->content,
+            //     'sent_at'         => $msg->sent_at,
+            // ]));
+
+            return $msg->fresh();
+        });
+
+        return response()->json($message, 201);
+    }
+}
