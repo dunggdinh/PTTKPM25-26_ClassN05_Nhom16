@@ -14,9 +14,6 @@
             <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors" onclick="exportReportFile('pdf')">
                 📄 Xuất PDF
             </button>
-            <button class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors" onclick="exportReportFile('excel')">
-                📊 Xuất Excel
-            </button>
         </div>
 
         <!-- Stats Cards -->
