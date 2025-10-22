@@ -25,7 +25,7 @@
                 </button>
                 
                 <div>
-                    <h2 class="text-3xl font-bold text-gray-900">ElectroStore</h2>
+                    <h2 class="text-3xl font-bold text-gray-900">LC Electronics</h2>
                     <p class="text-base font-medium text-gray-700" id="pageSubtitle">Trang chủ</p>
                 </div>
             </div>

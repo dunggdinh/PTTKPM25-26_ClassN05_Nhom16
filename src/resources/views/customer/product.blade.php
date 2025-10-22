@@ -1,12 +1,4 @@
 @extends('customer.layout')
-@php($categories = $categories ?? collect())
-@php
-    $currentCat = request()->query('category', 'all');
-    $sortBy = $sortBy ?? request('sort_by', 'name');
-    $sortDirection = $sortDirection ?? request('sort_direction', 'asc');
-
-    $categories = $categories ?? collect();
-@endphp
 
 @section('title', 'Sản phẩm')
 
@@ -54,43 +46,45 @@
             </div>
 
             <!-- Client-side Filters (giá/brand) -->
-            <div class="flex flex-wrap justify-center gap-8 mt-6">
-                <div>
-                    <h3 class="font-bold text-gray-800 mb-3 text-center">Lọc theo giá</h3>
-                    <div class="flex flex-wrap gap-4 justify-center">
-                        <label class="flex items-center">
-                            <input type="checkbox" class="mr-2" onchange="filterByPrice('under-10m')">
-                            <span class="text-sm">Dưới 10 triệu</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" class="mr-2" onchange="filterByPrice('10m-20m')">
-                            <span class="text-sm">10 - 20 triệu</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" class="mr-2" onchange="filterByPrice('over-20m')">
-                            <span class="text-sm">Trên 20 triệu</span>
-                        </label>
+            <form method="GET" action="{{ route('customer.product') }}" id="clientFilterForm" class="mt-6">
+                <div class="flex flex-wrap justify-center gap-10 md:gap-20 items-end">
+                    {{-- Lọc theo giá --}}
+                    <div class="flex flex-col items-center">
+                        <h3 class="font-bold text-gray-800 mb-3 text-center">Lọc theo giá</h3>
+                        <select name="price_range"
+                            class="filter-select w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm">
+                            <option value="">Tất cả mức giá</option>
+                            <option value="0-20" {{ request('price_range') == '0-20' ? 'selected' : '' }}>Dưới 20 triệu</option>
+                            <option value="20-40" {{ request('price_range') == '20-40' ? 'selected' : '' }}>20 - 40 triệu</option>
+                            <option value="40+" {{ request('price_range') == '40+' ? 'selected' : '' }}>Trên 40 triệu</option>
+                        </select>
                     </div>
-                </div>
 
-                <div>
-                    <h3 class="font-bold text-gray-800 mb-3 text-center">Thương hiệu</h3>
-                    <div class="flex flex-wrap gap-4 justify-center">
-                        <label class="flex items-center">
-                            <input type="checkbox" class="mr-2" onchange="filterByBrand('apple')">
-                            <span class="text-sm">Apple</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" class="mr-2" onchange="filterByBrand('samsung')">
-                            <span class="text-sm">Samsung</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" class="mr-2" onchange="filterByBrand('xiaomi')">
-                            <span class="text-sm">Xiaomi</span>
-                        </label>
+                    {{-- Lọc theo thương hiệu --}}
+                    <div class="flex flex-col items-center">
+                        <h3 class="font-bold text-gray-800 mb-3 text-center">Thương hiệu</h3>
+                        <select name="brand"
+                            class="filter-select w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm">
+                            <option value="">Tất cả thương hiệu</option>
+                            @foreach ($brands as $brand)
+                                <option value="{{ $brand }}" {{ request('brand') == $brand ? 'selected' : '' }}>
+                                    {{ ucfirst($brand) }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    {{-- 🔁 Nút tải lại --}}
+                    <div class="flex flex-col items-center">
+                        <h3 class="font-bold text-gray-800 mb-3 text-center invisible">Reload</h3>
+                        <a href="{{ route('customer.product') }}"
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-200 transition text-sm">
+                            
+                            Tất cả
+                        </a>
                     </div>
                 </div>
-            </div>
+            </form>
+
         </div>
     </header>
 
@@ -104,10 +98,10 @@
                     <div class="flex items-center space-x-4">
                         <select onchange="sortProducts(this.value)"
                                 class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300">
-                            <option value="server">Sắp xếp (server)</option>
-                            <option value="price-low">Giá thấp đến cao (client)</option>
-                            <option value="price-high">Giá cao đến thấp (client)</option>
-                            <option value="newest">Mới nhất (client)</option>
+                            <option value="server">Sắp xếp</option>
+                            <option value="price-low">Giá thấp đến cao</option>
+                            <option value="price-high">Giá cao đến thấp</option>
+                            <option value="newest">Mới nhất </option>
                         </select>
                         <!-- Server-side sort controls (ẩn) -->
                         <select id="server_sort_by" class="hidden">
@@ -129,15 +123,13 @@
                         @php
                             $brandSlug = strtolower(preg_replace('/\s+/', '', $p->brand ?? ''));
                             $price = (int)($p->price ?? 0);
-                            $priceRange = $price < 10000000 ? 'under-10m' : ($price <= 20000000 ? '10m-20m' : 'over-20m');
                         @endphp
                         <div class="product-card bg-white rounded-xl shadow-md overflow-hidden"
                              data-product-id="{{ $p->product_id }}"
                              data-category="{{ $p->category_id }}"
                              data-brand="{{ $brandSlug }}"
                              data-price="{{ $price }}"
-                             data-created="{{ optional($p->created_at)->timestamp ?? 0 }}"
-                             data-price-range="{{ $priceRange }}">
+                             data-created="{{ optional($p->created_at)->timestamp ?? 0 }}">
                             <div class="relative">
                                 <div class="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                                     <span class="text-6xl">📦</span>
@@ -174,8 +166,13 @@
                 </div>
 
                 <!-- Pagination -->
-                <div class="mt-8">
-                    {{ $products->links() }}
+                <div class="flex flex-col items-center mt-4 bg-white px-4 py-2 rounded-b-xl">
+                    <div>
+                        {{ $products->withQueryString()->links('pagination::simple-tailwind') }}
+                    </div>
+                    <div class="text-sm text-gray-500 mt-1">
+                        Trang {{ $products->currentPage() }} / {{ $products->lastPage() }}
+                    </div>
                 </div>
             </div>
 
@@ -307,42 +304,7 @@
         </main>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white mt-16">
-        <div class="container mx-auto px-4 py-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <h3 class="font-bold text-lg mb-4">TechStore</h3>
-                    <p class="text-gray-300">Cửa hàng điện tử uy tín với sản phẩm chính hãng và dịch vụ tốt nhất.</p>
-                </div>
-                <div>
-                    <h4 class="font-bold mb-4">Liên kết</h4>
-                    <ul class="space-y-2 text-gray-300">
-                        <li><a href="#" class="hover:text-white">Về chúng tôi</a></li>
-                        <li><a href="#" class="hover:text-white">Chính sách bảo hành</a></li>
-                        <li><a href="#" class="hover:text-white">Hướng dẫn mua hàng</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-bold mb-4">Hỗ trợ</h4>
-                    <ul class="space-y-2 text-gray-300">
-                        <li><a href="#" class="hover:text-white">Liên hệ</a></li>
-                        <li><a href="#" class="hover:text-white">FAQ</a></li>
-                        <li><a href="#" class="hover:text-white">Đổi trả</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-bold mb-4">Theo dõi</h4>
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-2xl hover:text-blue-400">📘</a>
-                        <a href="#" class="text-2xl hover:text-pink-400">📷</a>
-                        <a href="#" class="text-2xl hover:text-blue-300">🐦</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
-
+    
     <script>
         // ==== STATE ====
         let currentQuantity = 1;
@@ -578,5 +540,11 @@
             document.getElementById('tab-'+tabName).classList.add('border-blue-600','text-blue-600');
             document.getElementById('tab-'+tabName).classList.remove('text-gray-600');
         }
+        document.querySelectorAll('.filter-select').forEach(select => {
+            select.addEventListener('change', () => {
+                document.getElementById('clientFilterForm').submit();
+            });
+        });
+
     </script>
 @endsection
