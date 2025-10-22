@@ -18,6 +18,7 @@ use App\Http\Controllers\admin\ReportController;
 use App\Http\Controllers\admin\PaymentController;
 
 // Customer Controllers
+use App\Http\Controllers\customer\GoogleController;
 use App\Http\Controllers\customer\ProfileController;
 use App\Http\Controllers\customer\ProductController;     // ✅ chỉ 1 import
 use App\Http\Controllers\customer\CartController;
@@ -201,3 +202,18 @@ Route::get('/checkout', function () {
 });
 Route::post('/vnpay-payment', [PaymentController::class, 'createPayment']);
 Route::get('/vnpay-return',  [PaymentController::class, 'returnPayment']);
+
+
+// Map
+Route::get('/map', [GoogleController::class, 'showMap']);
+Route::get('google-autocomplete', [GoogleController::class, 'index']);
+
+
+// Save address route
+Route::post('/save-address', [GoogleController::class, 'saveAddress'])->name('save-address');
+
+Route::prefix('api/map')->group(function () {
+    Route::get('/test', [GoogleController::class, 'index']);
+    Route::get('/address-from-latlng', [GoogleController::class, 'getAddressFromLatLng']);
+    Route::get('/search-address', [GoogleController::class, 'searchAddress']);
+});
