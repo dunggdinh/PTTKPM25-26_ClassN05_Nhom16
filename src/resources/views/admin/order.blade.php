@@ -118,13 +118,15 @@
                             </div>
 
                             <div class="flex space-x-3">
-                                <button onclick="exportInventory()" class="bg-green-600 hover:bg-green-700 text-white border border-green-600 px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                                <button type="button" onclick="exportOrderFile('pdf')"
+                                        class="bg-red-600 hover:bg-red-700 text-white border border-red-600 px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v8m0 0H8m4 0h4M6 4h12l-1 16H7L6 4z"></path>
                                     </svg>
-                                    <span>Xuất Excel</span>
+                                    <span>Xuất PDF</span>
                                 </button>
+
 
                                 <a href="{{ route('admin.order') }}"
                                     class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
@@ -139,8 +141,7 @@
             </form>
         </div>
         <!-- Orders Table -->          
-            <div class="overflow-x-auto">
-                <table class="w-full border border-gray-200 rounded-lg">
+            <table id="ordersTableMain" class="w-full border border-gray-200 rounded-lg">                
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã Đơn Hàng</th>
@@ -168,16 +169,18 @@
 
                                 <td class="px-6 py-4 text-sm">
                                     @php
+                                        $status = trim($order->status);
                                         $statusColors = [
-                                            'pending' => 'bg-yellow-100 text-yellow-800',
-                                            'processing' => 'bg-blue-100 text-blue-800',
-                                            'shipped' => 'bg-purple-100 text-purple-800',
-                                            'delivered' => 'bg-green-100 text-green-800',
-                                            'cancelled' => 'bg-red-100 text-red-800',
+                                            'Chờ xử lý' => 'bg-yellow-100 text-yellow-800',
+                                            'Đang xử lý' => 'bg-blue-100 text-blue-800',
+                                            'Đang giao' => 'bg-purple-100 text-purple-800',
+                                            'Hoàn tất' => 'bg-green-100 text-green-800',
+                                            'Đã hủy' => 'bg-red-100 text-red-800',
                                         ];
                                     @endphp
-                                    <span class="px-3 py-1 rounded-full text-xs font-semibold {{ $statusColors[$order->status] ?? 'bg-gray-100 text-gray-800' }}">
-                                        {{ ucfirst($order->status) }}
+
+                                    <span class="px-3 py-1 rounded-full text-xs font-semibold {{ $statusColors[$status] ?? 'bg-gray-100 text-gray-800' }}">
+                                        {{ $status }}
                                     </span>
                                 </td>
 
@@ -263,6 +266,127 @@
             </div>
         </div>   
     </div>
+
+<!-- SheetJS (Excel) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" referrerpolicy="no-referrer"></script>
+
+<!-- jsPDF + AutoTable (PDF) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+
+<script>
+// ===== Font Unicode từ CDN cho jsPDF (không cần file local) =====
+async function loadCDNFont(doc) {
+  const sources = [
+    "https://cdn.jsdelivr.net/gh/googlefonts/noto-fonts@main/hinted/ttf/NotoSerif/NotoSerif-Regular.ttf",
+    "https://cdn.jsdelivr.net/gh/dejavu-fonts/dejavu-fonts-ttf@version_2_37/ttf/DejaVuSerif.ttf"
+  ];
+  let base64 = null, postName = "SerifVN";
+  for (const url of sources) {
+    try {
+      const buf = await fetch(url, {mode:'cors'}).then(r => r.arrayBuffer());
+      const bytes = new Uint8Array(buf);
+      let bin = ""; for (let i=0;i<bytes.length;i++) bin += String.fromCharCode(bytes[i]);
+      base64 = btoa(bin); break;
+    } catch(e) {}
+  }
+  if (!base64) { alert("Không tải được font từ CDN. PDF có thể lỗi tiếng Việt."); return; }
+  doc.addFileToVFS(postName + ".ttf", base64);
+  doc.addFont(postName + ".ttf", postName, "normal");
+  doc.setFont(postName);
+}
+
+// ===== Chuẩn hoá Unicode về NFC + bỏ NBSP (tránh vỡ dấu) =====
+function vn(t) {
+  if (t === null || t === undefined) return '';
+  try { t = t.toString().normalize('NFC'); } catch {}
+  return t.replace(/\u00A0/g, ' ');
+}
+
+// ===== Lấy dữ liệu từ bảng đang hiển thị =====
+function getOrdersTableData() {
+  const table = document.getElementById('ordersTableMain');
+
+  // Lấy tất cả header rồi BỎ cột cuối (Thao Tác)
+  let headers = Array.from(table.querySelectorAll('thead th'))
+    .map(th => vn(th.innerText.trim()));
+  headers = headers.slice(0, -1); // <-- bỏ cột cuối
+
+  // Lấy từng dòng; với cột Sản phẩm (index 2) gộp các dòng <div>
+  const rows = Array.from(table.querySelectorAll('tbody tr')).map(tr => {
+    const tds = Array.from(tr.querySelectorAll('td'));
+
+    // map tất cả cell
+    const cells = tds.map((td, idx) => {
+      // gộp nhiều sản phẩm thành 1 chuỗi
+      if (idx === 2) {
+        const text = td.innerText.split('\n').map(s => s.trim()).filter(Boolean).join('; ');
+        return vn(text);
+      }
+      return vn(td.innerText.trim());
+    });
+
+    return cells.slice(0, -1); // <-- bỏ cột cuối (Thao Tác)
+  });
+
+  return { headers, rows };
+}
+
+// ===== Export Excel/PDF =====
+async function exportOrderFile(type) {
+  const { headers, rows } = getOrdersTableData();
+  const fileName = `orders-{{ now()->format('Y-m-d') }}`;
+
+  if (type === 'excel') {
+    const wb = XLSX.utils.book_new();
+    const sheet = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+    XLSX.utils.book_append_sheet(wb, sheet, 'Orders');
+    XLSX.writeFile(wb, `${fileName}.xlsx`);
+    return;
+  }
+
+  if (type === 'pdf') {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // 1) Nạp font + chỉnh spacing
+    await loadCDNFont(doc);
+    doc.setFont("SerifVN");
+    doc.setCharSpace(0);
+    doc.setLineHeightFactor(1.15);
+
+    // 2) Hook: ép mọi cell dùng font + normalize
+    const tableHooks = {
+      didParseCell: (data) => {
+        data.cell.styles.font = 'SerifVN';
+        data.cell.styles.fontStyle = 'normal';
+        if (Array.isArray(data.cell.text)) data.cell.text = data.cell.text.map(vn);
+        else if (typeof data.cell.text === 'string') data.cell.text = vn(data.cell.text);
+      },
+      willDrawCell: (data) => { data.doc.setCharSpace(0); }
+    };
+
+    // 3) Render
+    doc.setFontSize(16);
+    doc.text(vn("Danh sách đơn hàng"), 14, 18);
+
+    doc.autoTable({
+      startY: 24,
+      styles:     { font: 'SerifVN', fontSize: 10 },
+      headStyles: { font: 'SerifVN', fontSize: 10, fillColor: [16,185,129], textColor: [255,255,255] },
+      bodyStyles: { font: 'SerifVN', fontSize: 10 },
+      head: [headers],
+      body: rows,
+      theme: 'grid',
+      ...tableHooks
+    });
+
+    doc.save(`${fileName}.pdf`);
+  }
+}
+</script>
+
+
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     const searchInput = document.querySelector("input[name='search']");

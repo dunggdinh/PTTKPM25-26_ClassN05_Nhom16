@@ -12,38 +12,52 @@ use App\Exports\ImportBatchExport;
 
 class DeliveryController extends Controller
 {
-    /**
-     * Hiển thị danh sách lô hàng nhập
-     */
     public function index(Request $request)
     {
         $query = ImportBatch::with(['supplier', 'product']);
 
-        // Tìm kiếm
+        // 🔍 Tìm kiếm theo batch_id, tên nhà cung cấp hoặc tên sản phẩm
         if ($request->filled('search')) {
-            $query->where('batch_id', 'like', "%{$request->search}%");
+            $search = strtolower($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->whereRaw('LOWER(batch_id) LIKE ?', ["%{$search}%"])
+                  ->orWhereHas('supplier', function ($sub) use ($search) {
+                      $sub->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"]);
+                  })
+                  ->orWhereHas('product', function ($sub) use ($search) {
+                      $sub->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"]);
+                  });
+            });
         }
 
-        // Lọc trạng thái
-        if ($request->filled('status') && $request->status !== 'all') {
-            $query->where('status', $request->status);
+        // 🔖 Lọc theo trạng thái (không phân biệt hoa thường)
+        if ($request->filled('status')) {
+            $status = strtolower($request->status);
+            $query->whereRaw('LOWER(status) = ?', [$status]);
         }
 
-        // Lọc nhà cung cấp
-        if ($request->filled('supplier') && $request->supplier !== 'all') {
+
+        // 🔖 Lọc theo nhà cung cấp
+        if ($request->filled('supplier')) {
             $query->where('supplier_id', $request->supplier);
         }
 
-        $batches = $query->orderBy('created_at', 'desc')->paginate(10);
+        $sortBy = $request->get('sort_by', 'batch_id');
+        $sortDirection = $request->get('sort_direction', 'asc');
+
+        $batches = $query->orderBy($sortBy, $sortDirection)
+                         ->paginate(10)
+                         ->withQueryString();
+
         $suppliers = Supplier::all();
 
-        // Thống kê
+        // 📊 Thống kê
         $totalBatches = ImportBatch::count();
         $completedBatches = ImportBatch::where('status', 'completed')->count();
         $pendingBatches = ImportBatch::where('status', 'pending')->count();
         $totalValue = ImportBatch::sum('total_value');
 
-        return view('admin.import.index', compact(
+        return view('admin.deliveries', compact(
             'batches',
             'suppliers',
             'totalBatches',
@@ -54,46 +68,60 @@ class DeliveryController extends Controller
     }
 
     /**
-     * Reload dữ liệu (AJAX)
+     * Reload dữ liệu AJAX
      */
     public function reload()
     {
-        // Lấy lại dữ liệu mới nhất
         $batches = ImportBatch::with(['supplier', 'product'])
             ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            ->get();
 
-        // Thống kê mới nhất
-        $totalBatches = ImportBatch::count();
-        $completedBatches = ImportBatch::where('status', 'completed')->count();
-        $pendingBatches = ImportBatch::where('status', 'pending')->count();
-        $totalValue = ImportBatch::sum('total_value');
+        $html = '';
 
-        // Nếu gọi bằng AJAX, trả về JSON
-        return response()->json([
-            'batches' => $batches,
-            'stats' => [
-                'totalBatches' => $totalBatches,
-                'completedBatches' => $completedBatches,
-                'pendingBatches' => $pendingBatches,
-                'totalValue' => number_format($totalValue, 0, ',', '.'),
-            ]
-        ]);
+        foreach ($batches as $batch) {
+            $statusColors = [
+                'Chờ xử lý' => 'bg-yellow-100 text-yellow-800',
+                'Hoàn thành' => 'bg-green-100 text-green-800',
+                'Đã hủy' => 'bg-red-100 text-red-800',
+            ];
+            $statusClass = $statusColors[$batch->status] ?? 'bg-gray-100 text-gray-800';
+
+            $html .= "
+                <tr class='hover:bg-gray-50 transition'>
+                    <td class='px-6 py-4 text-sm font-medium text-gray-900'>{$batch->batch_id}</td>
+                    <td class='px-6 py-4 text-sm text-gray-700'>".($batch->supplier->name ?? 'Không xác định')."</td>
+                    <td class='px-6 py-4 text-sm text-gray-700'>".($batch->product->name ?? 'Không xác định')."</td>
+                    <td class='px-6 py-4 text-sm text-gray-700'>{$batch->quantity}</td>
+                    <td class='px-6 py-4 text-sm text-gray-700'>".number_format($batch->price, 0, ',', '.')." ₫</td>
+                    <td class='px-6 py-4 text-sm'>
+                        <span class='px-3 py-1 rounded-full text-xs font-semibold {$statusClass}'>".ucfirst($batch->status)."</span>
+                    </td>
+                    <td class='px-6 py-4 text-sm text-gray-700'>".number_format($batch->total_value, 0, ',', '.')." ₫</td>
+                    <td class='px-6 py-4 text-sm text-gray-700'>
+                        <a href='".route('admin.import.edit', $batch->id)."' class='text-blue-600 hover:underline'>Sửa</a>
+                        <form action='".route('admin.import.destroy', $batch->id)."' method='POST' onsubmit='return confirm(\"Xóa lô hàng này?\")' class='inline'>
+                            ".csrf_field().method_field('DELETE')."
+                            <button type='submit' class='text-red-600 hover:underline'>Xóa</button>
+                        </form>
+                    </td>
+                </tr>
+            ";
+        }
+
+        if ($batches->isEmpty()) {
+            $html = "<tr><td colspan='8' class='text-center py-6 text-gray-500'>Không có lô hàng nào.</td></tr>";
+        }
+
+        return response()->json(['html' => $html]);
     }
 
-    /**
-     * Hiển thị form thêm lô hàng mới
-     */
     public function create()
     {
         $suppliers = Supplier::all();
         $products = Product::all();
-        return view('admin.import.create', compact('suppliers', 'products'));
+        return view('admin.deliveries.create', compact('suppliers', 'products'));
     }
 
-    /**
-     * Lưu lô hàng mới
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -114,23 +142,30 @@ class DeliveryController extends Controller
             'total_value' => $request->quantity * $request->price,
         ]);
 
-        return redirect()->route('admin.import.index')->with('success', 'Thêm lô hàng thành công!');
+        return redirect()->route('admin.deliveries')->with('success', 'Thêm lô hàng thành công!');
     }
 
-    /**
-     * Xóa lô hàng
-     */
     public function destroy($id)
     {
         ImportBatch::findOrFail($id)->delete();
         return back()->with('success', 'Xóa lô hàng thành công!');
     }
 
-    /**
-     * Xuất Excel
-     */
     public function exportExcel()
     {
         return Excel::download(new ImportBatchExport, 'import_batches.xlsx');
     }
+    public function updateStatus(Request $request, $batchId)
+    {
+        $request->validate([
+            'status' => 'required|in:Chờ xử lý,Hoàn thành,Đã hủy',
+        ]);
+
+        $batch = ImportBatch::findOrFail($batchId);
+        $batch->status = $request->status;
+        $batch->save();
+
+        return redirect()->back()->with('success', 'Cập nhật trạng thái thành công.');
+    }
+
 }

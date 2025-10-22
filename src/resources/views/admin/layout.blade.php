@@ -6,6 +6,8 @@
     <title>@yield('title', 'Cửa Hàng Điện Tử')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ url('css/app.css') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
 </head>
 <body class="bg-gray-50 font-sans">
     <!-- Header Bar -->
@@ -41,12 +43,13 @@
                     </div>
                     
                     <!-- Notifications Dropdown -->
-                    <div class="dropdown absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 py-2" id="notificationsDropdown">
-                        <div class="px-4 py-3 border-b border-gray-100">
+                    <div id="notificationsDropdown"
+                            class="dropdown absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 py-2 hidden z-50">
+                        <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
                             <h3 class="font-semibold text-gray-800">Thông báo</h3>
+                            <button onclick="markAllRead()" class="text-xs text-blue-600 hover:underline">Đánh dấu tất cả đã đọc</button>
                         </div>
                         <div class="max-h-96 overflow-y-auto"></div>
-                        
                     </div>
                 </div>
                 
@@ -118,6 +121,12 @@
             </a>
             <div class="menu-divider"></div>
 
+            <a href="/admin/promotion" class="menu-item flex items-center px-6 py-4 text-gray-600 hover:bg-gray-100">
+                <span class="mr-4 text-lg">🏷️</span>
+                <span class="text-base">Quản lý khuyến mãi</span>
+            </a>
+            <div class="menu-divider"></div>
+
             <a href="/admin/return" class="menu-item flex items-center px-6 py-4 text-gray-600 hover:bg-gray-100">
                 <span class="mr-4 text-lg">🔁</span>
                 <span class="text-base">Đổi/Trả hàng</span>
@@ -168,10 +177,12 @@
             'Quản lý đơn hàng': '/admin/order',
             'Đổi/Trả hàng': '/admin/return',
             'Quản lý thanh toán': '/admin/payments_gateway',
+            'Quản lý khuyến mãi': '/admin/promotion', // 👈 thêm dòng này
             'Quản lý lô hàng nhập': '/admin/deliveries',
             'Hỗ trợ khách hàng': '/admin/support',
             'Báo cáo & thống kê': '/admin/report'
         };
+
 
         // Add ripple effect to menu items
         function createRipple(event) {
@@ -243,9 +254,7 @@
                 });
             }
         }
-        function toggleNotifications() {
-            document.getElementById('notificationsDropdown').classList.toggle('hidden');
-        }
+        
         function toggleSidebar() {
             const sidebar = document.querySelector('.sidebar');
             const main = document.querySelector('#mainContent');
@@ -254,5 +263,119 @@
             main.style.marginLeft = hidden ? '16rem' : '0';
         }
     </script>
+    <script>
+    const dropdown = document.getElementById('notificationsDropdown');
+    const badge = document.querySelector('.notification-badge');
+
+    async function loadNotifications() {
+        try {
+            const res = await fetch(`{{ route('admin.notifications') }}`, { headers:{'X-Requested-With':'XMLHttpRequest'} });
+            const data = await res.json();
+            renderNotifications(data.items);
+            renderBadge(data.unread);
+        } catch (e) {
+            console.error('Load notifications error', e);
+        }
+    }
+
+    function renderBadge(unread) {
+        if (!badge) return;
+        badge.textContent = unread > 99 ? '99+' : unread;
+        badge.style.display = unread > 0 ? 'flex' : 'none';
+    }
+
+    function pillColor(icon) {
+        switch(icon){
+            case 'blue': return 'bg-blue-500';
+            case 'green': return 'bg-green-500';
+            case 'red': return 'bg-red-500';
+            default: return 'bg-gray-300';
+        }
+    }
+
+    function itemTemplate(n) {
+        return `
+        <div class="px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50">
+            <div class="flex items-start space-x-3">
+            <div class="w-2 h-2 ${pillColor(n.icon)} rounded-full mt-2 flex-shrink-0"></div>
+            <div class="flex-1">
+                <p class="font-bold ${n.read_at ? 'text-gray-700' : 'text-gray-800'} text-sm">${n.title}</p>
+                <p class="text-xs ${n.read_at ? 'text-gray-400' : 'text-gray-500'} mt-1">${n.message ?? ''}</p>
+                <div class="flex items-center justify-between mt-1">
+                <p class="text-xs ${n.read_at ? 'text-gray-400' : 'text-blue-600'}">${n.time ?? ''}</p>
+                <div class="flex items-center gap-2">
+                    ${n.url ? `<a href="${n.url}" class="text-xs text-blue-600 hover:underline">Xem</a>` : ''}
+                    ${!n.read_at ? `<button data-id="${n.id}" class="mark-read text-xs text-gray-600 hover:text-gray-800">Đã đọc</button>` : ''}
+                    <button data-id="${n.id}" class="remove text-xs text-red-600 hover:text-red-700">Xóa</button>
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>`;
+    }
+
+    function renderNotifications(items) {
+        const container = dropdown.querySelector('.max-h-96');
+        if (!container) return;
+        if (!items || items.length === 0) {
+            container.innerHTML = `<div class="px-4 py-6 text-center text-gray-500">Không có thông báo nào</div>`;
+            return;
+        }
+        container.innerHTML = items.map(itemTemplate).join('');
+
+        container.querySelectorAll('.mark-read').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+            const id = e.currentTarget.dataset.id;
+            await fetch(`{{ url('/admin/notifications') }}/${id}/read`, {
+                method: 'POST',
+                headers: {
+                'X-CSRF-TOKEN': `{{ csrf_token() }}`,
+                'X-Requested-With':'XMLHttpRequest'
+                }
+            });
+            await loadNotifications();
+            });
+        });
+
+        container.querySelectorAll('.remove').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+            const id = e.currentTarget.dataset.id;
+            await fetch(`{{ url('/admin/notifications') }}/${id}`, {
+                method: 'DELETE',
+                headers: {
+                'X-CSRF-TOKEN': `{{ csrf_token() }}`,
+                'X-Requested-With':'XMLHttpRequest'
+                }
+            });
+            await loadNotifications();
+            });
+        });
+    }
+
+    async function markAllRead() {
+        await fetch(`{{ route('admin.notifications.read_all') }}`, {
+            method: 'POST',
+            headers: {'X-CSRF-TOKEN': `{{ csrf_token() }}`, 'X-Requested-With':'XMLHttpRequest'}
+        });
+        await loadNotifications();
+    }
+
+    function toggleNotifications() {
+        const dd = document.getElementById('notificationsDropdown');
+        dd.classList.toggle('hidden');
+        if (!dd.classList.contains('hidden')) {
+            dd.querySelector('.max-h-96').innerHTML = `<div class="px-4 py-6 text-center text-gray-500">Đang tải...</div>`;
+            loadNotifications();
+        }
+
+    }
+
+    // tự load khi trang mở & refresh định kỳ
+    document.addEventListener('DOMContentLoaded', () => {
+        loadNotifications();
+        setInterval(loadNotifications, 30000);
+    });
+    </script>
+
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement(\'script\');d.innerHTML="window.__CF$cv$params={r:\'98f4561c8249f995\',t:\'MTc2MDU4Mzk0NS4wMDAwMDA=\'};var a=document.createElement(\'script\');a.nonce=\'\';a.src=\'/cdn-cgi/challenge-platform/scripts/jsd/main.js\';document.getElementsByTagName(\'head\')[0].appendChild(a);";b.getElementsByTagName(\'head\')[0].appendChild(d)}}if(document.body){var a=document.createElement(\'iframe\');a.height=1;a.width=1;a.style.position=\'absolute\';a.style.top=0;a.style.left=0;a.style.border=\'none\';a.style.visibility=\'hidden\';document.body.appendChild(a);if(\'loading\'!==document.readyState)c();else if(window.addEventListener)document.addEventListener(\'DOMContentLoaded\',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);\'loading\'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

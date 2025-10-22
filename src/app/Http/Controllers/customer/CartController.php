@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\admin\Cart;
 use App\Models\admin\CartItem;
 use App\Models\admin\Product;
+use App\Notifications\LowStockInCartNotification;
 
 class CartController extends Controller
 {
