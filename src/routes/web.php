@@ -55,7 +55,7 @@ Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(functi
     Route::get('/cart',              [CartController::class, 'index'])->name('cart');
     Route::get('/cart/data',         [CartController::class, 'data'])->name('cart.data');
 
-    Route::post('/cart/add',         [CartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/add',         [CartController::class, 'addToCart'])->name('cart.add');
     Route::patch('/cart/item/{id}',  [CartController::class, 'updateItem'])->name('cart.update');
     Route::delete('/cart/item/{id}', [CartController::class, 'removeItem'])->name('cart.remove');
     Route::delete('/cart/clear',     [CartController::class, 'clear'])->name('cart.clear');
