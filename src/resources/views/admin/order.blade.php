@@ -168,16 +168,18 @@
 
                                 <td class="px-6 py-4 text-sm">
                                     @php
+                                        $status = trim($order->status);
                                         $statusColors = [
-                                            'pending' => 'bg-yellow-100 text-yellow-800',
-                                            'processing' => 'bg-blue-100 text-blue-800',
-                                            'shipped' => 'bg-purple-100 text-purple-800',
-                                            'delivered' => 'bg-green-100 text-green-800',
-                                            'cancelled' => 'bg-red-100 text-red-800',
+                                            'Chờ xử lý' => 'bg-yellow-100 text-yellow-800',
+                                            'Đang xử lý' => 'bg-blue-100 text-blue-800',
+                                            'Đang giao' => 'bg-purple-100 text-purple-800',
+                                            'Hoàn tất' => 'bg-green-100 text-green-800',
+                                            'Đã hủy' => 'bg-red-100 text-red-800',
                                         ];
                                     @endphp
-                                    <span class="px-3 py-1 rounded-full text-xs font-semibold {{ $statusColors[$order->status] ?? 'bg-gray-100 text-gray-800' }}">
-                                        {{ ucfirst($order->status) }}
+
+                                    <span class="px-3 py-1 rounded-full text-xs font-semibold {{ $statusColors[$status] ?? 'bg-gray-100 text-gray-800' }}">
+                                        {{ $status }}
                                     </span>
                                 </td>
 

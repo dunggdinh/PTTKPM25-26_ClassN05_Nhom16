@@ -11,6 +11,7 @@ class Warranty extends Model
     protected $fillable = [
         'warranty_id',
         'order_item_id',
+        'product_id',
         'product_serial',
         'start_date',
         'end_date',
@@ -21,5 +22,9 @@ class Warranty extends Model
     public function orderItem()
     {
         return $this->belongsTo(OrderItem::class, 'order_item_id', 'order_item_id');
+    }
+    public function Product()
+    {
+        return $this->belongsTo(Product::class, 'product_id', 'product_id');
     }
 }

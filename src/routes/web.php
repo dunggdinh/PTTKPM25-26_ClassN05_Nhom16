@@ -129,7 +129,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Deliveries
     Route::get('/deliveries', [DeliveryController::class, 'index'])->name('deliveries');
     Route::post('/deliveries', [DeliveryController::class, 'store'])->name('deliveries.store');
-    Route::put('/deliveries/{id}', [DeliveryController::class, 'update'])->name('deliveries.update');
+    Route::put('/deliveries/{id}/update-status', [DeliveryController::class, 'updateStatus'])->name('deliveries.updateStatus');
     Route::delete('/deliveries/{id}', [DeliveryController::class, 'destroy'])->name('deliveries.destroy');
     Route::get('/deliveries/export', [DeliveryController::class, 'exportExcel'])->name('deliveries.export');
     Route::get('/deliveries/reload', [DeliveryController::class, 'reload'])->name('deliveries.reload');
@@ -158,6 +158,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Return & Warranty
     Route::get('/return', [ReturnController::class, 'index'])->name('return');
     Route::get('/warranties', [WarrantyController::class, 'index'])->name('warranties');
+    Route::put('/warranties/{id}/update-status', [WarrantyController::class, 'updateStatus'])->name('warranties.updateStatus');
+    Route::delete('/warranties/{id}', [WarrantyController::class, 'destroy'])->name('warranties.destroy');
+    Route::get('/warranties/reload', [WarrantyController::class, 'reload'])->name('warranties.reload');
+
 });
 
 /*

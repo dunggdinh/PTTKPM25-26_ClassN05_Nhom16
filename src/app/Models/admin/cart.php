@@ -31,10 +31,8 @@ class Cart extends Model
     {
         return $this->hasMany(CartItem::class, 'cart_id', 'cart_id');
     }
-    // helper: phát sinh cart_id vừa đúng 10 ký tự như DB (VD: CART_001)
     public static function newId(): string
     {
-        // CART_ + 3 số -> 8 ký tự; nếu cần đúng 10 có thể CART_ + 5 số
         return 'CART_'.str_pad((string)random_int(1, 99999), 5, '0', STR_PAD_LEFT);
     }
 }
