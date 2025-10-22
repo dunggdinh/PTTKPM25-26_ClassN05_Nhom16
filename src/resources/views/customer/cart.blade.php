@@ -167,13 +167,54 @@
         return res.json();
     }
 
-    /* ====== Load từ DB ====== */
+    /* ====== Load từ DB (và fallback localStorage nếu API lỗi) ====== */
+    function parseStoredPrice(p){
+        // nhận cả số hoặc chuỗi "29.990.000₫"
+        if (p==null) return 0;
+        if (typeof p === 'number') return Number(p);
+        try {
+            const digits = String(p).replace(/[^\d]/g,'');
+            return Number(digits || 0);
+        } catch { return 0; }
+    }
+
     async function loadCart() {
-        const data = await apiGet('/cart/data');
-        CART.cart_id = data.cart_id;
-        // server trả: items = [{cart_item_id, product_id, name, price, quantity}]
-        CART.items = data.items || [];
-        CART.subtotal = data.subtotal || 0;
+        try {
+            const data = await apiGet('/cart/data');
+            CART.cart_id = data.cart_id;
+            CART.items = data.items || [];
+            CART.subtotal = data.subtotal || 0;
+            // ensure items have cart_item_id
+            CART.items = CART.items.map((it, idx) => {
+                if(!it.cart_item_id) it.cart_item_id = 'srv-' + (it.product_id||idx) + '-' + Date.now();
+                return it;
+            });
+        } catch (err) {
+            // Fallback: đọc từ localStorage 'cart' (format client-side)
+            try {
+                const ls = JSON.parse(localStorage.getItem('cart') || '[]');
+                if (!Array.isArray(ls) || ls.length===0) {
+                    CART.items = [];
+                    CART.subtotal = 0;
+                    CART.cart_id = '';
+                    return;
+                }
+                CART.items = ls.map((it, idx) => ({
+                    cart_item_id: it._local_id || ('local-' + (it.id || idx) + '-' + (Date.now()%100000)),
+                    product_id: it.id || null,
+                    name: it.name || ('Sản phẩm ' + (idx+1)),
+                    price: parseStoredPrice(it.price),
+                    quantity: Number(it.quantity || it.qty || 1),
+                    _local: true
+                }));
+                CART.subtotal = CART.items.reduce((s,i)=>s + (Number(i.price)||0) * (Number(i.quantity)||0), 0);
+                CART.cart_id = '';
+            } catch(e) {
+                CART.items = [];
+                CART.subtotal = 0;
+                CART.cart_id = '';
+            }
+        }
     }
 
     /* ====== Render ====== */
@@ -232,7 +273,32 @@
     async function changeQuantity(cartItemId, delta) {
         const item = CART.items.find(x=>x.cart_item_id===cartItemId);
         if (!item) return;
+
         const newQty = Math.max(1, (Number(item.quantity)||1) + Number(delta));
+
+        if (item._local || String(cartItemId).startsWith('local-')) {
+            // cập nhật localStorage
+            item.quantity = newQty;
+            // sync back to localStorage format (search by id/name)
+            try {
+                const ls = JSON.parse(localStorage.getItem('cart') || '[]');
+                const idx = ls.findIndex(x => (x._local_id && ('local-'+(x._local_id) ).includes(cartItemId)) || x.id==item.product_id || x.name==item.name);
+                if (idx>-1) {
+                    ls[idx].quantity = newQty;
+                } else {
+                    // fallback: try by name
+                    const idx2 = ls.findIndex(x=>x.name==item.name);
+                    if(idx2>-1) ls[idx2].quantity = newQty;
+                }
+                localStorage.setItem('cart', JSON.stringify(ls));
+            } catch(e){}
+            document.getElementById(`qty-${cartItemId}`).textContent = newQty;
+            renderCartItems();
+            showNotification(`Đã cập nhật số lượng: ${newQty}`, 'success');
+            return;
+        }
+
+        // server-side update
         await apiJson(`/cart/item/${cartItemId}`, 'PATCH', {quantity: newQty});
         item.quantity = newQty;
         document.getElementById(`qty-${cartItemId}`).textContent = newQty;
@@ -242,6 +308,23 @@
 
     /* ====== Xoá item (DELETE /cart/item/{id}) ====== */
     async function removeItem(cartItemId) {
+        const item = CART.items.find(x=>x.cart_item_id===cartItemId);
+        if (!item) return;
+
+        if (item._local || String(cartItemId).startsWith('local-')) {
+            // remove from localStorage
+            try {
+                let ls = JSON.parse(localStorage.getItem('cart') || '[]');
+                ls = ls.filter(x => !( (x._local_id && ('local-'+x._local_id)===cartItemId) || x.id==item.product_id || x.name==item.name ));
+                localStorage.setItem('cart', JSON.stringify(ls));
+            } catch(e){}
+            CART.items = CART.items.filter(x=>x.cart_item_id!==cartItemId);
+            renderCartItems();
+            showNotification('Đã xóa sản phẩm khỏi giỏ hàng', 'success');
+            return;
+        }
+
+        // server-side delete
         await apiJson(`/cart/item/${cartItemId}`, 'DELETE');
         CART.items = CART.items.filter(x=>x.cart_item_id !== cartItemId);
         renderCartItems();
@@ -328,6 +411,12 @@
         apiJson('/cart/clear', 'DELETE').then(()=>{
             CART.items = [];
             renderCartItems();
+            try { localStorage.removeItem('cart'); } catch(e){}
+        }).catch(()=>{
+            // nếu API lỗi thì clear localStorage fallback
+            CART.items = [];
+            renderCartItems();
+            try { localStorage.removeItem('cart'); } catch(e){}
         });
     }
 

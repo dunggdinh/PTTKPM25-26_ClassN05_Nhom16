@@ -129,7 +129,7 @@
                 </div>
                 <h3 class="text-lg font-medium text-gray-800 mb-2">Không có đơn hàng nào</h3>
                 <p class="text-gray-500 mb-6">Bạn chưa có đơn hàng nào trong danh mục này</p>
-                <a href="{{ url('/') }}" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                <a href="{{ url('/customer/product') }}" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors">
                     Tiếp tục mua sắm
                 </a>
             </div>

@@ -70,7 +70,7 @@
         <section class="mb-12">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-gray-800">Sản phẩm nổi bật</h2>
-                <button class="text-blue-600 hover:text-blue-800 font-medium">Xem tất cả →</button>
+                <a href="{{ url('/customer/product') }}" class="text-blue-600 hover:text-blue-800 font-medium">Xem tất cả →</a>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <!-- Product 1 -->
