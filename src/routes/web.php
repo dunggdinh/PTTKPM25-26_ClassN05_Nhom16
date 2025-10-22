@@ -21,6 +21,7 @@ use App\Http\Controllers\admin\DiscountController;
 
 
 // Customer Controllers
+use App\Http\Controllers\customer\GoogleController;
 use App\Http\Controllers\customer\ProfileController;
 use App\Http\Controllers\customer\ProductController;     // ✅ chỉ 1 import
 use App\Http\Controllers\customer\CartController;
@@ -228,3 +229,18 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
 
 
+
+
+// Map
+Route::get('/map', [GoogleController::class, 'showMap']);
+Route::get('google-autocomplete', [GoogleController::class, 'index']);
+
+
+// Save address route
+Route::post('/save-address', [GoogleController::class, 'saveAddress'])->name('save-address');
+
+Route::prefix('api/map')->group(function () {
+    Route::get('/test', [GoogleController::class, 'index']);
+    Route::get('/address-from-latlng', [GoogleController::class, 'getAddressFromLatLng']);
+    Route::get('/search-address', [GoogleController::class, 'searchAddress']);
+});

@@ -304,18 +304,15 @@
                             </svg>
                         </button>
                     </div>
-                    
                     <form onsubmit="saveAddress(event)" class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Tên địa chỉ</label>
                             <input type="text" name="address_name" required placeholder="Ví dụ: Nhà riêng, Công ty" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" ${existingAddress ? `value="${existingAddress.address_name}"` : ''}>
                         </div>
-                        
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Địa chỉ chi tiết</label>
                             <input type="text" name="address_detail" required placeholder="Số nhà, tên đường" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" ${existingAddress ? `value="${existingAddress.address_detail}"` : ''}>
                         </div>
-                        
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Quận/Huyện</label>
@@ -326,29 +323,141 @@
                                 <input type="text" name="city" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" ${existingAddress ? `value="${existingAddress.city}"` : ''}>
                             </div>
                         </div>
-                        
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Số điện thoại</label>
                             <input type="tel" name="phone" required pattern="[0-9]{10}" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" ${existingAddress ? `value="${existingAddress.phone}"` : ''}>
                             <p class="text-sm text-gray-500 mt-1">Vui lòng nhập số điện thoại 10 chữ số</p>
                         </div>
-                        
                         <label class="flex items-center">
                             <input type="checkbox" name="is_default" class="form-checkbox h-4 w-4 text-blue-600" ${existingAddress && existingAddress.is_default ? 'checked' : ''}>
                             <span class="ml-2 text-sm text-gray-600">Đặt làm địa chỉ mặc định</span>
                         </label>
-                        
+                        <!-- Hidden lat/lng -->
+                        <input type="hidden" name="latitude" value="${existingAddress?.latitude || ''}">
+                        <input type="hidden" name="longitude" value="${existingAddress?.longitude || ''}">
                         <div class="flex justify-end space-x-3 pt-4">
-                            <button type="button" onclick="closeAddressModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
-                                Hủy
-                            </button>
-                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                                Lưu địa chỉ
-                            </button>
+                            <button type="button" onclick="closeAddressModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Hủy</button>
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Lưu địa chỉ</button>
+                            <a href="/map?return={{ urlencode('/customer/profile') }}" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 inline-flex items-center">Chọn từ bản đồ</a>
                         </div>
                     </form>
                 </div>
+                <!-- Modal Google Map -->
+                <div id="mapModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50" style="display:none;">
+                    <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl mx-4">
+                        <h2 class="text-lg font-bold mb-2">Chọn vị trí trên bản đồ</h2>
+                        <div id="googleMap" style="width:100%;height:400px;"></div>
+                        <div class="mt-4 flex gap-2">
+                            <button type="button" onclick="confirmMapAddress()" class="bg-blue-500 text-white px-4 py-2 rounded">Chọn vị trí này</button>
+                            <button type="button" onclick="closeMapModal()" class="bg-gray-300 px-4 py-2 rounded">Đóng</button>
+                        </div>
+                        <div id="mapAddressInfo" class="mt-2 text-sm text-gray-700"></div>
+                    </div>
+                </div>
             `;
+        // Google Maps API Key từ .env
+        const GOOGLE_MAPS_API_KEY = "AIzaSyBjuZAOnShMXxAsAy6xUcq-gEKGV9ebd5k";
+
+        // Biến lưu vị trí chọn từ map
+        let selectedMapLocation = null;
+
+        function openMapModal() {
+            document.getElementById('mapModal').style.display = 'flex';
+            // Xóa nội dung cũ của googleMap để tránh lỗi khi mở lại
+            const mapDiv = document.getElementById('googleMap');
+            if (mapDiv) mapDiv.innerHTML = '';
+            // Nếu Google Maps đã có thì gọi initMap luôn
+            if (window.google && window.google.maps) {
+                setTimeout(initMap, 100);
+            } else {
+                // Nếu chưa có thì tải script và gọi initMap khi đã tải xong
+                if (!document.getElementById('google-maps-script')) {
+                    const script = document.createElement('script');
+                    script.id = 'google-maps-script';
+                    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}`;
+                    script.async = true;
+                    script.defer = true;
+                    script.onload = function() {
+                        setTimeout(initMap, 100);
+                    };
+                    document.body.appendChild(script);
+                } else {
+                    // Nếu script đang tải, chờ 500ms rồi thử lại
+                    setTimeout(openMapModal, 500);
+                }
+            }
+        }
+
+        function closeMapModal() {
+            document.getElementById('mapModal').style.display = 'none';
+        }
+
+        function initMap() {
+            if (window.google && window.google.maps) {
+                const defaultLatLng = { lat: 10.762622, lng: 106.660172 }; // Hồ Chí Minh
+                const map = new google.maps.Map(document.getElementById('googleMap'), {
+                    center: defaultLatLng,
+                    zoom: 13
+                });
+                let marker = new google.maps.Marker({
+                    position: defaultLatLng,
+                    map: map,
+                    draggable: true
+                });
+                // Sự kiện click map
+                map.addListener('click', function(e) {
+                    marker.setPosition(e.latLng);
+                    fetchAddressFromLatLng(e.latLng.lat(), e.latLng.lng());
+                });
+                // Sự kiện kéo marker
+                marker.addListener('dragend', function(e) {
+                    fetchAddressFromLatLng(e.latLng.lat(), e.latLng.lng());
+                });
+                // Lấy địa chỉ ban đầu
+                fetchAddressFromLatLng(defaultLatLng.lat, defaultLatLng.lng);
+            }
+        }
+
+        function fetchAddressFromLatLng(lat, lng) {
+            selectedMapLocation = { lat, lng };
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ location: { lat, lng } }, function(results, status) {
+                if (status === 'OK' && results[0]) {
+                    document.getElementById('mapAddressInfo').textContent = results[0].formatted_address;
+                    selectedMapLocation.address = results[0].formatted_address;
+                    // Phân tích quận/huyện, thành phố
+                    let district = '', city = '';
+                    results[0].address_components.forEach(comp => {
+                        if (comp.types.includes('administrative_area_level_2')) district = comp.long_name;
+                        if (comp.types.includes('administrative_area_level_1')) city = comp.long_name;
+                    });
+                    selectedMapLocation.district = district;
+                    selectedMapLocation.city = city;
+                } else {
+                    document.getElementById('mapAddressInfo').textContent = 'Không tìm thấy địa chỉ.';
+                }
+            });
+        }
+
+        function confirmMapAddress() {
+            if (!selectedMapLocation) return;
+            // Điền vào form
+            document.querySelector('input[name="address_detail"]').value = selectedMapLocation.address || '';
+            document.querySelector('input[name="district"]').value = selectedMapLocation.district || '';
+            document.querySelector('input[name="city"]').value = selectedMapLocation.city || '';
+            document.querySelector('input[name="latitude"]').value = selectedMapLocation.lat || '';
+            document.querySelector('input[name="longitude"]').value = selectedMapLocation.lng || '';
+            closeMapModal();
+        }
+
+        // Tải Google Maps script
+        if (!window.google || !window.google.maps) {
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}`;
+            script.async = true;
+            script.defer = true;
+            document.body.appendChild(script);
+        }
             
             // Remove existing modal if any
             const existingModal = document.getElementById('addressModal');
