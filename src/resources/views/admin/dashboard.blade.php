@@ -11,11 +11,6 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <button onclick="exportDashboardFile('excel')" 
-                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium">
-                    📊 Xuất Excel
-                </button>
-
                 <button onclick="exportDashboardFile('pdf')" 
                         class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium">
                     🧾 Xuất PDF
