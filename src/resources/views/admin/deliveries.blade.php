@@ -112,7 +112,9 @@
                             </div>
 
                             <div class="flex space-x-3">
-                                <button onclick="exportInventory()" class="bg-green-600 hover:bg-green-700 text-white border border-green-600 px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                                <!-- Xuất Excel -->
+                                <button type="button" onclick="exportDeliveriesFile('excel')" 
+                                    class="bg-green-600 hover:bg-green-700 text-white border border-green-600 px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                             d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -120,8 +122,18 @@
                                     <span>Xuất Excel</span>
                                 </button>
 
+                                <!-- Xuất PDF -->
+                                <button type="button" onclick="exportDeliveriesFile('pdf')" 
+                                    class="bg-red-600 hover:bg-red-700 text-white border border-red-600 px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v8m-4-4h8M5 19h14a2 2 0 002-2V9.414a2 2 0 00-.586-1.414l-4.414-4.414A2 2 0 0014.586 3H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                    <span>Xuất PDF</span>
+                                </button>
+
                                 <a href="{{ route('admin.deliveries') }}"
-                                    class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                                class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                             d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
@@ -129,13 +141,14 @@
                                     <span>Làm mới</span>
                                 </a>
                             </div>
+
             </form>
         </div>
 
         <!-- Table -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
+                <table id="deliveriesTableMain" class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã lô hàng</th>
@@ -246,6 +259,109 @@
 
         </div>
 
+<!-- Thư viện xuất Excel & PDF (chỉ load 1 lần ở trang này) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+
+<script>
+async function loadCDNFont(doc) {
+  const sources = [
+    "https://cdn.jsdelivr.net/gh/googlefonts/noto-fonts@main/hinted/ttf/NotoSerif/NotoSerif-Regular.ttf",
+    "https://cdn.jsdelivr.net/gh/dejavu-fonts/dejavu-fonts-ttf@version_2_37/ttf/DejaVuSerif.ttf"
+  ];
+  let base64 = null, postName = "SerifVN";
+  for (const url of sources) {
+    try {
+      const buf = await fetch(url, {mode:'cors'}).then(r => r.arrayBuffer());
+      const bytes = new Uint8Array(buf);
+      let bin = ""; for (let i=0;i<bytes.length;i++) bin += String.fromCharCode(bytes[i]);
+      base64 = btoa(bin); break;
+    } catch(e) {}
+  }
+  if (!base64) { alert("Không tải được font từ CDN. PDF có thể lỗi tiếng Việt."); return; }
+  doc.addFileToVFS(postName + ".ttf", base64);
+  doc.addFont(postName + ".ttf", postName, "normal");
+  doc.setFont(postName);
+}
+
+// ===== Chuẩn hoá Unicode về NFC + bỏ NBSP (tránh vỡ dấu) =====
+function vn(t) {
+  if (t === null || t === undefined) return '';
+  try { t = t.toString().normalize('NFC'); } catch {}
+  return t.replace(/\u00A0/g, ' ');
+}
+
+// ===== Lấy dữ liệu từ bảng (Deliveries) =====
+function getDeliveriesTableData() {
+  const table = document.getElementById('deliveriesTableMain');
+  const headers = Array.from(table.querySelectorAll('thead th')).map(th => vn(th.innerText.trim()));
+  const rows = Array.from(table.querySelectorAll('tbody tr')).map(tr =>
+    Array.from(tr.querySelectorAll('td')).map(td => vn(td.innerText.trim()))
+  );
+  // Bỏ cột "Thao tác"
+  const idx = headers.findIndex(h => h.toLowerCase().includes('thao tác'));
+  if (idx > -1) {
+    headers.splice(idx, 1);
+    rows.forEach(r => r.splice(idx, 1));
+  }
+  return { headers, rows };
+}
+
+// ===== Export Excel/PDF =====
+async function exportDeliveriesFile(type) {
+  const { headers, rows } = getDeliveriesTableData();
+  const fileName = `LoHangNhap_{{ now()->format('Y-m-d') }}`;
+
+  // Excel
+  if (type === 'excel') {
+    const wb = XLSX.utils.book_new();
+    const sheet = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+    XLSX.utils.book_append_sheet(wb, sheet, 'Deliveries');
+    XLSX.writeFile(wb, `${fileName}.xlsx`);
+    return;
+  }
+
+  // PDF
+  if (type === 'pdf') {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+
+    await loadCDNFont(doc);
+    doc.setFont("SerifVN");
+    doc.setCharSpace(0);
+    doc.setLineHeightFactor(1.15);
+
+    const tableHooks = {
+      didParseCell: (data) => {
+        data.cell.styles.font = 'SerifVN';
+        data.cell.styles.fontStyle = 'normal';
+        if (Array.isArray(data.cell.text)) data.cell.text = data.cell.text.map(vn);
+        else if (typeof data.cell.text === 'string') data.cell.text = vn(data.cell.text);
+      },
+      willDrawCell: (data) => { data.doc.setCharSpace(0); }
+    };
+
+    // Tiêu đề
+    doc.setFontSize(16);
+    doc.text(vn("Danh sách lô hàng nhập"), 14, 18);
+
+    doc.autoTable({
+      startY: 24,
+      styles:     { font: 'SerifVN', fontSize: 10 },
+      headStyles: { font: 'SerifVN', fontSize: 10, fillColor: [59,130,246], textColor: [255,255,255] },
+      bodyStyles: { font: 'SerifVN', fontSize: 10 },
+      head: [headers],
+      body: rows,
+      theme: 'grid',
+      ...tableHooks
+    });
+
+    doc.save(`${fileName}.pdf`);
+  }
+}
+
+</script>
 
 
 <script>

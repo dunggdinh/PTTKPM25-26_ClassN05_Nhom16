@@ -11,14 +11,11 @@
 
         <!-- Action Buttons -->
         <div class="mb-8 flex flex-wrap gap-4">
-            <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors" onclick="exportReport()">
-                📄 Xuất báo cáo PDF
+            <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors" onclick="exportReportFile('pdf')">
+                📄 Xuất PDF
             </button>
-            <button class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors" onclick="exportExcel()">
+            <button class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors" onclick="exportReportFile('excel')">
                 📊 Xuất Excel
-            </button>
-            <button class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors" onclick="scheduleReport()">
-                ⏰ Lên lịch báo cáo
             </button>
         </div>
 
@@ -200,7 +197,146 @@
 
 
     </div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- SheetJS (Excel) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" referrerpolicy="no-referrer"></script>
+
+<!-- jsPDF + AutoTable (PDF) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+
+<script>
+// ===== Font Unicode từ CDN (không cần .ttf local) =====
+async function loadCDNFont(doc) {
+  const sources = [
+    "https://cdn.jsdelivr.net/gh/googlefonts/noto-fonts@main/hinted/ttf/NotoSerif/NotoSerif-Regular.ttf",
+    "https://cdn.jsdelivr.net/gh/dejavu-fonts/dejavu-fonts-ttf@version_2_37/ttf/DejaVuSerif.ttf"
+  ];
+  let base64 = null, postName = "SerifVN";
+  for (const url of sources) {
+    try {
+      const buf = await fetch(url, {mode:'cors'}).then(r => r.arrayBuffer());
+      const bytes = new Uint8Array(buf);
+      let bin = ""; for (let i=0;i<bytes.length;i++) bin += String.fromCharCode(bytes[i]);
+      base64 = btoa(bin); break;
+    } catch(e) {}
+  }
+  if (!base64) { alert("Không tải được font từ CDN. PDF có thể lỗi tiếng Việt."); return; }
+  doc.addFileToVFS(postName + ".ttf", base64);
+  doc.addFont(postName + ".ttf", postName, "normal");
+  doc.setFont(postName);
+}
+
+// ===== Chuẩn hoá Unicode (tránh lỗi dấu) =====
+function vn(t) {
+  if (t === null || t === undefined) return '';
+  try { t = t.toString().normalize('NFC'); } catch {}
+  return t.replace(/\u00A0/g, ' ');
+}
+
+// ===== Lấy dữ liệu từ UI (Top sản phẩm + Đơn gần đây) =====
+function getReportTables() {
+  // Top sản phẩm
+  const topTable = document.getElementById('topProductsTable');
+  const topRows = Array.from(topTable.querySelectorAll('tr'))
+    .map(tr => Array.from(tr.querySelectorAll('td')).map(td => vn(td.innerText.trim())))
+    .filter(r => r.length > 0); // [Sản phẩm, Đã bán, Doanh thu]
+
+  // Đơn hàng gần đây
+  const orderContainer = document.getElementById('recentOrders');
+  const orderItems = Array.from(orderContainer.querySelectorAll('.flex.items-center.justify-between'))
+    .map(div => {
+      const name = vn(div.querySelector('p.text-sm')?.innerText || '');
+      const id = vn(div.querySelector('p.text-xs')?.innerText || '');
+      const total = vn(div.querySelector('.text-sm.font-medium')?.innerText || '');
+      const status = vn(div.querySelector('span.rounded-full')?.innerText || '');
+      return [name, id, total, status]; // [Khách, Mã đơn, Tổng tiền, Trạng thái]
+    });
+
+  return { topRows, orderItems };
+}
+
+// ===== HÀM GỘP: Xuất Excel hoặc PDF theo type =====
+async function exportReportFile(type) {
+  const { topRows, orderItems } = getReportTables();
+  const fileName = `BaoCao_ThongKe_{{ now()->format('Y-m-d') }}`;
+
+  if (type === 'excel') {
+    // ---- Excel ----
+    const wb = XLSX.utils.book_new();
+
+    const topHeader = ['Sản phẩm', 'Đã bán', 'Doanh thu'];
+    const sheet1 = XLSX.utils.aoa_to_sheet([topHeader, ...topRows]);
+    XLSX.utils.book_append_sheet(wb, sheet1, 'TopSanPham');
+
+    const orderHeader = ['Khách hàng', 'Mã đơn', 'Tổng tiền', 'Trạng thái'];
+    const sheet2 = XLSX.utils.aoa_to_sheet([orderHeader, ...orderItems]);
+    XLSX.utils.book_append_sheet(wb, sheet2, 'DonHangGanDay');
+
+    XLSX.writeFile(wb, `${fileName}.xlsx`);
+    return;
+  }
+
+  if (type === 'pdf') {
+    // ---- PDF ----
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+
+    await loadCDNFont(doc);
+    doc.setFont("SerifVN");
+    if (doc.setCharSpace) doc.setCharSpace(0);
+    doc.setLineHeightFactor(1.15);
+
+    const tableHooks = {
+      didParseCell: (data) => {
+        data.cell.styles.font = 'SerifVN';
+        data.cell.styles.fontStyle = 'normal';
+        if (Array.isArray(data.cell.text)) data.cell.text = data.cell.text.map(vn);
+        else if (typeof data.cell.text === 'string') data.cell.text = vn(data.cell.text);
+      },
+      willDrawCell: (data) => { if (data.doc.setCharSpace) data.doc.setCharSpace(0); }
+    };
+
+    // Header
+    doc.setFontSize(18);
+    doc.text(vn("BÁO CÁO & THỐNG KÊ CỬA HÀNG ĐIỆN TỬ"), 40, 40);
+    doc.setFontSize(11);
+    doc.text(vn("Xuất lúc: ") + new Date().toLocaleString('vi-VN'), 40, 60);
+
+    // Bảng 1: Top sản phẩm
+    doc.setFontSize(13);
+    doc.text(vn("🏆 Top sản phẩm bán chạy nhất"), 40, 90);
+    doc.autoTable({
+      startY: 100,
+      styles:     { font: 'SerifVN', fontSize: 10 },
+      headStyles: { font: 'SerifVN', fillColor: [59,130,246], textColor: 255 },
+      head: [['Sản phẩm', 'Đã bán', 'Doanh thu']],
+      body: topRows,
+      theme: 'grid',
+      ...tableHooks
+    });
+
+    // Bảng 2: Đơn hàng gần đây
+    let y = doc.lastAutoTable ? doc.lastAutoTable.finalY + 40 : 140;
+    doc.setFontSize(13);
+    doc.text(vn("🕒 Đơn hàng gần đây"), 40, y);
+    doc.autoTable({
+      startY: y + 10,
+      styles:     { font: 'SerifVN', fontSize: 10 },
+      headStyles: { font: 'SerifVN', fillColor: [16,185,129], textColor: 255 },
+      head: [['Khách hàng', 'Mã đơn', 'Tổng tiền', 'Trạng thái']],
+      body: orderItems,
+      theme: 'grid',
+      ...tableHooks
+    });
+
+    doc.save(`${fileName}.pdf`);
+    return;
+  }
+
+  console.warn('exportReportFile: type không hợp lệ. Dùng "excel" hoặc "pdf".');
+}
+</script>
+
 <script>
 const revenueData = @json($monthlyRevenue);
 const orderData = @json($orderAnalysis);

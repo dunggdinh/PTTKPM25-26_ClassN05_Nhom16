@@ -8,6 +8,7 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Model
 {
+    use Notifiable;
     protected $table = 'users'; 
     protected $primaryKey = 'user_id';
     public $incrementing = false;

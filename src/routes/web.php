@@ -16,6 +16,9 @@ use App\Http\Controllers\admin\DeliveryController;
 use App\Http\Controllers\admin\DashboardController;
 use App\Http\Controllers\admin\ReportController;
 use App\Http\Controllers\admin\PaymentController;
+use App\Http\Controllers\admin\NotificationController as AdminNotificationController;
+use App\Http\Controllers\admin\DiscountController;
+
 
 // Customer Controllers
 use App\Http\Controllers\customer\ProfileController;
@@ -121,6 +124,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::view('/support', 'admin.support')->name('support');
 
+    // Promotion
+    Route::get('/promotion',        [DiscountController::class, 'index'])->name('promotions');        // admin.promotions
+    // API cho JS
+    Route::get('/promotions/list',  [DiscountController::class, 'list'])->name('promotions.list');    // admin.promotions.list
+    Route::post('/promotions',      [DiscountController::class, 'store'])->name('promotions.store');  // admin.promotions.store
+    Route::put('/promotions/{id}',  [DiscountController::class, 'update'])->name('promotions.update');// admin.promotions.update
+    Route::delete('/promotions/{id}', [DiscountController::class, 'destroy'])->name('promotions.destroy'); // admin.promotions.destroy
     // Customer
     Route::get('/user', [UserController::class, 'index'])->name('user');
     Route::get('/user/export', [UserController::class, 'exportExcel'])->name('user.export');
@@ -207,3 +217,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/customer/notifications/{id}/read', [NotificationController::class, 'markOneRead'])->name('customer.notifications.read_one');
     Route::delete('/customer/notifications/{id}', [NotificationController::class, 'remove'])->name('customer.notifications.remove');
 });
+
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+    Route::get('/notifications',             [AdminNotificationController::class, 'list'])->name('admin.notifications');
+    Route::post('/notifications/read-all',   [AdminNotificationController::class, 'markAllRead'])->name('admin.notifications.read_all');
+    Route::post('/notifications/{id}/read',  [AdminNotificationController::class, 'markOneRead'])->name('admin.notifications.read_one');
+    Route::delete('/notifications/{id}',     [AdminNotificationController::class, 'remove'])->name('admin.notifications.remove');
+});
+
+
+
+
