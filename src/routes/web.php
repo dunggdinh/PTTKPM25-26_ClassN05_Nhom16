@@ -128,7 +128,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Deliveries
     Route::get('/deliveries', [DeliveryController::class, 'index'])->name('deliveries');
     Route::post('/deliveries', [DeliveryController::class, 'store'])->name('deliveries.store');
-    Route::put('/deliveries/{id}', [DeliveryController::class, 'update'])->name('deliveries.update');
+    Route::put('/deliveries/{id}/update-status', [DeliveryController::class, 'updateStatus'])->name('deliveries.updateStatus');
     Route::delete('/deliveries/{id}', [DeliveryController::class, 'destroy'])->name('deliveries.destroy');
     Route::get('/deliveries/export', [DeliveryController::class, 'exportExcel'])->name('deliveries.export');
     Route::get('/deliveries/reload', [DeliveryController::class, 'reload'])->name('deliveries.reload');
