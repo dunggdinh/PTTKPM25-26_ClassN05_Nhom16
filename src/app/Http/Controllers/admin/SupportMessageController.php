@@ -95,9 +95,13 @@ class SupportMessageController extends Controller
         $data = $req->validated();
 
         // ✅ Xác định rõ vai trò theo route prefix hoặc guard
-        $role = $req->is('admin/*')
-            ? 'admin'
-            : ($user->role ?? 'customer');
+        // $role = $req->is('admin/*')
+        //     ? 'admin'
+        //     : ($user->role ?? 'customer');
+        $role = $user->role ?? 'customer';
+        if ($req->routeIs('admin.*') || str_starts_with($req->path(), 'admin/')) {
+            $role = 'admin';
+        }
 
         $message = DB::transaction(function () use ($id, $user, $data, $role) {
             // 1️⃣ Tạo tin nhắn mới
