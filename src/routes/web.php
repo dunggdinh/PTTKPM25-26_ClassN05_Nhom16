@@ -161,6 +161,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/return/reload', [ReturnController::class, 'reload'])->name('return.reload');
 
     Route::get('/warranties', [WarrantyController::class, 'index'])->name('warranties');
+    Route::put('/warranties/{id}/update-status', [WarrantyController::class, 'updateStatus'])->name('warranties.updateStatus');
+    Route::delete('/warranties/{id}', [WarrantyController::class, 'destroy'])->name('warranties.destroy');
+    Route::get('/warranties/reload', [WarrantyController::class, 'reload'])->name('warranties.reload');
+
 });
 
 /*
