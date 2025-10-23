@@ -190,6 +190,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     // Return & Warranty
     Route::get('/return', [ReturnController::class, 'index'])->name('return');
+    Route::post('/return', [ReturnController::class, 'store'])->name('return.store');
+    Route::get('/return/{return_id}/edit', [ReturnController::class, 'edit'])->name('return.edit');
+    Route::put('/return/{return_id}', [ReturnController::class, 'update'])->name('return.update');
+    Route::delete('/return/{return_id}', [ReturnController::class, 'destroy'])->name('return.destroy');
+    Route::get('/return/reload', [ReturnController::class, 'reload'])->name('return.reload');
+
+    // Warranties
     Route::get('/warranties', [WarrantyController::class, 'index'])->name('warranties');
     Route::put('/warranties/{id}/update-status', [WarrantyController::class, 'updateStatus'])->name('warranties.updateStatus');
     Route::delete('/warranties/{id}', [WarrantyController::class, 'destroy'])->name('warranties.destroy');

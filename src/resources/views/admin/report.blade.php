@@ -11,7 +11,7 @@
 
         <!-- Action Buttons -->
         <div class="mb-8 flex flex-wrap gap-4">
-            <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors" onclick="exportReportFile('pdf')">
+            <button class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-colors" onclick="exportReportFile('pdf')">
                 📄 Xuất PDF
             </button>
         </div>
@@ -86,16 +86,15 @@
         <!-- Charts Section -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             <!-- Revenue Chart -->
-            <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+            <div class="bg-white rounded-lg shadow-sm p-6">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-800">📈 Doanh thu theo tháng</h3>
-                    <select class="text-sm border border-gray-300 rounded-lg px-3 py-1" id="revenueFilter" onchange="updateRevenueChart(this.value)">
-                        <option value="6">6 tháng gần đây</option>
-                        <option value="12" selected>12 tháng gần đây</option>
-                        <option value="year">Năm nay</option>
+                    <h3 class="text-lg font-semibold text-gray-900">Doanh Thu Theo Tháng</h3>
+                    <select class="text-sm border border-gray-300 rounded-md px-3 py-1">
+                        <option>2024</option>
+                        <option>2023</option>
                     </select>
                 </div>
-                <div class="relative h-72">
+                <div style="height: 300px;">
                     <canvas id="revenueChart"></canvas>
                 </div>
             </div>
@@ -135,10 +134,17 @@
                                     <td class="py-3">
                                         <div class="flex items-center">
                                             <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">📦</div>
-                                            <span class="text-sm font-medium">{{ $product->product->name ?? 'N/A' }}</span>
+                                            <div class="flex flex-col">
+                                                <span class="text-sm font-medium">{{ $product->product->name ?? 'N/A' }}</span>
+                                                <span class="text-xs text-gray-500">ID: {{ $product->product_id }}</span>
+                                            </div>
                                         </div>
                                     </td>
-                                    <td class="text-right py-3 text-sm">{{ $product->total_sold }}</td>
+                                    <td class="text-right py-3 text-sm font-medium">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            {{ $product->total_sold }} sp
+                                        </span>
+                                    </td>
                                     <td class="text-right py-3 text-sm font-medium text-green-600">
                                         {{ number_format($product->total_revenue, 0, ',', '.') }}₫
                                     </td>
@@ -161,26 +167,43 @@
                     @foreach($recentOrders as $order)
                         @php
                             $statusColors = [
-                                'completed' => 'green',
-                                'pending' => 'blue',
-                                'processing' => 'orange',
-                                'cancelled' => 'red'
+                                'Hoàn tất' => 'green',
+                                'Chờ xử lý' => 'blue',
+                                'Đang xử lý' => 'orange',
+                                'Đã hủy' => 'red'
+                            ];
+                            $paymentColors = [
+                                'Đã thanh toán' => 'green',
+                                'Chưa thanh toán' => 'yellow',
+                                'Đang xử lý' => 'orange',
+                                'Hủy thanh toán' => 'red'
                             ];
                             $color = $statusColors[$order->status] ?? 'gray';
+                            $paymentColor = $paymentColors[$order->payment_status] ?? 'gray';
                         @endphp
-                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                            <div class="flex items-center">
-                                <div class="w-10 h-10 bg-{{ $color }}-500 rounded-full flex items-center justify-center text-white font-semibold mr-3">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-{{ $color }}-500 rounded-full flex items-center justify-center text-white font-semibold">
                                     {{ strtoupper(substr($order->User->name ?? 'KH', 0, 2)) }}
                                 </div>
                                 <div>
-                                    <p class="text-sm font-medium">{{ $order->User->name ?? 'Khách hàng' }}</p>
-                                    <p class="text-xs text-gray-500">#{{ $order->order_id }}</p>
+                                    <div class="flex items-center space-x-2">
+                                        <p class="text-sm font-medium">{{ $order->User->name ?? 'Khách hàng' }}</p>
+                                        <p class="text-xs text-gray-500">#{{ $order->order_id }}</p>
+                                    </div>
+                                    <div class="flex items-center space-x-2 mt-1">
+                                        <span class="inline-flex items-center px-2 py-0.5 text-xs bg-{{ $color }}-100 text-{{ $color }}-800 rounded-full">
+                                            {{ $order->status }}
+                                        </span>
+                                        <span class="inline-flex items-center px-2 py-0.5 text-xs bg-{{ $paymentColor }}-100 text-{{ $paymentColor }}-800 rounded-full">
+                                            {{ $order->payment_status }}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="text-right">
-                                <p class="text-sm font-medium text-{{ $color }}-600">{{ number_format($order->total_amount, 0, ',', '.') }}₫</p>
-                                <span class="inline-block px-2 py-1 text-xs bg-{{ $color }}-100 text-{{ $color }}-800 rounded-full">{{ ucfirst($order->status) }}</span>
+                                <p class="text-sm font-medium text-gray-900">{{ number_format($order->total_amount, 0, ',', '.') }}₫</p>
+                                <p class="text-xs text-gray-500 mt-1">{{ $order->created_at ? \Carbon\Carbon::parse($order->created_at)->format('d/m/Y H:i') : 'N/A' }}</p>
                             </div>
                         </div>
                     @endforeach
@@ -333,57 +356,85 @@ async function exportReportFile(type) {
   console.warn('exportReportFile: type không hợp lệ. Dùng "excel" hoặc "pdf".');
 }
 </script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
 const revenueData = @json($monthlyRevenue);
 const orderData = @json($orderAnalysis);
 
-let revenueChartCtx = document.getElementById('revenueChart').getContext('2d');
-let revenueChart = new Chart(revenueChartCtx, {
-    type: 'line',
-    data: {
-        labels: Object.keys(revenueData).map(m => 'Tháng ' + m),
-        datasets: [{
-            label: 'Doanh thu',
-            data: Object.values(revenueData),
-            backgroundColor: 'rgba(59,130,246,0.2)',
-            borderColor: 'rgba(59,130,246,1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.3
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: true } },
-        scales: { y: { beginAtZero: true } }
-    }
-});
+// Biểu đồ doanh thu
+// VẼ CHART (giữ nguyên phần của bạn)
+        const ctx = document.getElementById('revenueChart');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [
+                    @foreach(range(1,12) as $m)
+                        "{{ $m }}",
+                    @endforeach
+                ],
+                datasets: [{
+                    label: 'Doanh thu (VNĐ)',
+                    data: [
+                        @foreach(range(1,12) as $m)
+                            {{ $monthlyRevenue[$m] ?? 0 }},
+                        @endforeach
+                    ],
+                    borderWidth: 1,
+                    backgroundColor: '#3B82F6'
+                }]
+            },
+            options: { scales: { y: { beginAtZero: true } } }
+        });
 
-let ordersChartCtx = document.getElementById('ordersChart').getContext('2d');
-let ordersChart = new Chart(ordersChartCtx, {
+
+// Remove the old chart code as we're using a grid layout now
+
+// Biểu đồ phân tích đơn hàng
+const orderChartData = @json($orderChartData);
+new Chart(document.getElementById('ordersChart'), {
     type: 'doughnut',
     data: {
-        labels: Object.keys(orderData),
+        labels: Object.keys(orderChartData),
         datasets: [{
             label: 'Đơn hàng',
-            data: Object.values(orderData),
+            data: Object.values(orderChartData),
             backgroundColor: [
-                'rgba(34,197,94,0.7)',
-                'rgba(59,130,246,0.7)',
-                'rgba(251,191,36,0.7)',
-                'rgba(239,68,68,0.7)'
+                'rgba(34,197,94,0.7)',   // Hoàn tất
+                'rgba(251,191,36,0.7)',   // Đang xử lý
+                'rgba(59,130,246,0.7)',   // Chờ xử lý
+                'rgba(239,68,68,0.7)'     // Đã hủy
             ],
             borderWidth: 1
         }]
     },
-    options: {
-        responsive: true,
+    options: { 
+        responsive: true, 
         maintainAspectRatio: false,
-        plugins: { legend: { position: 'bottom' } }
+        plugins: {
+            legend: {
+                position: 'right',
+                labels: {
+                    font: {
+                        size: 12
+                    }
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                        const value = context.raw;
+                        const percentage = ((value / total) * 100).toFixed(1);
+                        return `${context.label}: ${value} (${percentage}%)`;
+                    }
+                }
+            }
+        }
     }
 });
+
 
 // Placeholder functions for dynamic filter (optional)
 function updateRevenueChart(value) {
