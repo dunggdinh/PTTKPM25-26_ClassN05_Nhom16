@@ -4,6 +4,8 @@ namespace App\Models\admin;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Models\auth\User;
+use App\Models\admin\Warranty;
 
 class Appointment extends Model
 {
@@ -15,17 +17,16 @@ class Appointment extends Model
     protected $fillable = [
         'appointment_id','user_id', 'order_id','warranty_id','service_type','appointment_date','appointment_time','status','notes'
     ];
-    public function User()
-    {
+    public function user(){
         return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
-    public function Order()
+    public function order()
     {
         return $this->belongsTo(Order::class, 'order_id', 'order_id');
     }
-    public function Warranty()
+    public function warranty()
     {
-        return $this->belongsTo(Warranty::class, 'warranty_id', 'warranty_id');
+        return $this->belongsTo(\App\Models\admin\Warranty::class, 'warranty_id', 'warranty_id');
     }
     public function scopeToday($query)
     {

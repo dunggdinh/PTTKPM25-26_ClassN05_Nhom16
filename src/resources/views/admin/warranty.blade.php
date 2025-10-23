@@ -74,7 +74,8 @@
             <div class="p-6 border-b border-gray-200">
                 <h2 class="text-xl font-bold text-gray-900 mb-4">Danh sách lịch hẹn</h2>
 
-                <form method="GET" action="{{ route('admin.warranties') }}"
+                <!-- <form method="GET" action="{{ route('admin.warranties') }}" -->
+                <form method="GET" action="{{ route('admin.warranty') }}">
                       class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
 
                     <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
@@ -157,7 +158,8 @@
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-900 font-medium">{{ $warranty->appointment_id }}</td>
                                 <td class="px-6 py-4 text-sm text-gray-700">{{ $warranty->user->name ?? 'Không xác định' }}</td>
-                                <td class="px-6 py-4 text-sm text-gray-700">{{ $warranty->warranty->product->name ?? 'Sản phẩm không tồn tại' }}</td>
+                                <!-- <td class="px-6 py-4 text-sm text-gray-700">{{ $warranty->warranty->product->name ?? 'Sản phẩm không tồn tại' }}</td> -->
+                                <td class="px-6 py-4 text-sm text-gray-700">{{ $warranty->warranty?->product?->name ?? 'Sản phẩm không tồn tại' }}</td>
                                 <td class="px-6 py-4 text-sm text-gray-700">{{ $warranty->warranty->product_serial ?? '-' }}</td>
                                 <td class="px-6 py-4 text-sm text-gray-700">{{ $warranty->service_type }}</td>
                                 <td class="px-6 py-4 text-sm text-gray-700">{{ \Carbon\Carbon::parse($warranty->appointment_date)->format('d/m/Y') }}</td>

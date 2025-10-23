@@ -1,12 +1,16 @@
 <?php
 namespace App\Models\admin;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\admin\Product;
 
 class Warranty extends Model
 {
     protected $table = 'warranties';
     protected $primaryKey = 'warranty_id';
+    public $incrementing = false;       // ✅ thêm dòng này
+    protected $keyType = 'string';
     public $timestamps = false;
+    
 
     protected $fillable = [
         'warranty_id',
@@ -23,7 +27,7 @@ class Warranty extends Model
     {
         return $this->belongsTo(OrderItem::class, 'order_item_id', 'order_item_id');
     }
-    public function Product()
+    public function product()
     {
         return $this->belongsTo(Product::class, 'product_id', 'product_id');
     }
