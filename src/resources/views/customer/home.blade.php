@@ -184,22 +184,12 @@
 
 <script>
     function redirectToProduct() {
-        window.location.href = '{{ url('/customer/product') }}';
+        window.location.href = 'product';
     }
 
     function redirectToCategory(categoryName) {
-        // Map friendly names to exact database category IDs
-        const categoryMap = {
-            'Điện thoại': 'SM_001',
-            'Laptop': 'LT_001',  // Updated to match exact database category ID
-            'Tai nghe': 'headphone',
-            'Đồng hồ': 'watch', 
-            'Camera': 'camera',
-            'Gaming': 'gaming'
-        };
-        
-        const categoryId = categoryMap[categoryName] || 'all';
-        window.location.href = `{{ url('/customer/product') }}?search=&category=${encodeURIComponent(categoryId)}&sort_by=name&sort_direction=asc`;
+        // Redirect to product page with specific category
+        window.location.href = `product?category=${encodeURIComponent(categoryName)}`;
     }
 
     function addToCart(productName, price) {
