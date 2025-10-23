@@ -1,4 +1,42 @@
 @extends('customer.layout')
+@php
+    use App\Models\admin\Discount;
+    use Carbon\Carbon;
+
+    $now = Carbon::now();
+
+    $vouchers = Discount::query()
+        ->where('status', '!=', 'Tạm dừng')
+        ->where(function ($q) use ($now) {
+            $q->whereNull('start_date')
+              ->orWhere('start_date', '<=', $now);
+        })
+        ->where(function ($q) use ($now) {
+            $q->whereNull('end_date')
+              ->orWhere('end_date', '>=', $now);
+        })
+        ->orderBy('end_date', 'asc')
+        ->get()
+        ->map(function ($d) {
+            // ép end_date về 23:59:59 của ngày đó nếu có ngày mà chưa có time
+            $start = $d->start_date ? Carbon::parse($d->start_date) : null;
+            $end   = $d->end_date   ? Carbon::parse($d->end_date)->endOfDay() : null;
+
+            return [
+                'code'        => (string)($d->code ?? ''),
+                'type'        => (string)($d->type ?? ''),   // 'percent' | 'amount'
+                'value'       => (float) ($d->value ?? 0),
+                'start_date'  => $start?->format('Y-m-d H:i:s'),
+                'end_date'    => $end?->format('Y-m-d H:i:s'),
+                'minOrder'    => null,
+                'description' => null,
+            ];
+        })
+        ->values()
+        ->all();
+@endphp
+
+
 @section('title', 'Khuyến mãi')
 
 @section('content')
@@ -123,13 +161,17 @@
         const end   = safeDate(v.end_date);
         const now   = nowMs();
 
-        if (!start || !end) return { state: 'invalid' };
-        const sMs = start.getTime(), eMs = end.getTime();
+        // coi thiếu mốc là -∞ / +∞
+        const sMs = start ? start.getTime() : -Infinity; // không có start => đã bắt đầu từ trước
+        const eMs = end   ? end.getTime()   :  Infinity; // không có end   => không hết hạn
 
         if (now < sMs) return { state: 'upcoming', msToStart: sMs - now };
         if (now > eMs) return { state: 'expired',  msSinceEnd: now - eMs };
-        return { state: 'active', msLeft: eMs - now };
+
+        // active: nếu không có end_date thì không đếm ngược
+        return { state: 'active', msLeft: isFinite(eMs) ? (eMs - now) : null };
     }
+
 
     // ====== ÁP MÃ (demo đơn giản) ======
     function applyVoucherByCode(code) {
@@ -148,143 +190,6 @@
 
     // ====== RENDER VOUCHER LIST + COUNTDOWN ======
     let countdownRegistry = []; // lưu các phần tử để tick mỗi giây
-
-    function renderVoucherList() {
-        const wrap = document.getElementById('voucher-list');
-        if (!wrap) return;
-        wrap.innerHTML = '';
-        countdownRegistry = [];
-
-        // Lọc: chỉ hiển thị mã đang hoạt động HOẶC sắp bắt đầu (tuỳ bạn, mặc định: hoạt động)
-        const filtered = (vouchers || []).filter(v => voucherStatus(v).state === 'active');
-
-        if (filtered.length === 0) {
-            const emptyDiv = document.createElement('div');
-            emptyDiv.className = 'col-span-3 text-gray-500';
-            emptyDiv.textContent = 'Hiện chưa có mã khuyến mãi nào đang hoạt động.';
-            wrap.appendChild(emptyDiv);
-            return;
-        }
-
-        filtered.forEach((v, idx) => {
-            const type = (v.type === 'amount') ? 'fixed' : v.type;
-            const badgeText = (type === 'fixed')
-                ? (Number(v.value ?? v.amount ?? 0).toLocaleString(VN) + '₫')
-                : ('-' + Number(v.discount ?? v.value ?? 0).toLocaleString(VN) + '%');
-
-            const minOrderText = (v.minOrder && Number(v.minOrder) > 0)
-                ? ('ĐH tối thiểu: ' + Number(v.minOrder).toLocaleString(VN) + '₫')
-                : 'Không yêu cầu ĐH tối thiểu';
-
-            const st = voucherStatus(v);
-
-            const card = document.createElement('article');
-            card.className = 'bg-white rounded-2xl shadow p-5 flex flex-col justify-between';
-
-            // Header
-            const head = document.createElement('div');
-            head.className = 'flex items-start justify-between mb-3';
-
-            const h3 = document.createElement('h3');
-            h3.className = 'text-xl font-bold text-gray-800';
-            h3.textContent = 'Mã ' + v.code;
-
-            const badge = document.createElement('span');
-            badge.className = 'px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm font-bold';
-            badge.textContent = badgeText;
-
-            head.appendChild(h3);
-            head.appendChild(badge);
-
-            // Mô tả
-            const p = document.createElement('p');
-            p.className = 'text-gray-600 mb-2';
-            p.textContent = v.description ?? '';
-
-            // Chi tiết
-            const ul = document.createElement('ul');
-            ul.className = 'text-sm text-gray-500 space-y-1';
-
-            const li1 = document.createElement('li');
-            li1.textContent = minOrderText;
-
-            const li2 = document.createElement('li');
-            li2.textContent = 'Hiệu lực: ' + formatVNDate(v.start_date) + ' → ' + formatVNDate(v.end_date);
-
-            ul.appendChild(li1);
-            ul.appendChild(li2);
-
-            // Countdown line
-            const countdownLine = document.createElement('div');
-            countdownLine.className = 'mt-2 text-sm font-medium';
-
-            const cdPill = document.createElement('span');
-            cdPill.className = 'inline-block px-3 py-1 rounded-full text-white';
-            if (st.state === 'active') {
-                cdPill.classList.add('bg-green-600');
-                cdPill.innerHTML = 'Còn lại: <span data-cd="'+idx+'">--:--:--</span>';
-                countdownRegistry.push({
-                    el: cdPill.querySelector('[data-cd]'),
-                    type: 'toEnd',
-                    end: safeDate(v.end_date)?.getTime() ?? null
-                });
-            } else if (st.state === 'upcoming') {
-                cdPill.classList.add('bg-amber-600');
-                cdPill.innerHTML = 'Chưa bắt đầu: <span data-cd="'+idx+'">--:--:--</span>';
-                countdownRegistry.push({
-                    el: cdPill.querySelector('[data-cd]'),
-                    type: 'toStart',
-                    start: safeDate(v.start_date)?.getTime() ?? null
-                });
-            } else {
-                cdPill.classList.add('bg-gray-500');
-                cdPill.textContent = 'Hết hạn';
-            }
-            countdownLine.appendChild(cdPill);
-
-            // Actions
-            const btnWrap = document.createElement('div');
-            btnWrap.className = 'mt-4 grid grid-cols-2 gap-3';
-
-            const btnCopy = document.createElement('button');
-            btnCopy.type = 'button';
-            btnCopy.className = 'border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50';
-            btnCopy.textContent = 'Sao chép';
-            btnCopy.addEventListener('click', e => {
-                e.preventDefault();
-                navigator.clipboard.writeText(v.code).then(() => {
-                    showNotification('Đã sao chép mã ' + v.code);
-                });
-            });
-
-            const btnApply = document.createElement('button');
-            btnApply.type = 'button';
-            btnApply.className = 'bg-gradient-to-r from-green-500 to-teal-500 text-white py-2 rounded-lg font-semibold hover:opacity-90 disabled:opacity-50';
-            btnApply.textContent = 'Áp mã';
-            btnApply.addEventListener('click', e => {
-                e.preventDefault();
-                applyVoucherByCode(v.code);
-            });
-
-            // Disable theo trạng thái
-            if (st.state !== 'active') {
-                btnApply.disabled = true;
-                btnApply.title = (st.state === 'upcoming') ? 'Mã chưa bắt đầu' : 'Mã đã hết hạn';
-            }
-
-            btnWrap.appendChild(btnCopy);
-            btnWrap.appendChild(btnApply);
-
-            // Gộp
-            card.appendChild(head);
-            card.appendChild(p);
-            card.appendChild(ul);
-            card.appendChild(countdownLine);
-            card.appendChild(btnWrap);
-
-            wrap.appendChild(card);
-        });
-    }
 
     // ====== TICK COUNTDOWN TOÀN CỤC ======
     function tickCountdowns() {
@@ -360,5 +265,137 @@
         setInterval(updateFlashSaleCountdown, 1000);
     });
 </script>
+<script>
+function renderVoucherList() {
+  const wrap = document.getElementById('voucher-list');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  countdownRegistry = [];
+
+  // Lọc các mã đang có hiệu lực ở thời điểm hiện tại
+  const filtered = (vouchers || []).filter(v => {
+    const s = safeDate(v.start_date);
+    const e = safeDate(v.end_date);
+    const now = Date.now();
+    const sMs = s ? s.getTime() : -Infinity;   // không có start => coi như đã bắt đầu
+    const eMs = e ? e.getTime() : Infinity;    // không có end   => không hết hạn
+    return sMs <= now && now <= eMs;
+  });
+
+  if (filtered.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'col-span-3 text-gray-500';
+    empty.textContent = 'Hiện chưa có mã khuyến mãi nào đang hoạt động.';
+    wrap.appendChild(empty);
+    return;
+  }
+
+  filtered.forEach((v, idx) => {
+    const type = (v.type === 'amount') ? 'fixed' : v.type;
+    const badgeText = (type === 'fixed')
+      ? (Number(v.value ?? 0).toLocaleString('vi-VN') + '₫')
+      : ('-' + Number(v.value ?? 0).toLocaleString('vi-VN') + '%');
+
+    const card = document.createElement('article');
+    card.className = 'bg-white rounded-2xl shadow p-5 flex flex-col justify-between';
+
+    // Header
+    const head = document.createElement('div');
+    head.className = 'flex items-start justify-between mb-3';
+
+    const h3 = document.createElement('h3');
+    h3.className = 'text-xl font-bold text-gray-800';
+    h3.textContent = 'Mã ' + v.code;
+
+    const badge = document.createElement('span');
+    badge.className = 'px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm font-bold';
+    badge.textContent = badgeText;
+
+    head.appendChild(h3);
+    head.appendChild(badge);
+
+    // Mô tả + chi tiết
+    const p = document.createElement('p');
+    p.className = 'text-gray-600 mb-2';
+    p.textContent = v.description ?? '';
+
+    const ul = document.createElement('ul');
+    ul.className = 'text-sm text-gray-500 space-y-1';
+    const li1 = document.createElement('li');
+    li1.textContent = 'Hiệu lực: ' + formatVNDate(v.start_date) + ' → ' + formatVNDate(v.end_date);
+    ul.appendChild(li1);
+
+    // Countdown
+    const countdownLine = document.createElement('div');
+    countdownLine.className = 'mt-2 text-sm font-medium';
+
+    const cdPill = document.createElement('span');
+    cdPill.className = 'inline-block px-3 py-1 rounded-full text-white';
+
+    const st = voucherStatus(v);
+    const sMs = safeDate(v.start_date) ? safeDate(v.start_date).getTime() : null;
+    const eMs = safeDate(v.end_date) ? safeDate(v.end_date).getTime() : null;
+    const now = Date.now();
+
+    if (st.state === 'active') {
+      cdPill.classList.add('bg-green-600');
+      if (eMs && eMs > now) {
+        cdPill.innerHTML = 'Còn lại: <span data-cd="'+idx+'">--:--:--</span>';
+        countdownRegistry.push({ el: cdPill.querySelector('[data-cd]'), type: 'toEnd', end: eMs });
+      } else {
+        cdPill.textContent = 'Không giới hạn thời gian';
+      }
+    } else if (st.state === 'upcoming') {
+      cdPill.classList.add('bg-amber-600');
+      cdPill.innerHTML = 'Chưa bắt đầu: <span data-cd="'+idx+'">--:--:--</span>';
+      if (sMs && sMs > now) {
+        countdownRegistry.push({ el: cdPill.querySelector('[data-cd]'), type: 'toStart', start: sMs });
+      }
+    } else {
+      cdPill.classList.add('bg-gray-500');
+      cdPill.textContent = 'Hết hạn';
+    }
+
+    countdownLine.appendChild(cdPill);
+
+    // Actions
+    const btnWrap = document.createElement('div');
+    btnWrap.className = 'mt-4 grid grid-cols-2 gap-3';
+
+    const btnCopy = document.createElement('button');
+    btnCopy.type = 'button';
+    btnCopy.className = 'border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50';
+    btnCopy.textContent = 'Sao chép';
+    btnCopy.addEventListener('click', e => {
+      e.preventDefault();
+      navigator.clipboard.writeText(v.code).then(() => showNotification('Đã sao chép mã ' + v.code));
+    });
+
+    const btnApply = document.createElement('button');
+    btnApply.type = 'button';
+    btnApply.className = 'bg-gradient-to-r from-green-500 to-teal-500 text-white py-2 rounded-lg font-semibold hover:opacity-90 disabled:opacity-50';
+    btnApply.textContent = 'Áp mã';
+    btnApply.addEventListener('click', e => {
+      e.preventDefault();
+      applyVoucherByCode(v.code);
+    });
+    if (st.state !== 'active') {
+      btnApply.disabled = true;
+      btnApply.title = (st.state === 'upcoming') ? 'Mã chưa bắt đầu' : 'Mã đã hết hạn';
+    }
+
+    // Gộp
+    btnWrap.appendChild(btnCopy);
+    btnWrap.appendChild(btnApply);
+    card.appendChild(head);
+    card.appendChild(p);
+    card.appendChild(ul);
+    card.appendChild(countdownLine);
+    card.appendChild(btnWrap);
+    wrap.appendChild(card);
+  });
+}
+</script>
+
 
 @endsection

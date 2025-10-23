@@ -367,18 +367,27 @@ let promotions = []; // giữ danh sách lấy từ server
 
 /** ====== Fetch dữ liệu từ Controller ====== */
 async function loadPromotions() {
-    try {
-        const res = await fetch('{{ route('admin.promotions.list') }}', {
-            headers: { 'Accept': 'application/json' }
-        });
-        const data = await res.json();
-        // data: [{discount_id, code, type, value, status, start_date, end_date}, ...]
-        promotions = Array.isArray(data) ? data : [];
-        renderPromotions(); // dùng state
-    } catch (e) {
-        console.error(e);
-        showNotification('Không tải được danh sách khuyến mãi!', 'error');
+  try {
+    const res = await fetch('{{ route('admin.promotion.list') }}', {
+      headers: { 
+        'Accept': 'application/json', 
+        'X-Requested-With': 'XMLHttpRequest' 
+      },
+      credentials: 'same-origin',
+    });
+
+    if (!res.ok) {
+      // 401/419 => chưa đăng nhập hoặc CSRF
+      throw new Error(`HTTP ${res.status}`);
     }
+
+    const data = await res.json();
+    promotions = Array.isArray(data) ? data : [];
+    renderPromotions();
+  } catch (e) {
+    console.error(e);
+    showNotification('Không tải được danh sách khuyến mãi!', 'error');
+  }
 }
 
 /** ====== DOM ====== */
@@ -562,44 +571,43 @@ if (cancelBtn)     cancelBtn.addEventListener('click', closeModalFunc);
 // Submit form: demo thêm nhanh vào UI.
 // Bật API thật bằng cách bỏ comment khối fetch POST bên dưới.
 if (promotionForm) {
-    promotionForm.addEventListener('submit', async (e)=>{
-        e.preventDefault();
-        const fd = new FormData(promotionForm);
+  promotionForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(promotionForm);
 
-        // === DÙNG API THẬT (nếu đã khai báo route POST) ===
-        /*
-        const res = await fetch('{{ route('admin.promotions.store') }}', {
-            method: 'POST',
-            headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
-            body: fd
-        });
-        const result = await res.json();
-        if (result?.success) {
-            await loadPromotions();
-            closeModalFunc();
-            showNotification(result.message || 'Tạo khuyến mãi thành công!');
-            return;
-        } else {
-            showNotification('Tạo khuyến mãi thất bại!', 'error');
-            return;
-        }
-        */
+    try {
+      const res = await fetch('{{ route('admin.promotion.store') }}', {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: fd,
+        credentials: 'same-origin',
+      });
 
-        // === DEMO UI (không gọi API) ===
-        promotions.unshift({
-            discount_id: String(Date.now()),
-            code       : fd.get('promoCode') || '',
-            type       : fd.get('discountType') || 'percentage',
-            value      : parseFloat(fd.get('discountValue') || '0'),
-            status     : document.getElementById('isActive').checked ? 'active' : 'scheduled',
-            start_date : fd.get('startDate')?.replace('T',' ') || null,
-            end_date   : fd.get('endDate')?.replace('T',' ') || null,
-        });
-        renderPromotions();
+      if (!res.ok) {
+        let msg = `Lỗi ${res.status}`;
+        try { const j = await res.json(); msg = j.message || msg; } catch {}
+        throw new Error(msg);
+      }
+
+      const result = await res.json();
+      if (result?.success) {
+        await loadPromotions();
         closeModalFunc();
-        showNotification('Khuyến mãi đã được tạo thành công!');
-    });
+        showNotification(result.message || 'Tạo khuyến mãi thành công!');
+      } else {
+        showNotification('Tạo khuyến mãi thất bại!', 'error');
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification(err.message || 'Không thể tạo khuyến mãi', 'error');
+    }
+  });
 }
+
 
 if (searchInput)  searchInput.addEventListener('input',  filterPromotions);
 if (statusFilter) statusFilter.addEventListener('change', filterPromotions);
