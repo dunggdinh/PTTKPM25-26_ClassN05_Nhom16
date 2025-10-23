@@ -11,6 +11,8 @@ class Order extends Model
     public $incrementing = false;
     protected $keyType = 'string';
     public $timestamps = false;
+    const CREATED_AT = null;
+    const UPDATED_AT = null;
 
     protected $fillable = [
         'order_id', 'user_id', 'total_amount', 'status',

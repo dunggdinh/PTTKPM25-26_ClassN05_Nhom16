@@ -16,7 +16,6 @@ use App\Http\Controllers\admin\DeliveryController;
 use App\Http\Controllers\admin\DashboardController;
 use App\Http\Controllers\admin\ReportController;
 use App\Http\Controllers\admin\PaymentController;
-use App\Http\Controllers\admin\NotificationController as AdminNotificationController;
 use App\Http\Controllers\admin\DiscountController;
 use App\Http\Controllers\admin\PromotionController as AdminPromotionController;
 
@@ -56,25 +55,6 @@ Route::prefix('products')->name('products.')->group(function () {
     Route::delete('/{id}', [ProductController::class, 'destroy'])->name('destroy');            // Xóa sản phẩm
 });
 
-/*
-|--------------------------------------------------------------------------
-| CART (top-level, yêu cầu đăng nhập)
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(function () {
-    Route::get('/cart',              [CartController::class, 'index'])->name('cart');
-    Route::get('/cart/data',         [CartController::class, 'data'])->name('cart.data');
-
-    Route::post('/cart/add',         [CartController::class, 'addToCart'])->name('cart.add');
-    Route::patch('/cart/item/{id}',  [CartController::class, 'updateItem'])->name('cart.update');
-    Route::post('/cart/place-order', [CartController::class, 'placeOrder'])->name('cart.placeOrder');
-    Route::delete('/cart/item/{id}', [CartController::class, 'removeItem'])->name('cart.remove');
-    Route::delete('/cart/clear',     [CartController::class, 'clear'])->name('cart.clear');
-
-
-
-});
-
 
 /*
 |--------------------------------------------------------------------------
@@ -96,6 +76,25 @@ Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(functi
 
     // Các trang tĩnh còn lại
     Route::view('/review', 'customer.review')->name('review');
+    
+    Route::get('/cart',                   [CartController::class, 'index'])->name('cart.index');
+    Route::get('/cart/data',              [CartController::class, 'data'])->name('cart.data');
+
+    Route::post('/cart/add',              [CartController::class, 'addToCart'])->name('cart.add');
+
+    // Cập nhật số lượng: DÙNG PATCH
+    Route::patch('/cart/item/{id}',       [CartController::class, 'updateItem'])->name('cart.item.update');
+
+    // Xóa 1 item: DÙNG DELETE
+    Route::delete('/cart/item/{id}',      [CartController::class, 'removeItem'])->name('cart.item.remove');
+
+    // Xóa toàn bộ: DÙNG DELETE
+    Route::delete('/cart/clear',          [CartController::class, 'clear'])->name('cart.clear');
+
+    // Đặt hàng: CHUẨN HÓA endpoint này
+    Route::post('/cart/place', [CartController::class, 'placeOrder'])->name('cart.place');
+ 
+
 });
 
 /*
@@ -116,11 +115,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/customer/orders/{id}', [CustomerOrderController::class, 'show'])
         ->name('customer.orders.show');
 
-    Route::post('/cart/add',          [CartController::class, 'addToCart'])->name('customer.cart.add');
-    Route::post('/cart/update/{id}',  [CartController::class, 'updateItem'])->name('customer.cart.update');
-    Route::post('/cart/remove/{id}',  [CartController::class, 'removeItem'])->name('customer.cart.remove');
-    Route::post('/cart/clear',        [CartController::class, 'clear'])->name('customer.cart.clear');
-    Route::get('/cart/data',          [CartController::class, 'data'])->name('customer.cart.data');
+    // Route::post('/cart/add',          [CartController::class, 'addToCart'])->name('customer.cart.add');
+    // Route::post('/cart/update/{id}',  [CartController::class, 'updateItem'])->name('customer.cart.update');
+    // Route::post('/cart/remove/{id}',  [CartController::class, 'removeItem'])->name('customer.cart.remove');
+    // Route::post('/cart/clear',        [CartController::class, 'clear'])->name('customer.cart.clear');
+    // Route::get('/cart/data',          [CartController::class, 'data'])->name('customer.cart.data');
 });
 
 /*
@@ -285,37 +284,6 @@ Route::middleware(['auth'])->group(function () {
             ->name('customer.support.messages.store');
     });
 });
-
-/*
-|--------------------------------------------------------------------------
-| Notification
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth'])->group(function () {
-    Route::get('/customer/notifications', [NotificationController::class, 'list'])->name('customer.notifications');
-    Route::post('/customer/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('customer.notifications.read_all');
-    Route::post('/customer/notifications/{id}/read', [NotificationController::class, 'markOneRead'])->name('customer.notifications.read_one');
-    Route::delete('/customer/notifications/{id}', [NotificationController::class, 'remove'])->name('customer.notifications.remove');
-});
-
-Route::prefix('admin')->middleware(['auth'])->group(function () {
-    Route::get('/notifications',             [AdminNotificationController::class, 'list'])->name('admin.notifications');
-    Route::post('/notifications/read-all',   [AdminNotificationController::class, 'markAllRead'])->name('admin.notifications.read_all');
-    Route::post('/notifications/{id}/read',  [AdminNotificationController::class, 'markOneRead'])->name('admin.notifications.read_one');
-    Route::delete('/notifications/{id}',     [AdminNotificationController::class, 'remove'])->name('admin.notifications.remove');
-    Route::get('/tickets', [SupportTicketController::class, 'index'])->name('admin.tickets.index');
-    Route::post('/tickets', [SupportTicketController::class, 'store'])->name('admin.tickets.store');
-    Route::get('/tickets/{id}', [SupportTicketController::class, 'show'])->name('admin.tickets.show');
-});
-
-
-
-
-
-
-// Map
-Route::get('/map', [GoogleController::class, 'showMap']);
-Route::get('google-autocomplete', [GoogleController::class, 'index']);
 
 
 // Save address route

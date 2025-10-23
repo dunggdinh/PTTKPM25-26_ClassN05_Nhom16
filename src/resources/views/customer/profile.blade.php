@@ -38,25 +38,21 @@
                     </div>
                     
                     <nav class="space-y-2">
-                        <a href="/customer/profile" class="tab-button active w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors flex items-center">
+                        <a href="#" data-tab="profile" class="tab-button active w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors flex items-center">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                             </svg>
                             Hồ Sơ Cá Nhân
                         </a>
-                        <a href="/auth/reset_password" class="tab-button w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors flex items-center">
-                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                            </svg>
-                            Đổi Mật Khẩu
-                        </a>
-                        <a href="/customer/order" class="tab-button w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors flex items-center">
+
+                        <a href="#" data-tab="orders" class="tab-button w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors flex items-center">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                             </svg>
                             Đơn Hàng
                         </a>
-                        <a href="#" onclick="showTab('addresses'); return false;" class="tab-button w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors flex items-center">
+
+                        <a href="#" data-tab="addresses" class="tab-button w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors flex items-center">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -64,108 +60,118 @@
                             Địa Chỉ
                         </a>
                     </nav>
+
                 </div>
             </aside>
 
+
+            
             <!-- Main Content -->
             <div class="lg:col-span-3">
-                <!-- Thông Tin Cá Nhân -->
-                <form method="POST" action="{{ route('customer.profile.update') }}" class="space-y-6">
-                    @csrf
+                <!-- TAB PROFILE -->
+                <div id="profile" class="tab-content">
+                    <!-- Thông Tin Cá Nhân -->
+                    @php
+                        $bdRaw = old('birth_date', Auth::user()->birth_date ?? null);
+                        $bdVal = $bdRaw ? \Carbon\Carbon::parse($bdRaw)->format('Y-m-d') : '';
+                    @endphp
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <form method="POST" action="{{ route('customer.profile.update') }}" class="space-y-6">
+                        @csrf
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Họ & Tên</label>
+                                <input name="name" type="text"
+                                    value="{{ old('name', Auth::user()->name) }}"
+                                    class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                @error('name') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                <input name="email" type="email"
+                                    value="{{ old('email', Auth::user()->email) }}"
+                                    class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                @error('email') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Số điện thoại</label>
+                                <input name="phone" type="text"
+                                    value="{{ old('phone', Auth::user()->phone) }}"
+                                    class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Ngày sinh</label>
+                                <input name="birth_date" type="date"
+                                    value="{{ $bdVal }}"
+                                    class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Giới tính</label>
+                                <select name="gender" class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    @php $g = old('gender', Auth::user()->gender); @endphp
+                                    <option value="">-- Chọn --</option>
+                                    <option value="male"   {{ $g==='male'?'selected':'' }}>Nam</option>
+                                    <option value="female" {{ $g==='female'?'selected':'' }}>Nữ</option>
+                                    <option value="other"  {{ $g==='other'?'selected':'' }}>Khác</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Địa chỉ</label>
+                                <input name="address" type="text"
+                                    value="{{ old('address', Auth::user()->address) }}"
+                                    class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button type="submit"
+                                    class="px-6 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
+                                Lưu thay đổi
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Password (giữ chung tab profile) -->
+                    <form method="POST" action="{{ route('customer.profile.password') }}" class="space-y-6 mt-10">
+                        @csrf
+
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Họ & Tên</label>
-                            <input name="name" type="text"
-                                value="{{ old('name', Auth::user()->name) }}"
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Mật khẩu hiện tại</label>
+                            <input type="password" name="current_password"
                                 class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            @error('name') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+                            @error('current_password') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                            <input name="email" type="email"
-                                value="{{ old('email', Auth::user()->email) }}"
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Mật khẩu mới</label>
+                            <input type="password" name="password"
                                 class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            @error('email') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+                            @error('password') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
                         </div>
-                    </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Số điện thoại</label>
-                            <input name="phone" type="text"
-                                value="{{ old('phone', Auth::user()->phone) }}"
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Xác nhận mật khẩu mới</label>
+                            <input type="password" name="password_confirmation"
                                 class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Ngày sinh</label>
-                            <input name="birth_date" type="date"
-                                value="{{ old('birth_date', optional(Auth::user()->birth_date)->format('Y-m-d')) }}"
-                                class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <div class="flex justify-end">
+                            <button type="submit"
+                                    class="px-6 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
+                                Đổi mật khẩu
+                            </button>
                         </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Giới tính</label>
-                            <select name="gender" class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                @php $g = old('gender', Auth::user()->gender); @endphp
-                                <option value="">-- Chọn --</option>
-                                <option value="male"   {{ $g==='male'?'selected':'' }}>Nam</option>
-                                <option value="female" {{ $g==='female'?'selected':'' }}>Nữ</option>
-                                <option value="other"  {{ $g==='other'?'selected':'' }}>Khác</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Địa chỉ</label>
-                            <input name="address" type="text"
-                                value="{{ old('address', Auth::user()->address) }}"
-                                class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end">
-                        <button type="submit"
-                                class="px-6 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
-                            Lưu thay đổi
-                        </button>
-                    </div>
-                </form>
-
-                <!-- Password Tab -->
-                <form method="POST" action="{{ route('customer.profile.password') }}" class="space-y-6">
-                    @csrf
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Mật khẩu hiện tại</label>
-                        <input type="password" name="current_password"
-                            class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        @error('current_password') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Mật khẩu mới</label>
-                        <input type="password" name="password"
-                            class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        @error('password') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Xác nhận mật khẩu mới</label>
-                        <input type="password" name="password_confirmation"
-                            class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    </div>
-
-                    <div class="flex justify-end">
-                        <button type="submit"
-                                class="px-6 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
-                            Đổi mật khẩu
-                        </button>
-                    </div>
-                </form>
+                    </form>
+                </div>
 
                 <!-- Orders Tab -->
                 <div id="orders" class="tab-content">
@@ -253,17 +259,39 @@
     </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Hide all tab contents except profile by default
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.style.display = 'none';
+        document.addEventListener('DOMContentLoaded', function () {
+            const contents = document.querySelectorAll('.tab-content');
+            const buttons  = document.querySelectorAll('.tab-button');
+
+            function hideAll() { contents.forEach(c => c.style.display = 'none'); }
+            function clearActive() { buttons.forEach(b => b.classList.remove('active')); }
+
+            function showTab(tabId) {
+                const target = document.getElementById(tabId);
+                if (!target) return;
+                hideAll(); clearActive();
+                target.style.display = 'block';
+                const btn = Array.from(buttons).find(b => b.dataset.tab === tabId);
+                if (btn) btn.classList.add('active');
+            }
+
+            // Gắn click cho nút tab
+            buttons.forEach(b => {
+                b.addEventListener('click', e => {
+                    // chỉ xử lý tab nội bộ
+                    if (b.dataset.tab) {
+                        e.preventDefault();
+                        showTab(b.dataset.tab);
+                    }
+                });
             });
-            
-            // Show profile tab by default
-            document.getElementById('profile').style.display = 'block';
-            
-            // Handle URL path to show orders if on orders page
-            if (window.location.pathname === '/customer/order') {
+
+            // Ẩn hết & mở mặc định tab 'profile'
+            hideAll();
+            if (document.getElementById('profile')) showTab('profile');
+
+            // Nếu URL là /customer/order => mở tab orders
+            if (window.location.pathname === '/customer/order' && document.getElementById('orders')) {
                 showTab('orders');
             }
         });
@@ -303,6 +331,7 @@
                         </button>
                     </div>
                     <form onsubmit="saveAddress(event)" class="space-y-4">
+                        <input type="hidden" name="id" value="${existingAddress ? existingAddress.id : ''}">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Tên địa chỉ</label>
                             <input type="text" name="address_name" required placeholder="Ví dụ: Nhà riêng, Công ty" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" ${existingAddress ? `value="${existingAddress.address_name}"` : ''}>
@@ -336,126 +365,10 @@
                         <div class="flex justify-end space-x-3 pt-4">
                             <button type="button" onclick="closeAddressModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Hủy</button>
                             <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Lưu địa chỉ</button>
-                            <a href="/map?return={{ urlencode('/customer/profile') }}" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 inline-flex items-center">Chọn từ bản đồ</a>
                         </div>
                     </form>
                 </div>
-                <!-- Modal Google Map -->
-                <div id="mapModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50" style="display:none;">
-                    <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl mx-4">
-                        <h2 class="text-lg font-bold mb-2">Chọn vị trí trên bản đồ</h2>
-                        <div id="googleMap" style="width:100%;height:400px;"></div>
-                        <div class="mt-4 flex gap-2">
-                            <button type="button" onclick="confirmMapAddress()" class="bg-blue-500 text-white px-4 py-2 rounded">Chọn vị trí này</button>
-                            <button type="button" onclick="closeMapModal()" class="bg-gray-300 px-4 py-2 rounded">Đóng</button>
-                        </div>
-                        <div id="mapAddressInfo" class="mt-2 text-sm text-gray-700"></div>
-                    </div>
-                </div>
             `;
-            // Google Maps API Key từ .env
-            const GOOGLE_MAPS_API_KEY = "AIzaSyBjuZAOnShMXxAsAy6xUcq-gEKGV9ebd5k";
-
-            // Biến lưu vị trí chọn từ map
-            let selectedMapLocation = null;
-
-            function openMapModal() {
-                document.getElementById('mapModal').style.display = 'flex';
-                // Xóa nội dung cũ của googleMap để tránh lỗi khi mở lại
-                const mapDiv = document.getElementById('googleMap');
-                if (mapDiv) mapDiv.innerHTML = '';
-                // Nếu Google Maps đã có thì gọi initMap luôn
-                if (window.google && window.google.maps) {
-                    setTimeout(initMap, 100);
-                } else {
-                    // Nếu chưa có thì tải script và gọi initMap khi đã tải xong
-                    if (!document.getElementById('google-maps-script')) {
-                        const script = document.createElement('script');
-                        script.id = 'google-maps-script';
-                        script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}`;
-                        script.async = true;
-                        script.defer = true;
-                        script.onload = function() {
-                            setTimeout(initMap, 100);
-                        };
-                        document.body.appendChild(script);
-                    } else {
-                        // Nếu script đang tải, chờ 500ms rồi thử lại
-                        setTimeout(openMapModal, 500);
-                    }
-                }
-            }
-
-            function closeMapModal() {
-                document.getElementById('mapModal').style.display = 'none';
-            }
-
-            function initMap() {
-                if (window.google && window.google.maps) {
-                    const defaultLatLng = { lat: 10.762622, lng: 106.660172 }; // Hồ Chí Minh
-                    const map = new google.maps.Map(document.getElementById('googleMap'), {
-                        center: defaultLatLng,
-                        zoom: 13
-                    });
-                    let marker = new google.maps.Marker({
-                        position: defaultLatLng,
-                        map: map,
-                        draggable: true
-                    });
-                    // Sự kiện click map
-                    map.addListener('click', function(e) {
-                        marker.setPosition(e.latLng);
-                        fetchAddressFromLatLng(e.latLng.lat(), e.latLng.lng());
-                    });
-                    // Sự kiện kéo marker
-                    marker.addListener('dragend', function(e) {
-                        fetchAddressFromLatLng(e.latLng.lat(), e.latLng.lng());
-                    });
-                    // Lấy địa chỉ ban đầu
-                    fetchAddressFromLatLng(defaultLatLng.lat, defaultLatLng.lng);
-                }
-            }
-
-            function fetchAddressFromLatLng(lat, lng) {
-                selectedMapLocation = { lat, lng };
-                const geocoder = new google.maps.Geocoder();
-                geocoder.geocode({ location: { lat, lng } }, function(results, status) {
-                    if (status === 'OK' && results[0]) {
-                        document.getElementById('mapAddressInfo').textContent = results[0].formatted_address;
-                        selectedMapLocation.address = results[0].formatted_address;
-                        // Phân tích quận/huyện, thành phố
-                        let district = '', city = '';
-                        results[0].address_components.forEach(comp => {
-                            if (comp.types.includes('administrative_area_level_2')) district = comp.long_name;
-                            if (comp.types.includes('administrative_area_level_1')) city = comp.long_name;
-                        });
-                        selectedMapLocation.district = district;
-                        selectedMapLocation.city = city;
-                    } else {
-                        document.getElementById('mapAddressInfo').textContent = 'Không tìm thấy địa chỉ.';
-                    }
-                });
-            }
-
-            function confirmMapAddress() {
-                if (!selectedMapLocation) return;
-                // Điền vào form
-                document.querySelector('input[name="address_detail"]').value = selectedMapLocation.address || '';
-                document.querySelector('input[name="district"]').value = selectedMapLocation.district || '';
-                document.querySelector('input[name="city"]').value = selectedMapLocation.city || '';
-                document.querySelector('input[name="latitude"]').value = selectedMapLocation.lat || '';
-                document.querySelector('input[name="longitude"]').value = selectedMapLocation.lng || '';
-                closeMapModal();
-            }
-
-            // Tải Google Maps script
-            if (!window.google || !window.google.maps) {
-                const script = document.createElement('script');
-                script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}`;
-                script.async = true;
-                script.defer = true;
-                document.body.appendChild(script);
-            }
             
             // Remove existing modal if any
             const existingModal = document.getElementById('addressModal');
@@ -557,6 +470,115 @@
             }, 3000);
         }
     </script>
+
+    <script>
+    /** ===== LocalStorage Address Store ===== */
+    const ADDRESS_KEY = 'electrostore_addresses_v1';
+
+    function loadAddresses() {
+        try { return JSON.parse(localStorage.getItem(ADDRESS_KEY)) || []; }
+        catch { return []; }
+    }
+    function saveAddresses(list) { localStorage.setItem(ADDRESS_KEY, JSON.stringify(list)); }
+    function newId() { return 'adr_' + Math.random().toString(36).slice(2, 10); }
+
+    function addOrUpdateAddress(addr) {
+        const list = loadAddresses();
+        if (!addr.id) { addr.id = newId(); }
+        if (addr.is_default) {
+            list.forEach(a => a.is_default = false);
+        }
+        const i = list.findIndex(a => a.id === addr.id);
+        if (i >= 0) list[i] = addr; else list.unshift(addr);
+        saveAddresses(list);
+        return addr.id;
+    }
+    function deleteAddressById(id) {
+        const list = loadAddresses().filter(a => a.id !== id);
+        saveAddresses(list);
+    }
+    function setDefaultAddress(id) {
+        const list = loadAddresses();
+        list.forEach(a => a.is_default = (a.id === id));
+        saveAddresses(list);
+    }
+
+    /** ===== Render vào tab #addresses (profile page) ===== */
+    function renderAddressesToProfile() {
+        const wrap = document.querySelector('#addresses .space-y-4');
+        if (!wrap) return;
+        wrap.innerHTML = '';
+        const list = loadAddresses();
+        if (!list.length) {
+            wrap.innerHTML = `<div class="border border-dashed rounded-lg p-6 text-gray-500">Chưa có địa chỉ nào. Nhấn "Thêm Địa Chỉ".</div>`;
+            return;
+        }
+        list.forEach(a => {
+            const el = document.createElement('div');
+            el.className = 'border border-gray-200 rounded-lg p-4';
+            el.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-semibold text-gray-800 mb-1">${a.address_name || 'Địa chỉ'}</h3>
+                        <p class="text-gray-600">${a.address_detail || ''}</p>
+                        <p class="text-gray-600">${a.district || ''}${a.city ? (a.district?', ':'') + a.city : ''}</p>
+                        ${a.phone ? `<p class="text-gray-600">SĐT: ${a.phone}</p>` : ''}
+                        ${a.is_default ? '<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium mt-2 inline-block">Mặc định</span>' : ''}
+                    </div>
+                    <div class="flex gap-2">
+                        ${!a.is_default ? `<button class="text-emerald-600 hover:text-emerald-800 text-sm" onclick="onSetDefaultAddress('${a.id}')">Đặt mặc định</button>` : ''}
+                        <button class="text-blue-600 hover:text-blue-800 text-sm" onclick="onEditAddress('${a.id}')">Sửa</button>
+                        <button class="text-red-600 hover:text-red-800 text-sm" onclick="onDeleteAddress('${a.id}')">Xóa</button>
+                    </div>
+                </div>
+            `;
+            wrap.appendChild(el);
+        });
+    }
+
+    /** ===== Hooks cho nút trong UI ===== */
+    function onSetDefaultAddress(id){
+        setDefaultAddress(id);
+        showNotification('Đã đặt địa chỉ mặc định', 'success');
+        renderAddressesToProfile();
+    }
+    function onDeleteAddress(id){
+        if (!confirm('Xóa địa chỉ này?')) return;
+        deleteAddressById(id);
+        showNotification('Đã xóa địa chỉ', 'success');
+        renderAddressesToProfile();
+    }
+    function onEditAddress(id){
+        const list = loadAddresses();
+        const a = list.find(x => x.id === id);
+        if (!a) return;
+        showAddressForm(a); // tái dùng modal form của bạn
+    }
+
+    /** ===== Gắn với modal form sẵn có của bạn ===== */
+    function saveAddress(event) {
+        event.preventDefault();
+        const fd = new FormData(event.target);
+        const addr = {
+            id: fd.get('id') || null,
+            address_name: fd.get('address_name')?.trim(),
+            address_detail: fd.get('address_detail')?.trim(),
+            district: fd.get('district')?.trim(),
+            city: fd.get('city')?.trim(),
+            phone: fd.get('phone')?.trim(),
+            is_default: fd.get('is_default') === 'on'
+        };
+        addOrUpdateAddress(addr);
+        showNotification('Lưu địa chỉ thành công!', 'success');
+        closeAddressModal();
+        renderAddressesToProfile();
+    }
+
+    /** ===== Khởi tạo khi vào trang profile ===== */
+    document.addEventListener('DOMContentLoaded', () => {
+        renderAddressesToProfile();
+    });
+    </script>
+
 </div>
-</html>
 @endsection
