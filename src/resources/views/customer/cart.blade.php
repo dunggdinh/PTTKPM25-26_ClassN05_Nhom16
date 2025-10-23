@@ -333,14 +333,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (selectedItems.length === 0) return alert('Vui lòng chọn sản phẩm để thanh toán');
 
-        fetch('{{ route("customer.vnpay.create") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ items: selectedItems })
-        })
         .then(res => res.json())
         .then(data => {
             if (data.success && data.payment_url) {
