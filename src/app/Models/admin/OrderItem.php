@@ -22,4 +22,21 @@ class OrderItem extends Model
     {
         return $this->belongsTo(Product::class, 'product_id', 'product_id');
     }
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($item) {
+            if (!$item->order_item_id) {
+                $last = static::orderBy('order_item_id', 'desc')->first();
+                $lastNumber = 0;
+
+                if ($last && preg_match('/OI_(\d+)/', $last->order_item_id, $matches)) {
+                    $lastNumber = intval($matches[1]);
+                }
+
+                $item->order_item_id = 'OI_' . str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
+            }
+        });
+    }
 }
