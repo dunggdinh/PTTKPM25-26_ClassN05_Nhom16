@@ -195,7 +195,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::delete('/warranties/{id}', [WarrantyController::class, 'destroy'])->name('warranties.destroy');
     Route::get('/warranties/reload', [WarrantyController::class, 'reload'])->name('warranties.reload');
 
+    Route::get('admin/promotion/list', [PromotionController::class, 'list'])->name('admin.promotion.list');
+    Route::post('admin/promotion', [PromotionController::class, 'store'])->name('admin.promotion.store');
+    Route::put('admin/promotion/{id}', [PromotionController::class, 'update'])->name('admin.promotion.update');
+    Route::post('admin/promotion/{id}/toggle', [PromotionController::class, 'toggle'])->name('admin.promotion.toggle');
+    Route::delete('admin/promotion/{id}', [PromotionController::class, 'destroy'])->name('admin.promotion.destroy');
+
+
 });
+
+Route::get('/admin/promotion/stats', [App\Http\Controllers\admin\PromotionController::class, 'stats'])
+    ->name('admin.promotion.stats');
+Route::post('/admin/promotion/{id}/toggle', [\App\Http\Controllers\admin\PromotionController::class, 'toggle'])
+    ->name('admin.promotion.toggle');
 
 /*
 |--------------------------------------------------------------------------
