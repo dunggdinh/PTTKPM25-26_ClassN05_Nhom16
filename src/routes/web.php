@@ -64,6 +64,7 @@ Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(functi
 
     Route::post('/cart/add',         [CartController::class, 'addToCart'])->name('cart.add');
     Route::patch('/cart/item/{id}',  [CartController::class, 'updateItem'])->name('cart.update');
+    Route::post('/cart/place-order', [CartController::class, 'placeOrder'])->name('cart.placeOrder');
     Route::delete('/cart/item/{id}', [CartController::class, 'removeItem'])->name('cart.remove');
     Route::delete('/cart/clear',     [CartController::class, 'clear'])->name('cart.clear');
     Route::post('/vnpay/create-payment', [VnpayController::class, 'createPayment'])->name('vnpay.create');
@@ -93,7 +94,7 @@ Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(functi
     Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 
     // Các trang tĩnh còn lại
-    // Route::view('/review', 'customer.review')->name('review');
+    Route::view('/review', 'customer.review')->name('review');
     Route::get('/support/{conversation}', function (\App\Models\admin\SupportConversation $conversation) {
         return view('customer.support', compact('conversation'));
     })->name('support');
