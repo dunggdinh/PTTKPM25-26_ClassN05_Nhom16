@@ -140,6 +140,9 @@ function bubbleHtml(msg) {
     return `
         <div class="chat-bubble flex items-start space-x-3 ${side}">
             <div class="w-8 h-8 ${bg} rounded-full flex items-center justify-center text-white text-sm">${avatar}</div>
+            <p class="text-xs text-gray-500 mb-1 font-semibold">
+                ${isMine ? 'Bạn' : (msg.sender_name || 'Khách hàng')}
+            </p>
             <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
                 <p class="text-gray-800 whitespace-pre-line">${escapeHTML(msg.content || '')}</p>
                 <span class="text-xs text-gray-500 mt-1 block">${time}</span>
@@ -225,7 +228,10 @@ async function loadMessages() {
             data.forEach(m => messagesContainer.insertAdjacentHTML('beforeend', bubbleHtml(m)));
         } else {
             // chỉ thêm tin mới
-            const newMessages = data.filter(m => m.message_id > lastMessageId);
+            // const newMessages = data.filter(m => m.message_id > lastMessageId);
+            const newMessages = data.filter(m => 
+                m.message_id > lastMessageId && String(m.sender_id) !== CUR_USER_ID
+            );
             newMessages.forEach(m => messagesContainer.insertAdjacentHTML('beforeend', bubbleHtml(m)));
         }
 
@@ -252,6 +258,10 @@ async function sendMessage(content) {
 
         if (!res.ok) throw new Error(await res.text());
         const msg = await res.json();
+        // ✅ Thêm dòng này để ngăn loadMessages() chèn lại cùng tin
+        // lastMessageId = msg.message_id;
+        // lastMessageId = Number(msg.message_id) + 1;
+        lastMessageId = Math.max(lastMessageId || 0, Number(msg.message_id) + 1);
 
         // ✅ Hiển thị tin nhắn mới ngay lập tức
         messagesContainer.insertAdjacentHTML('beforeend', bubbleHtml(msg));
@@ -277,11 +287,9 @@ chatForm.addEventListener('submit', async (e) => {
 
 document.addEventListener('DOMContentLoaded', () => {
     loadMessages();
+    setInterval(loadMessages, 3000); // tự reload mỗi 3s
 });
-document.addEventListener('DOMContentLoaded', () => {
-    loadMessages();
-    setInterval(loadMessages, 3000); // ✅ tự cập nhật tin nhắn 3 giây/lần
-});
+
 
 </script>
 @endsection

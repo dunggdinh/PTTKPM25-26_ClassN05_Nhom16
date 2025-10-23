@@ -447,7 +447,10 @@
                     data.forEach(m => messagesContainer.insertAdjacentHTML('beforeend', bubbleHtml(m)));
                 } else {
             // Nếu đã có, chỉ thêm tin mới thôi
-                    const newMessages = data.filter(m => m.message_id > lastMessageId);
+                    // const newMessages = data.filter(m => m.message_id > lastMessageId);
+                    const newMessages = data.filter(m => 
+                        m.message_id > lastMessageId && String(m.sender_id) !== CUR_USER_ID
+                    );
                     newMessages.forEach(m => messagesContainer.insertAdjacentHTML('beforeend', bubbleHtml(m)));
                 }
 
@@ -491,12 +494,13 @@
             if (!res.ok) throw new Error(await res.text());
             const msg = await res.json();
 
+            // ✅ Thêm dòng này để ngăn loadMessages() chèn lại cùng tin
+            // lastMessageId = msg.message_id;
+            lastMessageId = Math.max(lastMessageId || 0, Number(msg.message_id) + 1);
+
+
             messagesContainer.insertAdjacentHTML('beforeend', bubbleHtml(msg));
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-    // ✅ đồng bộ ngay thay vì chờ 3s
-            // await loadMessages();
-
+            messagesContainer.scrollTop = messagesContainer.scrollHeight; 
             return msg;
         }
         chatForm.addEventListener('submit', async (e) => {
@@ -571,14 +575,11 @@
 
         // ---------- Init ----------
         document.addEventListener('DOMContentLoaded', () => {
-            // loadHistory();
             loadMessages();
             switchTo('chat');
+            setInterval(loadMessages, 3000); // tự đồng bộ 3 giây
         });
-        document.addEventListener('DOMContentLoaded', () => {
-            loadMessages();
-            setInterval(loadMessages, 3000); // ✅ mỗi 3 giây tự cập nhật
-        });
+
     </script>
 </div>
 @endsection
