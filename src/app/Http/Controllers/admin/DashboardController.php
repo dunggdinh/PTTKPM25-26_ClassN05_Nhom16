@@ -15,18 +15,22 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // ==== Tổng doanh thu ====
-        $totalRevenue = Order::where('status', 'Hoàn tất')->sum('total_amount');
+        // ==== Tổng doanh thu từ đơn hoàn tất và đã thanh toán ====
+        $totalRevenue = Order::where('status', 'Đã giao')
+            ->where('payment_status', 'Đã thanh toán')
+            ->sum('total_amount');
         
-        // Doanh thu tuần trước
-        $lastWeekRevenue = Order::where('status', 'Hoàn tất')
+        // Doanh thu tuần trước (đơn hoàn tất và đã thanh toán)
+        $lastWeekRevenue = Order::where('status', 'Đã giao')
+            ->where('payment_status', 'Đã thanh toán')
             ->whereBetween('created_at', [
                 Carbon::now()->subWeek()->startOfWeek(),
                 Carbon::now()->subWeek()->endOfWeek()
             ])->sum('total_amount');
 
-        // Doanh thu tuần này
-        $thisWeekRevenue = Order::where('status', 'Hoàn tất')
+        // Doanh thu tuần này (đơn hoàn tất và đã thanh toán)
+        $thisWeekRevenue = Order::where('status', 'Đã giao')
+            ->where('payment_status', 'Đã thanh toán')
             ->whereBetween('created_at', [
                 Carbon::now()->startOfWeek(),
                 Carbon::now()->endOfWeek()
@@ -71,18 +75,23 @@ class DashboardController extends Controller
         // ==== Sản phẩm sắp hết hàng (<=10 sp) ====
         $lowStockProducts = Product::where('quantity', '<=', 10)->count();
 
-        // ==== Tính doanh thu theo tháng ====
+        // ==== Tính doanh thu theo tháng (chỉ từ đơn hoàn tất và đã thanh toán) ====
         $monthlyRevenue = Order::select(
                 DB::raw('MONTH(created_at) as month'),
                 DB::raw('SUM(total_amount) as total')
             )
             ->whereYear('created_at', date('Y'))
-            ->where('status', 'Hoàn tất')
+            ->where('status', 'Đã giao')
+            ->where('payment_status', 'Đã thanh toán')
             ->groupBy(DB::raw('MONTH(created_at)'))
             ->pluck('total', 'month');
 
-        // ==== Sản phẩm bán chạy ====
+        // ==== Sản phẩm bán chạy (chỉ từ đơn hoàn tất và đã thanh toán) ====
         $topProducts = OrderItem::select('product_id', DB::raw('SUM(quantity) as total_sold'))
+            ->whereHas('order', function($query) {
+                $query->where('status', 'Đã giao')
+                      ->where('payment_status', 'Đã thanh toán');
+            })
             ->groupBy('product_id')
             ->orderByDesc('total_sold')
             ->take(5)

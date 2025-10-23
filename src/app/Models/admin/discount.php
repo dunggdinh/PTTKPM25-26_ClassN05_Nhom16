@@ -2,32 +2,34 @@
 
 namespace App\Models\admin;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
 
 class Discount extends Model
 {
+    use HasFactory;
+
     protected $table = 'discounts';
     protected $primaryKey = 'discount_id';
     public $incrementing = false;
     protected $keyType = 'string';
+
+    // ⚠️ Bảng này không có cột created_at / updated_at
     public $timestamps = false;
 
     protected $fillable = [
         'discount_id',
-        'code',          // ✅ đổi từ discount_code thành code
+        'code',
         'type',
         'value',
         'status',
         'start_date',
         'end_date',
-        // 'description','min_order' nếu có
     ];
 
     protected $casts = [
         'start_date' => 'datetime',
-        'end_date'   => 'datetime',
-        'value'      => 'float',
+        'end_date' => 'datetime',
     ];
     protected static function boot()
     {
@@ -64,4 +66,5 @@ class Discount extends Model
     {
         return $this->hasMany(OrderDiscount::class, 'discount_id', 'discount_id');
     }
+
 }

@@ -24,9 +24,9 @@ class InventoryController extends Controller
         // 🔹 Lọc theo trạng thái
         if ($request->filled('status')) {
             if ($request->status === 'in-stock') {
-                $query->where('quantity', '>=', 10);
+                $query->where('quantity', '>', 10);
             } elseif ($request->status === 'low-stock') {
-                $query->whereBetween('quantity', [1, 9]);
+                $query->whereBetween('quantity', [1, 10]);
             } elseif ($request->status === 'out-of-stock') {
                 $query->where('quantity', 0);
             }
@@ -51,8 +51,8 @@ class InventoryController extends Controller
                         ->withQueryString();
         // Thống kê
         $totalProducts = Product::count(); // Tổng sản phẩm
-        $inStock = Product::where('quantity', '>=', 10)->count(); // Còn hàng
-        $lowStock = Product::where('quantity', '>', 0)->where('quantity', '<', 10)->count(); // Sắp hết hàng
+        $inStock = Product::where('quantity', '>', 10)->count(); // Còn hàng
+        $lowStock = Product::where('quantity', '>', 0)->where('quantity', '<=', 10)->count(); // Sắp hết hàng
         $outOfStock = Product::where('quantity', 0)->count(); // Hết hàng
 
         $lowStockProducts = Product::where('quantity', '>', 0)->where('quantity', '<', 10)->get();
