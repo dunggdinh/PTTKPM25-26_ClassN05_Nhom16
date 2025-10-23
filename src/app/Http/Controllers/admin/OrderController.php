@@ -57,10 +57,10 @@ class OrderController extends Controller
         // 📊 Thống kê
         $totalOrders = Order::count();
         $pendingOrders = Order::where('status', 'Chờ xử lý')->count();
-        $completedOrders = Order::where('status', 'Đã giao')->count();
-        
-        // Tính doanh thu từ các đơn hàng đã giao và đã thanh toán
-        $revenue = Order::where('status', 'Đã giao')
+        $completedOrders = Order::where('status', 'Hoàn tất')->count();
+
+        // Tính doanh thu từ các đơn hàng đã hoàn tất và đã thanh toán
+        $revenue = Order::where('status', 'Hoàn tất')
                        ->where('payment_status', 'Đã thanh toán')
                        ->sum('total_amount');
 
@@ -87,7 +87,7 @@ class OrderController extends Controller
     {
         $request->validate([
             'status' => 'required|in:Chờ xử lý,Đang giao,Đã giao,Đã hủy',
-            'payment_status' => 'required|in:Chưa thanh toán,Đã thanh toán,Hoàn tiền'
+            'payment_status' => 'required|in:Chưa thanh toán,Đã thanh toán'
         ]);
 
         $order = Order::findOrFail($id);
@@ -121,7 +121,6 @@ class OrderController extends Controller
             $paymentStatusColors = [
                 'Chưa thanh toán' => 'bg-orange-100 text-orange-800',
                 'Đã thanh toán' => 'bg-emerald-100 text-emerald-800',
-                'Hoàn tiền' => 'bg-purple-100 text-purple-800'
             ];
             $paymentStatusClass = $paymentStatusColors[$order->payment_status] ?? 'bg-gray-100 text-gray-800';
 

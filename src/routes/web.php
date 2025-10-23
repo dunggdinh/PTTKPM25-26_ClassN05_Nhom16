@@ -29,7 +29,7 @@ use App\Http\Controllers\customer\PromotionController;
 use App\Http\Controllers\customer\NotificationController;
 use App\Http\Controllers\admin\SupportTicketController;
 use App\Http\Controllers\customer\PromotionController as CustomerPromotionController;
-
+use App\Http\Controllers\customer\ReviewController;
 use App\Http\Controllers\admin\SupportMessageController;
 
 /*
@@ -190,6 +190,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     // Return & Warranty
     Route::get('/return', [ReturnController::class, 'index'])->name('return');
+    Route::post('/return', [ReturnController::class, 'store'])->name('return.store');
+    Route::get('/return/{return_id}/edit', [ReturnController::class, 'edit'])->name('return.edit');
+    Route::put('/return/{return_id}', [ReturnController::class, 'update'])->name('return.update');
+    Route::delete('/return/{return_id}', [ReturnController::class, 'destroy'])->name('return.destroy');
+    Route::get('/return/reload', [ReturnController::class, 'reload'])->name('return.reload');
+
+    // Warranties
     Route::get('/warranties', [WarrantyController::class, 'index'])->name('warranties');
     Route::put('/warranties/{id}/update-status', [WarrantyController::class, 'updateStatus'])->name('warranties.updateStatus');
     Route::delete('/warranties/{id}', [WarrantyController::class, 'destroy'])->name('warranties.destroy');
@@ -305,4 +312,19 @@ Route::prefix('api/map')->group(function () {
     Route::get('/test', [GoogleController::class, 'index']);
     Route::get('/address-from-latlng', [GoogleController::class, 'getAddressFromLatLng']);
     Route::get('/search-address', [GoogleController::class, 'searchAddress']);
+});
+
+Route::middleware(['web','auth'])->group(function () {
+    // Trang review (render Blade của cậu)
+    Route::get('/reviews', [ReviewController::class, 'index'])->name('customer.reviews.index');
+
+    // Tạo review (AJAX/POST form)
+    Route::post('/reviews', [ReviewController::class, 'store'])->name('customer.reviews.store');
+
+    // API list review (lọc/sắp xếp/phân trang cho phần danh sách)
+    Route::get('/reviews/_list.json', [ReviewController::class, 'list'])->name('customer.reviews.list');
+
+    // API sản phẩm đã mua – còn “đủ điều kiện” review
+    Route::get('/customer/reviews/eligible', [ReviewController::class, 'eligible'])
+        ->name('customer.reviews.eligible');
 });

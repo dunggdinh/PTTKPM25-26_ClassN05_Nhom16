@@ -8,70 +8,8 @@
         <section class="bg-white rounded-xl shadow-lg p-6 mb-8">
             <h2 class="text-2xl font-bold text-gray-800 mb-6">📦 Sản phẩm đã mua</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="purchasedProducts">
-                <!-- iPhone 15 Pro Max -->
-                <div class="product-card bg-white rounded-lg border hover:shadow-lg transition-shadow p-4">
-                    <div class="relative">
-                        <div class="bg-gray-100 rounded-lg p-4 text-center mb-4">
-                            <div class="text-4xl mb-2">📱</div>
-                            <h3 class="text-lg font-semibold text-gray-800">iPhone 15 Pro Max</h3>
-                            <p class="text-sm text-gray-600">256GB - Titan Tự Nhiên</p>
-                        </div>
-                        <div class="absolute top-2 right-2">
-                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded-full">Đã nhận hàng</span>
-                        </div>
-                    </div>
-                    <div class="text-sm text-gray-600 mb-4">
-                        <p>Đơn hàng: #DH001234</p>
-                        <p>Ngày mua: 15/10/2025</p>
-                    </div>
-                    <button onclick="showReviewForm(this)" data-product-id="1" data-product-name="iPhone 15 Pro Max" 
-                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
-                        ✍️ Viết đánh giá
-                    </button>
-                </div>
-
-                <!-- MacBook Air M3 -->
-                <div class="product-card bg-white rounded-lg border hover:shadow-lg transition-shadow p-4">
-                    <div class="relative">
-                        <div class="bg-gray-100 rounded-lg p-4 text-center mb-4">
-                            <div class="text-4xl mb-2">💻</div>
-                            <h3 class="text-lg font-semibold text-gray-800">MacBook Air M3</h3>
-                            <p class="text-sm text-gray-600">8GB RAM - 256GB SSD</p>
-                        </div>
-                        <div class="absolute top-2 right-2">
-                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded-full">Đã nhận hàng</span>
-                        </div>
-                    </div>
-                    <div class="text-sm text-gray-600 mb-4">
-                        <p>Đơn hàng: #DH001235</p>
-                        <p>Ngày mua: 16/10/2025</p>
-                    </div>
-                    <button onclick="showReviewForm(this)" data-product-id="2" data-product-name="MacBook Air M3"
-                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
-                        ✍️ Viết đánh giá
-                    </button>
-                </div>
-
-                <!-- AirPods Pro 2 -->
-                <div class="product-card bg-white rounded-lg border hover:shadow-lg transition-shadow p-4">
-                    <div class="relative">
-                        <div class="bg-gray-100 rounded-lg p-4 text-center mb-4">
-                            <div class="text-4xl mb-2">🎧</div>
-                            <h3 class="text-lg font-semibold text-gray-800">AirPods Pro 2</h3>
-                            <p class="text-sm text-gray-600">Trắng</p>
-                        </div>
-                        <div class="absolute top-2 right-2">
-                            <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-1 rounded-full">Đang giao</span>
-                        </div>
-                    </div>
-                    <div class="text-sm text-gray-600 mb-4">
-                        <p>Đơn hàng: #DH001236</p>
-                        <p>Ngày mua: 17/10/2025</p>
-                    </div>
-                    <button disabled
-                            class="w-full bg-gray-300 text-gray-500 font-medium py-2 px-4 rounded-lg cursor-not-allowed">
-                        ⏳ Chờ nhận hàng
-                    </button>
+                <div class="col-span-full text-center text-gray-500" id="eligiblePlaceholder">
+                    Đang tải sản phẩm đủ điều kiện...
                 </div>
             </div>
         </section>
@@ -156,117 +94,105 @@
                     </div>
                     
                     <div id="reviewsList" class="space-y-6">
-                        <!-- Đánh giá mẫu -->
-                        <div class="review-card border border-gray-200 rounded-lg p-6" data-stars="5">
-                            <div class="flex items-start justify-between mb-3">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
-                                        A
-                                    </div>
-                                    <div>
-                                        <h4 class="font-semibold text-gray-800">Anh Tuấn</h4>
-                                        <p class="text-sm text-gray-600">15/12/2024</p>
-                                    </div>
-                                </div>
-                                <div class="flex text-yellow-400">
-                                    ⭐⭐⭐⭐⭐
-                                </div>
-                            </div>
-                            <h5 class="font-semibold text-gray-800 mb-2">Sản phẩm tuyệt vời, đáng đồng tiền!</h5>
-                            <p class="text-gray-700 leading-relaxed">
-                                Mình đã sử dụng iPhone 15 Pro Max được 2 tháng và cảm thấy rất hài lòng. Camera chụp ảnh cực kỳ sắc nét, pin trâu, hiệu năng mượt mà. Đặc biệt là tính năng Action Button rất tiện lợi. Giao hàng nhanh, đóng gói cẩn thận. Sẽ tiếp tục ủng hộ shop!
-                            </p>
-                            <div class="flex items-center gap-4 mt-4 text-sm text-gray-600">
-                                <button class="like-btn flex items-center gap-1 hover:text-blue-600 transition-colors" data-liked="false" data-count="12">
-                                    <span class="like-icon">🤍</span> <span class="like-count">12</span>
-                                </button>
-                                <button class="reply-btn flex items-center gap-1 hover:text-blue-600">
-                                    💬 Trả lời
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="review-card border border-gray-200 rounded-lg p-6" data-stars="5">
-                            <div class="flex items-start justify-between mb-3">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center text-white font-semibold">
-                                        M
-                                    </div>
-                                    <div>
-                                        <h4 class="font-semibold text-gray-800">Mai Linh</h4>
-                                        <p class="text-sm text-gray-600">12/12/2024</p>
-                                    </div>
-                                </div>
-                                <div class="flex text-yellow-400">
-                                    ⭐⭐⭐⭐⭐
-                                </div>
-                            </div>
-                            <h5 class="font-semibold text-gray-800 mb-2">Camera quá đỉnh, chụp ảnh như pro!</h5>
-                            <p class="text-gray-700 leading-relaxed">
-                                Lần đầu dùng iPhone và mình thực sự bị choáng ngợp bởi chất lượng camera. Chụp ảnh ban đêm cũng rất sáng và rõ nét. Màn hình sống động, màu sắc chân thực. Duy nhất là hơi nặng một chút nhưng quen rồi cũng ok. Recommend cho ai đang phân vân!
-                            </p>
-                            <div class="flex items-center gap-4 mt-4 text-sm text-gray-600">
-                                <button class="like-btn flex items-center gap-1 hover:text-blue-600 transition-colors" data-liked="false" data-count="8">
-                                    <span class="like-icon">🤍</span> <span class="like-count">8</span>
-                                </button>
-                                <button class="reply-btn flex items-center gap-1 hover:text-blue-600">
-                                    💬 Trả lời
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="review-card border border-gray-200 rounded-lg p-6" data-stars="4">
-                            <div class="flex items-start justify-between mb-3">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-semibold">
-                                        H
-                                    </div>
-                                    <div>
-                                        <h4 class="font-semibold text-gray-800">Hoàng Nam</h4>
-                                        <p class="text-sm text-gray-600">10/12/2024</p>
-                                    </div>
-                                </div>
-                                <div class="flex text-yellow-400">
-                                    ⭐⭐⭐⭐
-                                </div>
-                            </div>
-                            <h5 class="font-semibold text-gray-800 mb-2">Tốt nhưng có một số điểm cần cải thiện</h5>
-                            <p class="text-gray-700 leading-relaxed">
-                                Sản phẩm nhìn chung ok, hiệu năng mạnh mẽ, chơi game mượt. Tuy nhiên giá hơi cao so với mặt bằng chung và thời lượng pin có thể tốt hơn nữa. Bù lại thì thiết kế đẹp, cầm nắm chắc chắn. Shop giao hàng đúng hẹn, nhân viên tư vấn nhiệt tình.
-                            </p>
-                            <div class="flex items-center gap-4 mt-4 text-sm text-gray-600">
-                                <button class="like-btn flex items-center gap-1 hover:text-blue-600 transition-colors" data-liked="false" data-count="5">
-                                    <span class="like-icon">🤍</span> <span class="like-count">5</span>
-                                </button>
-                                <button class="reply-btn flex items-center gap-1 hover:text-blue-600">
-                                    💬 Trả lời
-                                </button>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- Phân trang -->
-                    <div class="flex justify-center mt-8">
-                        <nav class="flex items-center gap-2">
-                            <button class="px-3 py-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
-                                ← Trước
-                            </button>
-                            <button class="px-3 py-2 bg-blue-600 text-white rounded-lg">1</button>
-                            <button class="px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg">2</button>
-                            <button class="px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg">3</button>
-                            <button class="px-3 py-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
-                                Sau →
-                            </button>
-                        </nav>
-                    </div>
+                    <div id="reviewsPagination" class="flex justify-center mt-8"></div>
                 </div>
             </section>
         </div>
     </main>
 
     <script>
+    window.REVIEW_ROUTES = {
+        list:    "{{ route('customer.reviews.list') }}",
+        eligible:"{{ route('customer.reviews.eligible') }}",
+        store:   "{{ route('customer.reviews.store') }}"
+    };
+
+    function statusBadgeClass(statusRaw='') {
+        const s = (statusRaw||'').toLowerCase().trim();
+        if (['đã nhận hàng','đã giao','hoàn thành','delivered','completed'].includes(s)) {
+            return 'bg-green-100 text-green-800';
+        }
+        if (['đang giao','shipping','shipped','processing'].includes(s)) {
+            return 'bg-yellow-100 text-yellow-800';
+        }
+        if (['đã hủy','cancelled','canceled'].includes(s)) {
+            return 'bg-red-100 text-red-800';
+        }
+        return 'bg-gray-100 text-gray-800';
+        }
+
+    async function loadEligibleProducts() {
+        try {
+            const res  = await fetch(REVIEW_ROUTES.eligible, { credentials:'same-origin' });
+            const json = await res.json();
+            const wrap = document.getElementById('purchasedProducts');
+            wrap.innerHTML = '';
+
+            const items = Array.isArray(json?.data) ? json.data : [];
+            if (!items.length) {
+                wrap.innerHTML = `<p class="text-gray-500 text-center col-span-full">Bạn chưa có sản phẩm đủ điều kiện đánh giá.</p>`;
+                return;
+            }
+
+            items.forEach(item => {
+                const okStatuses = ['đã nhận hàng','đã giao','hoàn thành','delivered','completed'];
+                const isOK = okStatuses.includes((item.order_status||'').toLowerCase().trim());
+                const btnClass = isOK
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed';
+                const disabledAttr = isOK ? '' : 'disabled';
+                const badgeCls = statusBadgeClass(item.order_status);
+
+                wrap.insertAdjacentHTML('beforeend', `
+                    <div class="product-card bg-white rounded-lg border hover:shadow-lg transition-shadow p-4">
+                        <div class="relative">
+                            <div class="bg-gray-100 rounded-lg p-4 text-center mb-4">
+                                ${item.product_image
+                                    ? `<img src="${item.product_image}" class="mx-auto w-16 h-16 object-contain mb-2">`
+                                    : `<div class="text-4xl mb-2">📦</div>`}
+                                <h3 class="text-lg font-semibold text-gray-800">${item.product_name ?? ''}</h3>
+                                <p class="text-sm text-gray-600">${item.product_desc ?? ''}</p>
+                            </div>
+                            <div class="absolute top-2 right-2">
+                                <span class="${badgeCls} text-xs font-medium px-2.5 py-1 rounded-full">
+                                    ${item.order_status ?? '—'}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-4">
+                            <p>Đơn hàng: #${item.order_id}</p>
+                            <p>Ngày mua: ${item.ordered_at ? new Date(item.ordered_at).toLocaleDateString('vi-VN') : ''}</p>
+                        </div>
+                        <button onclick="showReviewForm(this)"
+                                data-product-id="${item.product_id}"
+                                data-product-name="${item.product_name ?? ''}"
+                                data-order-id="${item.order_id}"
+                                class="w-full ${btnClass} font-medium py-2 px-4 rounded-lg transition-colors"
+                                ${disabledAttr}>
+                            ✍️ Viết đánh giá
+                        </button>
+                    </div>
+                `);
+            });
+        } catch (e) {
+            console.error(e);
+            const wrap = document.getElementById('purchasedProducts');
+            if (wrap) wrap.innerHTML = `<p class="text-red-600 text-center col-span-full">Không tải được danh sách sản phẩm.</p>`;
+        }
+    }
+
+    
+
     document.addEventListener('DOMContentLoaded', () => {
         let selectedRating = 0;
+        loadEligibleProducts();
+        let currentPage = 1;
+
+        // Lần đầu load
+        loadReviews();
 
         // --- Tham chiếu DOM dùng chung ---
         const selectedProductBox = document.getElementById('selectedProductBox');
@@ -285,6 +211,143 @@
             4: 'Tốt',
             5: 'Tuyệt vời'
         };
+            
+        document.getElementById('starFilter').addEventListener('change', () => { currentPage = 1; loadReviews(); });
+        document.getElementById('sortSelect').addEventListener('change', () => { currentPage = 1; loadReviews(); });
+
+        async function loadReviews(page = currentPage) {
+            const starVal = document.getElementById('starFilter').value; // 'all' | '1..5'
+            const sortVal = document.getElementById('sortSelect').value; // 'newest' | 'oldest' | 'highest' | 'lowest'
+
+            const params = new URLSearchParams();
+            params.set('sort', sortVal);
+            params.set('page', page);
+            params.set('per_page', 6);
+            if (starVal !== 'all') params.set('stars', starVal);
+
+            try {
+                const url = `${REVIEW_ROUTES.list}?${params.toString()}`;
+                const res = await fetch(url, { credentials: 'same-origin' });
+                if (!res.ok) throw new Error('Không tải được danh sách đánh giá');
+                const json = await res.json();
+                renderReviews(json.data);
+                renderPagination(json.meta);
+                currentPage = json.meta.current_page;
+            } catch (e) {
+                console.error(e);
+                showNotification('Không tải được đánh giá. Vui lòng thử lại!', 'error');
+            }
+        }
+
+        function renderReviews(items=[]) {
+            const container = document.getElementById('reviewsList');
+            container.innerHTML = '';
+            if (!items.length) {
+                container.innerHTML = `<div class="text-center text-gray-600">Chưa có đánh giá nào.</div>`;
+                return;
+            }
+            items.forEach(r => container.appendChild(makeReviewCard(r)));
+        }
+
+        function renderPagination(meta) {
+            const wrap = document.getElementById('reviewsPagination');
+            if (!wrap) return;
+            if (!meta || meta.last_page <= 1) { wrap.innerHTML = ''; return; }
+
+            const { current_page, last_page } = meta;
+
+            const btn = (label, page, disabled=false, active=false) => {
+                const base = 'px-3 py-2 rounded-lg';
+                const cls = active
+                    ? 'bg-blue-600 text-white'
+                    : (disabled ? 'text-gray-400' : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50');
+                return `<button data-page="${page}" class="${base} ${cls}" ${disabled?'disabled':''}>${label}</button>`;
+            };
+
+            let html = `<nav class="flex items-center gap-2">`;
+            html += btn('← Trước', current_page - 1, current_page === 1);
+            for (let p = 1; p <= last_page; p++) {
+                if (p === 1 || p === last_page || Math.abs(p - current_page) <= 1) {
+                    html += btn(p, p, false, p === current_page);
+                } else if (p === 2 && current_page > 3) {
+                    html += `<span class="px-2 text-gray-400">...</span>`;
+                } else if (p === last_page - 1 && current_page < last_page - 2) {
+                    html += `<span class="px-2 text-gray-400">...</span>`;
+                }
+            }
+            html += btn('Sau →', current_page + 1, current_page === last_page);
+            html += `</nav>`;
+
+            wrap.innerHTML = html;
+            wrap.querySelectorAll('button[data-page]').forEach(b => {
+                b.addEventListener('click', () => {
+                    const p = parseInt(b.dataset.page, 10);
+                    if (!isNaN(p)) loadReviews(p);
+                });
+            });
+        }
+
+        // Tạo 1 review card từ dữ liệu server
+        function makeReviewCard(r) {
+            // r: { review_id, rating, comment, image_url, created_at, user:{name}, product:{name} ... }
+            const card = document.createElement('div');
+            card.className = 'review-card border border-gray-200 rounded-lg p-6';
+            card.dataset.stars = r.rating?.toString() ?? '0';
+
+            const name = (r.user?.name || 'Ẩn danh').toString();
+            const initial = name.charAt(0).toUpperCase();
+            const colors = ['bg-blue-500','bg-pink-500','bg-green-500','bg-purple-500','bg-red-500'];
+            const color = colors[Math.floor(Math.random()*colors.length)];
+            const dateTxt = formatDateVN(r.created_at);
+            const starsTxt = '⭐'.repeat(Math.max(0, Math.min(5, parseInt(r.rating || 0,10))));
+
+            // comment hiện đang chứa (title + \n\n + comment) theo controller; có thể split ra nếu muốn
+            const [titleLine, ...rest] = (r.comment || '').split('\n\n');
+            const title = titleLine || 'Đánh giá sản phẩm';
+            const content = rest.join('\n\n') || (r.comment || '');
+
+            card.innerHTML = `
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 ${color} rounded-full flex items-center justify-center text-white font-semibold">
+                            ${initial}
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800">${escapeHtml(name)}</h4>
+                            <p class="text-sm text-gray-600">${dateTxt}</p>
+                        </div>
+                    </div>
+                    <div class="flex text-yellow-400">${starsTxt}</div>
+                </div>
+
+                <div class="mb-2">
+                    <span class="inline-flex items-center gap-1 text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
+                        🛍️ Cho sản phẩm: <strong>${escapeHtml(r.product?.name || r.product_id || '')}</strong>
+                    </span>
+                </div>
+
+                <h5 class="font-semibold text-gray-800 mb-2">${escapeHtml(title)}</h5>
+                <p class="text-gray-700 leading-relaxed whitespace-pre-line">${escapeHtml(content)}</p>
+
+                <div class="flex items-center gap-4 mt-4 text-sm text-gray-600">
+                    <button class="like-btn flex items-center gap-1 hover:text-blue-600 transition-colors" data-liked="false" data-count="0">
+                        <span class="like-icon">🤍</span> <span class="like-count">0</span>
+                    </button>
+                    <button class="reply-btn flex items-center gap-1 hover:text-blue-600">💬 Trả lời</button>
+                </div>
+            `;
+            return card;
+        }
+
+        function formatDateVN(iso) {
+            if (!iso) return '';
+            const d = new Date(iso);
+            return d.toLocaleDateString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric' });
+        }
+        function escapeHtml(s=''){return s.replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));}
+
+        // Expose nếu cần reload sau submit
+        window.reloadReviews = () => loadReviews(1);
 
         function updateStars() {
             stars.forEach((star, index) => {
@@ -316,7 +379,7 @@
         document.getElementById('starRating').addEventListener('mouseleave', updateStars);
 
         // ====== SUBMIT REVIEW ======
-        document.getElementById('reviewForm').addEventListener('submit', function (e) {
+        document.getElementById('reviewForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
             const name = document.getElementById('customerName').value.trim();
@@ -329,37 +392,91 @@
                 showNotification('Vui lòng chọn sản phẩm cần đánh giá (nhấn "✍️ Viết đánh giá" ở sản phẩm).', 'error');
                 return;
             }
-
             if (!name || !title || !content || selectedRating === 0) {
                 showNotification('Vui lòng điền đầy đủ thông tin và chọn số sao!', 'error');
                 return;
             }
 
-            createReviewElement(name, title, content, selectedRating, selectedProductNm).then(newReview => {
-                const reviewsList = document.getElementById('reviewsList');
+            try {
+                const fd = new FormData();
+                fd.append('product_id', selectedProductId);
 
-                newReview.style.opacity = '0';
-                newReview.style.transform = 'translateY(-20px)';
-                reviewsList.insertBefore(newReview, reviewsList.firstChild);
+                // lấy order_id từ button sản phẩm nếu có
+                const btnSel = document.querySelector(
+                    `[data-product-id="${CSS.escape(selectedProductId)}"][data-product-name="${CSS.escape(selectedProductNm)}"]`
+                );
+                if (btnSel?.dataset.orderId) fd.append('order_id', btnSel.dataset.orderId);
 
-                requestAnimationFrame(() => {
-                    newReview.style.opacity = '1';
-                    newReview.style.transform = 'translateY(0)';
+                fd.append('rating', selectedRating);
+                fd.append('title', title);
+                fd.append('comment', content);
+                // Nếu có input ảnh: fd.append('image', document.getElementById('reviewImage')?.files?.[0] ?? null);
+
+                const res = await fetch(REVIEW_ROUTES.store, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',                 // 👈 BẮT LARAVEL TRẢ JSON (k redirect về HTML)
+                        'X-Requested-With': 'XMLHttpRequest'         // 👈 Cho middleware hiểu là AJAX
+                    },
+                    body: fd,
+                    credentials: 'same-origin',
+                    redirect: 'manual'                              // 👈 Nếu bị 302 sẽ không tự theo, mình bắt lỗi luôn
                 });
 
+                // ĐỪNG parse JSON nếu server trả HTML
+                let json;
+                try {
+                    json = await res.json();
+                } catch (_) {
+                    const text = await res.text();
+                    // Một số trường hợp trình duyệt chặn đọc body khi redirect: báo lỗi rõ ràng
+                    throw new Error(`Máy chủ trả về trang HTML (có thể 419/302). Status=${res.status}`);
+                }
+
+                if (res.status === 419) {
+                    throw new Error('CSRF hết hạn. Vui lòng tải lại trang và thử lại.');
+                }
+                if (!res.ok) {
+                    throw new Error(json?.message || 'Gửi đánh giá thất bại');
+                }
+
+                if (!res.ok) throw new Error(json.message || 'Gửi đánh giá thất bại');
+
+                // render card mới từ server (để đồng bộ định dạng)
+                const serverReview = json.data; // { review_id, rating, comment, image_url, created_at, ... }
+                serverReview.user = { name };
+                serverReview.product = { name: selectedProductNm };
+
+                const reviewsList = document.getElementById('reviewsList');
+                const newCard = makeReviewCard(serverReview);
+                newCard.style.opacity = '0';
+                newCard.style.transform = 'translateY(-20px)';
+                reviewsList.insertBefore(newCard, reviewsList.firstChild);
+                requestAnimationFrame(() => {
+                    newCard.style.opacity = '1';
+                    newCard.style.transform = 'translateY(0)';
+                });
+
+                // reset form + chip
                 this.reset();
                 selectedRating = 0;
                 updateStars();
                 ratingText.textContent = 'Chọn số sao';
-
-                showNotification('Cảm ơn bạn đã gửi đánh giá! 🎉', 'success');
-
-                // Reset chip chọn sản phẩm
                 selectedProductBox.classList.add('hidden');
                 selectedProductName.textContent = '';
                 productIdInput.value = '';
                 productNameInput.value = '';
-            });
+
+                showNotification('Cảm ơn bạn đã gửi đánh giá! 🎉', 'success');
+
+                // reload danh sách eligible (sp này đã review)
+                if (typeof loadEligibleProducts === 'function') loadEligibleProducts();
+
+            } catch (err) {
+                console.error(err);
+                showNotification(err.message, 'error');
+            }
         });
 
         async function createReviewElement(name, title, content, rating, productName) {
@@ -448,7 +565,6 @@
 
             const visibleReviews = reviews.filter(r => r.style.display !== 'none').length;
             const filterText = filterValue === 'all' ? 'tất cả đánh giá' : `đánh giá ${filterValue} sao`;
-            showNotification(`Hiển thị ${visibleReviews} ${filterText}! ⭐`, 'success');
 
             reviews.forEach(review => {
                 if (review.style.display === 'block') {
@@ -611,8 +727,6 @@
         form.classList.add('ring-2','ring-blue-300','rounded-lg');
         setTimeout(() => form.classList.remove('ring-2','ring-blue-300'), 600);
     };
-    </script>
 
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script\');d.innerHTML="window.__CF$cv$params={r:'98f5f31a27e00eeb\',t:'MTc2MDYwMDg2Mi4wMDAwMDA=\'};var a=document.createElement('script\');a.nonce='\';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js\';document.getElementsByTagName('head\')[0].appendChild(a);";b.getElementsByTagName('head\')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe\');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none\';a.style.visibility='hidden\';document.body.appendChild(a);if('loading\'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded\',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading\'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
-</html>
+    </script>
 @endsection

@@ -3,7 +3,8 @@
 namespace App\Models\admin;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
+use App\Models\customer\User as CustomerUser;
+
 
 class ProductReview extends Model
 {
@@ -14,6 +15,8 @@ class ProductReview extends Model
     public $incrementing = false;
 
     protected $keyType = 'string';
+
+    public $timestamps = false;
 
     protected $fillable = [
         'review_id',
@@ -33,7 +36,7 @@ class ProductReview extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id', 'user_id');
+        return $this->belongsTo(CustomerUser::class, 'user_id', 'user_id');
     }
 
     public function order()

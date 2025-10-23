@@ -17,15 +17,25 @@ class ReturnRequest extends Model
     protected $fillable = [
         'return_id',
         'order_item_id',
+        'type',
         'reason',
         'status',
         'requested_at',
-        'processed_at',
     ];
-    // Liên kết với bảng order_item (nếu có)
+
+    const STATUS_COMPLETED = 'Hoàn tất';
+    const STATUS_APPROVED = 'Đã duyệt';
+    const STATUS_PENDING = 'Chờ xử lý';
+    const STATUS_REJECTED = 'Từ chối';
+    // Relationships
     public function orderItem()
     {
-        return $this->belongsTo(order_item::class, 'order_item_id', 'order_item_id');
+        return $this->belongsTo(OrderItem::class, 'order_item_id', 'order_item_id');
+    }
+    
+    public function user()
+    {
+        return $this->belongsTo(user::class, 'user_id', 'user_id');
     }
     protected static function boot()
     {
