@@ -10,6 +10,7 @@ class Order extends Model
     protected $primaryKey = 'order_id';
     public $incrementing = false;
     protected $keyType = 'string';
+    public $timestamps = false;
 
     protected $fillable = [
         'order_id', 'user_id', 'total_amount', 'status',

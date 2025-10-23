@@ -33,7 +33,7 @@
                     <div>
                         <p class="text-gray-600 text-sm">Tổng Doanh Thu</p>
                         <p class="text-2xl font-bold text-gray-900">
-                            {{ number_format($totalRevenue, 0, ',', '.') }} 
+                            {{ number_format($totalRevenue, 0, ',', '.') }} ₫
                         </p>
                         <p class="text-blue-600 text-sm">{{ $revenueGrowth }}% so với tuần trước</p>
                     </div>

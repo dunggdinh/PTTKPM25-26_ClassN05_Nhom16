@@ -4,10 +4,20 @@
 <div class="bg-gradient-to-br from-blue-50 to-indigo-100">
     <main class="container mx-auto px-4 py-8 max-w-7xl">
         <!-- Header -->
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">Quản Lý Hàng Nhập</h1>
-            <p class="text-gray-600">Theo dõi và quản lý các lô hàng nhập kho</p>
-        </div>
+        <header class="mb-8">
+            <div class="flex justify-between items-center">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">Quản Lý Hàng Nhập</h1>
+                    <p class="text-gray-600">Theo dõi và quản lý các lô hàng nhập kho</p>
+                </div>
+                <button type="button" id="createProductBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Nhập sản phẩm mới
+                </button>
+            </div>
+        </header>
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -62,7 +72,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Tổng giá trị</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ $totalValue }}</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ number_format($totalValue, 0, ',', '.') }} ₫</p>
                     </div>
                 </div>
             </div>
@@ -180,24 +190,82 @@
                                         <div>
                                             <button onclick="openEdit('{{ $delivery->batch_id }}')" class="text-blue-600 hover:underline">Sửa</button>
 
-                                            <!-- Modal chỉnh trạng thái -->
+                                            <!-- Modal chỉnh sửa -->
                                             <div id="edit-modal-{{ $delivery->batch_id }}" style="display:none;"
                                                 class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-20">
-                                                <div class="bg-white p-4 rounded shadow-md w-80">
-                                                    <h3 class="font-semibold mb-2">Cập nhật trạng thái cho lô hàng: <span class="text-blue-600">{{ $delivery->batch_id }}</span></h3>
+                                                <div class="bg-white p-6 rounded-lg shadow-xl w-[500px]">
+                                                    <h3 class="text-lg font-semibold mb-4">Cập nhật lô hàng: <span class="text-blue-600">{{ $delivery->batch_id }}</span></h3>
 
-                                                    <form action="{{ route('admin.deliveries.updateStatus', $delivery->batch_id) }}" method="POST">
+                                                    <form action="{{ route('admin.deliveries.update', $delivery->batch_id) }}" method="POST" class="space-y-4">
                                                         @csrf
                                                         @method('PUT')
-                                                        <select name="status" class="border rounded px-2 py-1 mb-4 w-full">
-                                                            <option value="Chờ xử lý" {{ $delivery->status == 'pending' ? 'selected' : '' }}>Chờ xử lý</option>
-                                                            <option value="Hoàn thành" {{ $delivery->status == 'completed' ? 'selected' : '' }}>Hoàn thành</option>
-                                                            <option value="Đã hủy" {{ $delivery->status == 'cancelled' ? 'selected' : '' }}>Đã hủy</option>
-                                                      </select>
+                                                        
+                                                        <!-- Nhà cung cấp -->
+                                                        <div>
+                                                            <label class="block text-sm font-medium text-gray-700 mb-1">Nhà cung cấp</label>
+                                                            <select name="supplier_id" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                                                                @foreach ($suppliers as $supplier)
+                                                                    <option value="{{ $supplier->supplier_id }}" {{ $delivery->supplier_id == $supplier->supplier_id ? 'selected' : '' }}>
+                                                                        {{ $supplier->name }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
 
-                                                        <div class="flex justify-end gap-2">
-                                                            <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Cập nhật</button>
-                                                            <button type="button" onclick="closeEdit('{{ $delivery->batch_id }}')" class="px-3 py-1 rounded border hover:bg-gray-100">Hủy</button>
+                                                        <!-- Sản phẩm -->
+                                                        <div>
+                                                            <label class="block text-sm font-medium text-gray-700 mb-1">Sản phẩm</label>
+                                                            <select name="product_id" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                                                                @foreach ($products as $product)
+                                                                    <option value="{{ $product->product_id }}" {{ $delivery->product_id == $product->product_id ? 'selected' : '' }}>
+                                                                        {{ $product->name }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+
+                                                        <!-- Số lượng -->
+                                                        <div>
+                                                            <label class="block text-sm font-medium text-gray-700 mb-1">Số lượng</label>
+                                                            <input type="number" name="quantity" value="{{ $delivery->quantity }}" min="1"
+                                                                class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                                                                onchange="calculateEditTotal('{{ $delivery->batch_id }}')">
+                                                        </div>
+
+                                                        <!-- Giá -->
+                                                        <div>
+                                                            <label class="block text-sm font-medium text-gray-700 mb-1">Giá (₫)</label>
+                                                            <input type="number" name="price" value="{{ $delivery->price }}" min="0"
+                                                                class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                                                                onchange="calculateEditTotal('{{ $delivery->batch_id }}')">
+                                                        </div>
+
+                                                        <!-- Tổng giá trị -->
+                                                        <div>
+                                                            <label class="block text-sm font-medium text-gray-700 mb-1">Tổng giá trị</label>
+                                                            <input type="text" id="total_value_{{ $delivery->batch_id }}" 
+                                                                value="{{ number_format($delivery->total_value, 0, ',', '.') }} ₫" readonly
+                                                                class="w-full bg-gray-50 border rounded-lg px-3 py-2">
+                                                        </div>
+
+                                                        <!-- Trạng thái -->
+                                                        <div>
+                                                            <label class="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
+                                                            <select name="status" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                                                                <option value="Chờ xử lý" {{ $delivery->status == 'Chờ xử lý' ? 'selected' : '' }}>Chờ xử lý</option>
+                                                                <option value="Hoàn thành" {{ $delivery->status == 'Hoàn thành' ? 'selected' : '' }}>Hoàn thành</option>
+                                                                <option value="Đã hủy" {{ $delivery->status == 'Đã hủy' ? 'selected' : '' }}>Đã hủy</option>
+                                                            </select>
+                                                        </div>
+
+                                                        <div class="flex justify-end gap-2 pt-4">
+                                                            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                                                                Cập nhật
+                                                            </button>
+                                                            <button type="button" onclick="closeEdit('{{ $delivery->batch_id }}')" 
+                                                                class="px-4 py-2 rounded-lg border hover:bg-gray-100">
+                                                                Hủy
+                                                            </button>
                                                         </div>
                                                     </form>
                                                 </div>
@@ -355,12 +423,92 @@ async function exportDeliveriesFile(type) {
 
 
 <script>
+// Modal thêm sản phẩm mới
+const createModal = `
+<div id="createDeliveryModal" style="display:none" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-20">
+    <div class="bg-white p-6 rounded-lg shadow-xl w-[500px]">
+        <h3 class="text-lg font-semibold mb-4">Nhập sản phẩm mới</h3>
+        
+        <form action="{{ route('admin.deliveries.store') }}" method="POST" class="space-y-4">
+            @csrf
+            
+            <!-- Nhà cung cấp -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nhà cung cấp</label>
+                <select name="supplier_id" required class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="">Chọn nhà cung cấp</option>
+                    @foreach ($suppliers as $supplier)
+                        <option value="{{ $supplier->supplier_id }}">{{ $supplier->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+
+            <!-- Tên sản phẩm -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Tên sản phẩm <span class="text-red-500">*</span></label>
+                <input type="text" name="product_name" required
+                    class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    placeholder="Nhập tên sản phẩm mới">
+            </div>
+
+            <!-- Danh mục -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Danh mục <span class="text-red-500">*</span></label>
+                <select name="category_id" required class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="">Chọn danh mục</option>
+                    @foreach ($categories as $category)
+                        <option value="{{ $category->category_id }}">{{ $category->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Giá bán -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Giá bán (₫) <span class="text-red-500">*</span></label>
+                <input type="number" name="price" required min="0"
+                    class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    placeholder="Nhập giá bán lẻ">
+            </div>
+
+            <!-- Số lượng nhập -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Số lượng nhập <span class="text-red-500">*</span></label>
+                <input type="number" name="quantity" required min="1"
+                    class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    onchange="calculateCreateTotal()">
+            </div>
+
+            <!-- Tổng giá trị -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Tổng giá trị</label>
+                <input type="text" id="create_total_value" readonly
+                    class="w-full bg-gray-50 border rounded-lg px-3 py-2">
+            </div>
+
+            <div class="flex justify-end gap-2 pt-4">
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                    Tạo lô hàng
+                </button>
+                <button type="button" onclick="closeCreateModal()" 
+                    class="px-4 py-2 rounded-lg border hover:bg-gray-100">
+                    Hủy
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+`;
+
+document.body.insertAdjacentHTML('beforeend', createModal);
+
 document.addEventListener("DOMContentLoaded", function() {
     const searchInput = document.querySelector("input[name='search']");
     const statusFilter = document.querySelector("select[name='status']");
     const supplierFilter = document.querySelector("select[name='supplier']");
-    const reloadBtn = document.getElementById("reload-btn"); // nếu có nút reload
-    const tableBody = document.getElementById("deliveryTable"); // tbody của bảng
+    const createProductBtn = document.getElementById("createProductBtn");
+    const reloadBtn = document.getElementById("reload-btn");
+    const tableBody = document.getElementById("deliveryTable");
 
     // --- Lọc dữ liệu khi thay đổi ---
     [statusFilter, supplierFilter].forEach(select => {
@@ -403,10 +551,62 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // --- Modal edit/delete ---
+    // --- Modal create/edit/delete ---
+    window.openCreateModal = function() {
+        const modal = document.getElementById('createProductModal');
+        if (modal) modal.style.display = 'flex';
+    }
+
+    window.closeCreateModal = function() {
+        const modal = document.getElementById('createProductModal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    // Tính tổng giá trị khi thay đổi số lượng hoặc giá
+    document.querySelectorAll('#createProductForm input[name="quantity"], #createProductForm input[name="price"]')
+        .forEach(input => {
+            input.addEventListener('input', calculateTotal);
+        });
+
+    // Tính tổng giá trị cho form tạo mới
+    window.calculateCreateTotal = function() {
+        const form = document.querySelector('#createDeliveryModal form');
+        const quantity = form.querySelector('input[name="quantity"]').value || 0;
+        const price = form.querySelector('input[name="price"]').value || 0;
+        const total = quantity * price;
+        document.querySelector('#create_total_value').value = new Intl.NumberFormat('vi-VN').format(total) + ' ₫';
+    }
+
+    // Tính tổng giá trị cho form sửa
+    window.calculateEditTotal = function(id) {
+        const form = document.querySelector(`#edit-modal-${id} form`);
+        const quantity = form.querySelector('input[name="quantity"]').value || 0;
+        const price = form.querySelector('input[name="price"]').value || 0;
+        const total = quantity * price;
+        document.querySelector(`#total_value_${id}`).value = new Intl.NumberFormat('vi-VN').format(total) + ' ₫';
+    }
+
+    // Mở modal tạo mới
+    window.openCreateModal = function() {
+        const modal = document.getElementById('createDeliveryModal');
+        if (modal) modal.style.display = 'flex';
+    }
+
+    // Đóng modal tạo mới
+    window.closeCreateModal = function() {
+        const modal = document.getElementById('createDeliveryModal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    // Mở modal sửa
     window.openEdit = function(id) {
         const modal = document.getElementById('edit-modal-' + id);
         if (modal) modal.style.display = 'flex';
+    }
+
+    // Click vào nút tạo mới
+    if (createProductBtn) {
+        createProductBtn.addEventListener('click', () => openCreateModal());
     }
 
     window.closeEdit = function(id) {
