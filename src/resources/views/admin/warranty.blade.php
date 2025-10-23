@@ -69,13 +69,11 @@
                 </div>
             </div>
         </div>
-
         <div class="bg-white rounded-xl shadow-md">
             <div class="p-6 border-b border-gray-200">
                 <h2 class="text-xl font-bold text-gray-900 mb-4">Danh sách lịch hẹn</h2>
 
-                <!-- <form method="GET" action="{{ route('admin.warranties') }}" -->
-                <form method="GET" action="{{ route('admin.warranty') }}">
+                <form method="GET" action="{{ route('admin.warranties') }}"
                       class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
 
                     <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
