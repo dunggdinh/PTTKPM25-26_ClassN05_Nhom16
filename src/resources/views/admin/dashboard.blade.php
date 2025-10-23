@@ -33,8 +33,9 @@
                     <div>
                         <p class="text-gray-600 text-sm">Tổng Doanh Thu</p>
                         <p class="text-2xl font-bold text-gray-900">
-                            {{ number_format($totalRevenue, 0, ',', '.') }} VNĐ
+                            {{ number_format($totalRevenue, 0, ',', '.') }} 
                         </p>
+                        <p class="text-blue-600 text-sm">{{ $revenueGrowth }}% so với tuần trước</p>
                     </div>
                 </div>
             </div>
@@ -50,7 +51,7 @@
                     <div>
                         <p class="text-gray-600 text-sm">Đơn Hàng</p>
                         <p class="text-2xl font-bold text-gray-900">{{ $totalOrders }}</p>
-                        <p class="text-blue-600 text-sm">+8.2% so với tuần trước</p>
+                        <p class="text-blue-600 text-sm">{{ $orderGrowth }}% so với tuần trước</p>
                     </div>
                 </div>
             </div>
@@ -66,7 +67,7 @@
                     <div>
                         <p class="text-gray-600 text-sm">Khách Hàng</p>
                         <p class="text-2xl font-bold text-gray-900">{{ $totalCustomers }}</p>
-                        <p class="text-purple-600 text-sm">+156 khách hàng mới</p>
+                        <p class="text-purple-600 text-sm">{{$newCustomers}} khách hàng mới</p>
                     </div>
                 </div>
             </div>

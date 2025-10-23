@@ -67,9 +67,7 @@ Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(functi
     Route::post('/cart/place-order', [CartController::class, 'placeOrder'])->name('cart.placeOrder');
     Route::delete('/cart/item/{id}', [CartController::class, 'removeItem'])->name('cart.remove');
     Route::delete('/cart/clear',     [CartController::class, 'clear'])->name('cart.clear');
-    Route::post('/vnpay/create-payment', [VnpayController::class, 'createPayment'])->name('vnpay.create');
-    Route::get('/vnpay/callback', [VnpayController::class, 'callback'])->name('vnpay.callback');
-    Route::post('/vnpay/checkout', [VnpayController::class, 'createPayment'])->name('vnpay.create');
+
 
 
 });
@@ -182,10 +180,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::delete('/orders/{id}', [OrderController::class, 'destroy'])->name('order.destroy');
     Route::get('/order/reload', [OrderController::class, 'reload'])->name('order.reload');
 
-    // Payments (Controller)
-    Route::get('/payments_gateway', [PaymentController::class, 'index'])->name('payments_gateway');
-    Route::get('/payments/verify/{id}', [PaymentController::class, 'verify'])->name('payments.verify');
-    Route::get('/payments/reject/{id}', [PaymentController::class, 'reject'])->name('payments.reject');
 
     // Report (Controller)
     Route::get('/report', [ReportController::class, 'index'])->name('report');

@@ -365,13 +365,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ✅ Chạy lần đầu
     updateOrderSummary();
-});
-function closeSuccess() {
-    const successMessage = document.getElementById('success-message');
-    if (successMessage) {
-        successMessage.classList.add('hidden'); // ẩn popup
+    });
+    function closeSuccess() {
+        const successMessage = document.getElementById('success-message');
+        if (successMessage) {
+            successMessage.classList.add('hidden'); 
+        }
     }
-}
 
 
     // ✅ Hàm đặt hàng mới
