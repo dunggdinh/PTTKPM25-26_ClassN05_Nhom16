@@ -93,7 +93,7 @@ Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(functi
     Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 
     // Các trang tĩnh còn lại
-    // Route::view('/review', 'customer.review')->name('review');
+    Route::view('/review', 'customer.review')->name('review');
     Route::get('/support/{conversation}', function (\App\Models\admin\SupportConversation $conversation) {
         return view('customer.support', compact('conversation'));
     })->name('support');
