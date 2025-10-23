@@ -28,8 +28,9 @@ use App\Http\Controllers\customer\CartController;
 use App\Http\Controllers\customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\customer\PromotionController;
 use App\Http\Controllers\customer\NotificationController;
-
 use App\Http\Controllers\customer\VnpayController;
+use App\Http\Controllers\admin\SupportTicketController;
+
 
 
 use App\Http\Controllers\admin\SupportConversationController;
@@ -300,6 +301,9 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::post('/notifications/read-all',   [AdminNotificationController::class, 'markAllRead'])->name('admin.notifications.read_all');
     Route::post('/notifications/{id}/read',  [AdminNotificationController::class, 'markOneRead'])->name('admin.notifications.read_one');
     Route::delete('/notifications/{id}',     [AdminNotificationController::class, 'remove'])->name('admin.notifications.remove');
+    Route::get('/tickets', [SupportTicketController::class, 'index'])->name('admin.tickets.index');
+    Route::post('/tickets', [SupportTicketController::class, 'store'])->name('admin.tickets.store');
+    Route::get('/tickets/{id}', [SupportTicketController::class, 'show'])->name('admin.tickets.show');
 });
 
 
