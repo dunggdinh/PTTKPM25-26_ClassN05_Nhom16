@@ -120,16 +120,4 @@ class InventoryController extends Controller
     }
 
 
-    public function export(Request $request)
-    {
-        $columns = $request->columns 
-            ? json_decode($request->columns, true) 
-            : ['product_id','name','brand','category','quantity','status','price','warranty','supplier'];
-
-        $format = $request->format ?? 'xlsx';
-        $fileName = ($request->fileName ?? 'inventory-export') . '-' . now()->format('Y-m-d') . '.' . $format;
-
-        return Excel::download(new InventoryExport($columns), $fileName);
-    }
-
 }
