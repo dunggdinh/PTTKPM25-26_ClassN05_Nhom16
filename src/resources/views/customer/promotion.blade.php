@@ -70,18 +70,18 @@
             </div>
         </section>
 
-       <!-- Vouchers from Database -->
+        <!-- Vouchers from Database -->
         <section class="mb-12">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">🎫 Mã khuyến mãi hiện có</h2>
 
-            <div id="voucher-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- JS sẽ render các voucher ở đây -->
-            </div>
+            <!-- đổi grid -> stack -->
+            <div id="voucher-list" class="space-y-6"></div>
 
             <div class="mt-6 text-sm text-gray-500">
-            *Chỉ những mã đang hoạt động theo thời gian hiện tại được hiển thị.
+                *Chỉ những mã đang hoạt động theo thời gian hiện tại được hiển thị.
             </div>
         </section>
+
 
 
         <!-- Cart Button -->
@@ -272,130 +272,123 @@ function renderVoucherList() {
   wrap.innerHTML = '';
   countdownRegistry = [];
 
-  // Lọc các mã đang có hiệu lực ở thời điểm hiện tại
+  const palettes = [
+    ['from-purple-600','to-pink-600'],
+    ['from-blue-600','to-cyan-500'],
+    ['from-green-600','to-emerald-500'],
+    ['from-rose-600','to-orange-500'],
+    ['from-indigo-600','to-violet-500'],
+  ];
+
   const filtered = (vouchers || []).filter(v => {
     const s = safeDate(v.start_date);
     const e = safeDate(v.end_date);
     const now = Date.now();
-    const sMs = s ? s.getTime() : -Infinity;   // không có start => coi như đã bắt đầu
-    const eMs = e ? e.getTime() : Infinity;    // không có end   => không hết hạn
+    const sMs = s ? s.getTime() : -Infinity;
+    const eMs = e ? e.getTime() : Infinity;
     return sMs <= now && now <= eMs;
   });
 
   if (filtered.length === 0) {
     const empty = document.createElement('div');
-    empty.className = 'col-span-3 text-gray-500';
+    empty.className = 'text-gray-500 text-center';
     empty.textContent = 'Hiện chưa có mã khuyến mãi nào đang hoạt động.';
     wrap.appendChild(empty);
     return;
   }
 
   filtered.forEach((v, idx) => {
-    const type = (v.type === 'amount') ? 'fixed' : v.type;
-    const badgeText = (type === 'fixed')
-      ? (Number(v.value ?? 0).toLocaleString('vi-VN') + '₫')
-      : ('-' + Number(v.value ?? 0).toLocaleString('vi-VN') + '%');
+    const pal = palettes[idx % palettes.length];
+    const from = pal[0], to = pal[1];
 
-    const card = document.createElement('article');
-    card.className = 'bg-white rounded-2xl shadow p-5 flex flex-col justify-between';
-
-    // Header
-    const head = document.createElement('div');
-    head.className = 'flex items-start justify-between mb-3';
-
-    const h3 = document.createElement('h3');
-    h3.className = 'text-xl font-bold text-gray-800';
-    h3.textContent = 'Mã ' + v.code;
-
-    const badge = document.createElement('span');
-    badge.className = 'px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm font-bold';
-    badge.textContent = badgeText;
-
-    head.appendChild(h3);
-    head.appendChild(badge);
-
-    // Mô tả + chi tiết
-    const p = document.createElement('p');
-    p.className = 'text-gray-600 mb-2';
-    p.textContent = v.description ?? '';
-
-    const ul = document.createElement('ul');
-    ul.className = 'text-sm text-gray-500 space-y-1';
-    const li1 = document.createElement('li');
-    li1.textContent = 'Hiệu lực: ' + formatVNDate(v.start_date) + ' → ' + formatVNDate(v.end_date);
-    ul.appendChild(li1);
-
-    // Countdown
-    const countdownLine = document.createElement('div');
-    countdownLine.className = 'mt-2 text-sm font-medium';
-
-    const cdPill = document.createElement('span');
-    cdPill.className = 'inline-block px-3 py-1 rounded-full text-white';
+    const banner = document.createElement('section');
+    banner.className =
+      `rounded-2xl p-6 text-white text-center bg-gradient-to-r ${from} ${to} shadow-lg font-sans`;
 
     const st = voucherStatus(v);
-    const sMs = safeDate(v.start_date) ? safeDate(v.start_date).getTime() : null;
-    const eMs = safeDate(v.end_date) ? safeDate(v.end_date).getTime() : null;
-    const now = Date.now();
+    const end = safeDate(v.end_date);
 
+    // Tiêu đề
+    const header = document.createElement('div');
+    header.innerHTML = `
+      <h3 class="text-2xl md:text-3xl mb-1 tracking-wide uppercase drop-shadow-sm">
+        🎟️ Mã ${v.code}
+      </h3>
+      <p class="text-sm md:text-base opacity-90 mb-3">
+        Hiệu lực: ${formatVNDate(v.start_date)} → ${formatVNDate(v.end_date)}
+      </p>
+    `;
+
+    // Bộ đếm
+    const timerRow = document.createElement('div');
+    timerRow.className = 'flex justify-center gap-3 mb-3';
+
+    const createTimerBox = (label) => {
+      const box = document.createElement('div');
+      box.className = 'bg-black/30 backdrop-blur-sm rounded-lg p-3 min-w-[70px]';
+      const val = document.createElement('div');
+      val.className = 'text-3xl font-bold';
+      val.textContent = '00';
+      const lbl = document.createElement('div');
+      lbl.className = 'text-xs opacity-90';
+      lbl.textContent = label;
+      box.appendChild(val);
+      box.appendChild(lbl);
+      return { box, val };
+    };
+
+    const H = createTimerBox('Giờ');
+    const M = createTimerBox('Phút');
+    const S = createTimerBox('Giây');
+    timerRow.append(H.box, M.box, S.box);
+
+    // Trạng thái
+    const stateLine = document.createElement('p');
+    stateLine.className = 'text-base md:text-lg font-medium mb-2';
     if (st.state === 'active') {
-      cdPill.classList.add('bg-green-600');
-      if (eMs && eMs > now) {
-        cdPill.innerHTML = 'Còn lại: <span data-cd="'+idx+'">--:--:--</span>';
-        countdownRegistry.push({ el: cdPill.querySelector('[data-cd]'), type: 'toEnd', end: eMs });
-      } else {
-        cdPill.textContent = 'Không giới hạn thời gian';
-      }
+      stateLine.textContent = '✨ Mã đang hoạt động — nhanh tay sử dụng!';
     } else if (st.state === 'upcoming') {
-      cdPill.classList.add('bg-amber-600');
-      cdPill.innerHTML = 'Chưa bắt đầu: <span data-cd="'+idx+'">--:--:--</span>';
-      if (sMs && sMs > now) {
-        countdownRegistry.push({ el: cdPill.querySelector('[data-cd]'), type: 'toStart', start: sMs });
-      }
+      stateLine.textContent = '⏰ Mã sắp bắt đầu — chuẩn bị sẵn sàng!';
     } else {
-      cdPill.classList.add('bg-gray-500');
-      cdPill.textContent = 'Hết hạn';
+      stateLine.textContent = '❌ Mã đã hết hạn.';
     }
 
-    countdownLine.appendChild(cdPill);
+    // Gắn tất cả (không còn nút nào)
+    banner.append(header, timerRow, stateLine);
+    wrap.appendChild(banner);
 
-    // Actions
-    const btnWrap = document.createElement('div');
-    btnWrap.className = 'mt-4 grid grid-cols-2 gap-3';
-
-    const btnCopy = document.createElement('button');
-    btnCopy.type = 'button';
-    btnCopy.className = 'border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50';
-    btnCopy.textContent = 'Sao chép';
-    btnCopy.addEventListener('click', e => {
-      e.preventDefault();
-      navigator.clipboard.writeText(v.code).then(() => showNotification('Đã sao chép mã ' + v.code));
+    // Countdown
+    const eMs = end ? end.getTime() : null;
+    countdownRegistry.push({
+      el: { h: H.val, m: M.val, s: S.val },
+      type: 'toEnd',
+      end: eMs
     });
-
-    const btnApply = document.createElement('button');
-    btnApply.type = 'button';
-    btnApply.className = 'bg-gradient-to-r from-green-500 to-teal-500 text-white py-2 rounded-lg font-semibold hover:opacity-90 disabled:opacity-50';
-    btnApply.textContent = 'Áp mã';
-    btnApply.addEventListener('click', e => {
-      e.preventDefault();
-      applyVoucherByCode(v.code);
-    });
-    if (st.state !== 'active') {
-      btnApply.disabled = true;
-      btnApply.title = (st.state === 'upcoming') ? 'Mã chưa bắt đầu' : 'Mã đã hết hạn';
-    }
-
-    // Gộp
-    btnWrap.appendChild(btnCopy);
-    btnWrap.appendChild(btnApply);
-    card.appendChild(head);
-    card.appendChild(p);
-    card.appendChild(ul);
-    card.appendChild(countdownLine);
-    card.appendChild(btnWrap);
-    wrap.appendChild(card);
   });
+
+  // Ticker cho đồng hồ
+  function tickVoucherBanners() {
+    const now = Date.now();
+    countdownRegistry.forEach(item => {
+      if (!item || !item.el) return;
+      if (item.type === 'toEnd' && item.end) {
+        let ms = item.end - now;
+        if (ms <= 0) ms = 0;
+        const totalSec = Math.floor(ms / 1000);
+        const hh = Math.floor(totalSec / 3600);
+        const mm = Math.floor((totalSec % 3600) / 60);
+        const ss = totalSec % 60;
+        item.el.h.textContent = pad2(hh);
+        item.el.m.textContent = pad2(mm);
+        item.el.s.textContent = pad2(ss);
+      }
+    });
+  }
+  tickVoucherBanners();
+  if (!window.__voucherTickInterval) {
+    window.__voucherTickInterval = setInterval(tickVoucherBanners, 1000);
+  }
 }
 </script>
-
 
 @endsection
