@@ -30,10 +30,10 @@
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <div class="flex items-center mb-6">
                         <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-white text-xl font-bold">
-                            NV
+                            {{ Auth::check() ? strtoupper(substr(Auth::user()->name, 0, 1) . (str_contains(Auth::user()->name, ' ') ? substr(Auth::user()->name, strrpos(Auth::user()->name, ' ') + 1, 1) : '')) : 'N' }}
                         </div>
                         <div class="ml-4">
-                            <h3 class="font-semibold text-gray-800">Nguyễn Văn A</h3>
+                            <h3 class="font-semibold text-gray-800">{{ Auth::user()->name ?? 'Người dùng' }}</h3>
                         </div>
                     </div>
                     
@@ -77,7 +77,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Họ & Tên</label>
                             <input name="name" type="text"
-                                value="{{ old('name', $user->name) }}"
+                                value="{{ old('name', Auth::user()->name) }}"
                                 class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                             @error('name') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
                         </div>
@@ -85,7 +85,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
                             <input name="email" type="email"
-                                value="{{ old('email', $user->email) }}"
+                                value="{{ old('email', Auth::user()->email) }}"
                                 class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                             @error('email') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
                         </div>
@@ -95,14 +95,14 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Số điện thoại</label>
                             <input name="phone" type="text"
-                                value="{{ old('phone', $user->phone) }}"
+                                value="{{ old('phone', Auth::user()->phone) }}"
                                 class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Ngày sinh</label>
                             <input name="birth_date" type="date"
-                                value="{{ old('birth_date', optional($user->birth_date)->format('Y-m-d')) }}"
+                                value="{{ old('birth_date', optional(Auth::user()->birth_date)->format('Y-m-d')) }}"
                                 class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         </div>
                     </div>
@@ -111,7 +111,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Giới tính</label>
                             <select name="gender" class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                @php $g = old('gender', $user->gender); @endphp
+                                @php $g = old('gender', Auth::user()->gender); @endphp
                                 <option value="">-- Chọn --</option>
                                 <option value="male"   {{ $g==='male'?'selected':'' }}>Nam</option>
                                 <option value="female" {{ $g==='female'?'selected':'' }}>Nữ</option>
@@ -122,7 +122,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Địa chỉ</label>
                             <input name="address" type="text"
-                                value="{{ old('address', $user->address) }}"
+                                value="{{ old('address', Auth::user()->address) }}"
                                 class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         </div>
                     </div>
@@ -134,7 +134,6 @@
                         </button>
                     </div>
                 </form>
-
 
                 <!-- Password Tab -->
                 <form method="POST" action="{{ route('customer.profile.password') }}" class="space-y-6">
@@ -167,7 +166,6 @@
                         </button>
                     </div>
                 </form>
-
 
                 <!-- Orders Tab -->
                 <div id="orders" class="tab-content">
@@ -355,109 +353,109 @@
                     </div>
                 </div>
             `;
-        // Google Maps API Key từ .env
-        const GOOGLE_MAPS_API_KEY = "AIzaSyBjuZAOnShMXxAsAy6xUcq-gEKGV9ebd5k";
+            // Google Maps API Key từ .env
+            const GOOGLE_MAPS_API_KEY = "AIzaSyBjuZAOnShMXxAsAy6xUcq-gEKGV9ebd5k";
 
-        // Biến lưu vị trí chọn từ map
-        let selectedMapLocation = null;
+            // Biến lưu vị trí chọn từ map
+            let selectedMapLocation = null;
 
-        function openMapModal() {
-            document.getElementById('mapModal').style.display = 'flex';
-            // Xóa nội dung cũ của googleMap để tránh lỗi khi mở lại
-            const mapDiv = document.getElementById('googleMap');
-            if (mapDiv) mapDiv.innerHTML = '';
-            // Nếu Google Maps đã có thì gọi initMap luôn
-            if (window.google && window.google.maps) {
-                setTimeout(initMap, 100);
-            } else {
-                // Nếu chưa có thì tải script và gọi initMap khi đã tải xong
-                if (!document.getElementById('google-maps-script')) {
-                    const script = document.createElement('script');
-                    script.id = 'google-maps-script';
-                    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}`;
-                    script.async = true;
-                    script.defer = true;
-                    script.onload = function() {
-                        setTimeout(initMap, 100);
-                    };
-                    document.body.appendChild(script);
+            function openMapModal() {
+                document.getElementById('mapModal').style.display = 'flex';
+                // Xóa nội dung cũ của googleMap để tránh lỗi khi mở lại
+                const mapDiv = document.getElementById('googleMap');
+                if (mapDiv) mapDiv.innerHTML = '';
+                // Nếu Google Maps đã có thì gọi initMap luôn
+                if (window.google && window.google.maps) {
+                    setTimeout(initMap, 100);
                 } else {
-                    // Nếu script đang tải, chờ 500ms rồi thử lại
-                    setTimeout(openMapModal, 500);
+                    // Nếu chưa có thì tải script và gọi initMap khi đã tải xong
+                    if (!document.getElementById('google-maps-script')) {
+                        const script = document.createElement('script');
+                        script.id = 'google-maps-script';
+                        script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}`;
+                        script.async = true;
+                        script.defer = true;
+                        script.onload = function() {
+                            setTimeout(initMap, 100);
+                        };
+                        document.body.appendChild(script);
+                    } else {
+                        // Nếu script đang tải, chờ 500ms rồi thử lại
+                        setTimeout(openMapModal, 500);
+                    }
                 }
             }
-        }
 
-        function closeMapModal() {
-            document.getElementById('mapModal').style.display = 'none';
-        }
-
-        function initMap() {
-            if (window.google && window.google.maps) {
-                const defaultLatLng = { lat: 10.762622, lng: 106.660172 }; // Hồ Chí Minh
-                const map = new google.maps.Map(document.getElementById('googleMap'), {
-                    center: defaultLatLng,
-                    zoom: 13
-                });
-                let marker = new google.maps.Marker({
-                    position: defaultLatLng,
-                    map: map,
-                    draggable: true
-                });
-                // Sự kiện click map
-                map.addListener('click', function(e) {
-                    marker.setPosition(e.latLng);
-                    fetchAddressFromLatLng(e.latLng.lat(), e.latLng.lng());
-                });
-                // Sự kiện kéo marker
-                marker.addListener('dragend', function(e) {
-                    fetchAddressFromLatLng(e.latLng.lat(), e.latLng.lng());
-                });
-                // Lấy địa chỉ ban đầu
-                fetchAddressFromLatLng(defaultLatLng.lat, defaultLatLng.lng);
+            function closeMapModal() {
+                document.getElementById('mapModal').style.display = 'none';
             }
-        }
 
-        function fetchAddressFromLatLng(lat, lng) {
-            selectedMapLocation = { lat, lng };
-            const geocoder = new google.maps.Geocoder();
-            geocoder.geocode({ location: { lat, lng } }, function(results, status) {
-                if (status === 'OK' && results[0]) {
-                    document.getElementById('mapAddressInfo').textContent = results[0].formatted_address;
-                    selectedMapLocation.address = results[0].formatted_address;
-                    // Phân tích quận/huyện, thành phố
-                    let district = '', city = '';
-                    results[0].address_components.forEach(comp => {
-                        if (comp.types.includes('administrative_area_level_2')) district = comp.long_name;
-                        if (comp.types.includes('administrative_area_level_1')) city = comp.long_name;
+            function initMap() {
+                if (window.google && window.google.maps) {
+                    const defaultLatLng = { lat: 10.762622, lng: 106.660172 }; // Hồ Chí Minh
+                    const map = new google.maps.Map(document.getElementById('googleMap'), {
+                        center: defaultLatLng,
+                        zoom: 13
                     });
-                    selectedMapLocation.district = district;
-                    selectedMapLocation.city = city;
-                } else {
-                    document.getElementById('mapAddressInfo').textContent = 'Không tìm thấy địa chỉ.';
+                    let marker = new google.maps.Marker({
+                        position: defaultLatLng,
+                        map: map,
+                        draggable: true
+                    });
+                    // Sự kiện click map
+                    map.addListener('click', function(e) {
+                        marker.setPosition(e.latLng);
+                        fetchAddressFromLatLng(e.latLng.lat(), e.latLng.lng());
+                    });
+                    // Sự kiện kéo marker
+                    marker.addListener('dragend', function(e) {
+                        fetchAddressFromLatLng(e.latLng.lat(), e.latLng.lng());
+                    });
+                    // Lấy địa chỉ ban đầu
+                    fetchAddressFromLatLng(defaultLatLng.lat, defaultLatLng.lng);
                 }
-            });
-        }
+            }
 
-        function confirmMapAddress() {
-            if (!selectedMapLocation) return;
-            // Điền vào form
-            document.querySelector('input[name="address_detail"]').value = selectedMapLocation.address || '';
-            document.querySelector('input[name="district"]').value = selectedMapLocation.district || '';
-            document.querySelector('input[name="city"]').value = selectedMapLocation.city || '';
-            document.querySelector('input[name="latitude"]').value = selectedMapLocation.lat || '';
-            document.querySelector('input[name="longitude"]').value = selectedMapLocation.lng || '';
-            closeMapModal();
-        }
+            function fetchAddressFromLatLng(lat, lng) {
+                selectedMapLocation = { lat, lng };
+                const geocoder = new google.maps.Geocoder();
+                geocoder.geocode({ location: { lat, lng } }, function(results, status) {
+                    if (status === 'OK' && results[0]) {
+                        document.getElementById('mapAddressInfo').textContent = results[0].formatted_address;
+                        selectedMapLocation.address = results[0].formatted_address;
+                        // Phân tích quận/huyện, thành phố
+                        let district = '', city = '';
+                        results[0].address_components.forEach(comp => {
+                            if (comp.types.includes('administrative_area_level_2')) district = comp.long_name;
+                            if (comp.types.includes('administrative_area_level_1')) city = comp.long_name;
+                        });
+                        selectedMapLocation.district = district;
+                        selectedMapLocation.city = city;
+                    } else {
+                        document.getElementById('mapAddressInfo').textContent = 'Không tìm thấy địa chỉ.';
+                    }
+                });
+            }
 
-        // Tải Google Maps script
-        if (!window.google || !window.google.maps) {
-            const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}`;
-            script.async = true;
-            script.defer = true;
-            document.body.appendChild(script);
-        }
+            function confirmMapAddress() {
+                if (!selectedMapLocation) return;
+                // Điền vào form
+                document.querySelector('input[name="address_detail"]').value = selectedMapLocation.address || '';
+                document.querySelector('input[name="district"]').value = selectedMapLocation.district || '';
+                document.querySelector('input[name="city"]').value = selectedMapLocation.city || '';
+                document.querySelector('input[name="latitude"]').value = selectedMapLocation.lat || '';
+                document.querySelector('input[name="longitude"]').value = selectedMapLocation.lng || '';
+                closeMapModal();
+            }
+
+            // Tải Google Maps script
+            if (!window.google || !window.google.maps) {
+                const script = document.createElement('script');
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}`;
+                script.async = true;
+                script.defer = true;
+                document.body.appendChild(script);
+            }
             
             // Remove existing modal if any
             const existingModal = document.getElementById('addressModal');

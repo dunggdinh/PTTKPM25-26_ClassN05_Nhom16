@@ -179,10 +179,14 @@
     }
 
     function redirectToCategory(categoryName) {
-        // Redirect to product page with specific category
-        window.location.href = `product?category=${encodeURIComponent(categoryName)}`;
+        const categoryMap = {
+            'Điện thoại': 'SM_001',
+            'Laptop': 'LT_001', 
+        };
+        
+        const categoryId = categoryMap[categoryName] || 'all';
+        window.location.href = `{{ url('/customer/product') }}?search=&category=${encodeURIComponent(categoryId)}&sort_by=name&sort_direction=asc`;
     }
-
 
     const CART_KEY = 'cart';
 
