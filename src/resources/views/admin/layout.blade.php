@@ -56,14 +56,13 @@
                 </button>
                 
                 <div>
-                    <h2 class="text-3xl font-bold text-gray-900">ElectroStore</h2>
+                    <h2 class="text-3xl font-bold text-gray-900">LC Electronics</h2>
                     <p class="text-base font-medium text-gray-700" id="pageSubtitle">Trang chủ</p>
                 </div>
             </div>
             
-            <!-- Right side - User -->
-            <div class="flex items-center space-x-4">
-                               
+            <!-- Right side - Notifications and User -->
+            <div class="flex items-center space-x-4">     
                 <!-- User Account Dropdown -->
                 <div class="relative">
                     <div class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg transition-colors" onclick="toggleDropdown()">
@@ -149,12 +148,6 @@
             </a>
             <div class="menu-divider"></div>
 
-            <a href="/admin/payments_gateway" class="menu-item flex items-center px-6 py-4 text-gray-600 hover:bg-gray-100">
-                <span class="mr-4 text-lg">💳</span>
-                <span class="text-base">Quản lý thanh toán</span>
-            </a>
-            <div class="menu-divider"></div>
-
             <a href="/admin/deliveries" class="menu-item flex items-center px-6 py-4 text-gray-600 hover:bg-gray-100">
                 <span class="mr-4 text-lg">🚚</span>
                 <span class="text-base">Quản lý nhập hàng</span>
@@ -192,8 +185,7 @@
             'Quản lý kho': '/admin/inventory',
             'Quản lý đơn hàng': '/admin/order',
             'Đổi/Trả hàng': '/admin/return',
-            'Quản lý thanh toán': '/admin/payments_gateway',
-            'Quản lý khuyến mãi': '/admin/promotion', // 👈 thêm dòng này
+            'Quản lý khuyến mãi': '/admin/promotion', 
             'Quản lý lô hàng nhập': '/admin/deliveries',
             'Hỗ trợ khách hàng': '/admin/support',
             'Báo cáo & thống kê': '/admin/report'
@@ -280,6 +272,19 @@
         }
     </script>
     <script>
+    const dropdown = document.getElementById('notificationsDropdown');
+    const badge = document.querySelector('.notification-badge');
+
+    async function loadNotifications() {
+        try {
+            const res = await fetch(`{{ route('admin.notifications') }}`, { headers:{'X-Requested-With':'XMLHttpRequest'} });
+            const data = await res.json();
+            renderNotifications(data.items);
+            renderBadge(data.unread);
+        } catch (e) {
+            console.error('Load notifications error', e);
+        }
+    }
 
     function renderBadge(unread) {
         if (!badge) return;
@@ -316,6 +321,68 @@
             </div>
         </div>`;
     }
+
+    function renderNotifications(items) {
+        const container = dropdown.querySelector('.max-h-96');
+        if (!container) return;
+        if (!items || items.length === 0) {
+            container.innerHTML = `<div class="px-4 py-6 text-center text-gray-500">Không có thông báo nào</div>`;
+            return;
+        }
+        container.innerHTML = items.map(itemTemplate).join('');
+
+        container.querySelectorAll('.mark-read').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+            const id = e.currentTarget.dataset.id;
+            await fetch(`{{ url('/admin/notifications') }}/${id}/read`, {
+                method: 'POST',
+                headers: {
+                'X-CSRF-TOKEN': `{{ csrf_token() }}`,
+                'X-Requested-With':'XMLHttpRequest'
+                }
+            });
+            await loadNotifications();
+            });
+        });
+
+        container.querySelectorAll('.remove').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+            const id = e.currentTarget.dataset.id;
+            await fetch(`{{ url('/admin/notifications') }}/${id}`, {
+                method: 'DELETE',
+                headers: {
+                'X-CSRF-TOKEN': `{{ csrf_token() }}`,
+                'X-Requested-With':'XMLHttpRequest'
+                }
+            });
+            await loadNotifications();
+            });
+        });
+    }
+
+    async function markAllRead() {
+        await fetch(`{{ route('admin.notifications.read_all') }}`, {
+            method: 'POST',
+            headers: {'X-CSRF-TOKEN': `{{ csrf_token() }}`, 'X-Requested-With':'XMLHttpRequest'}
+        });
+        await loadNotifications();
+    }
+
+    function toggleNotifications() {
+        const dd = document.getElementById('notificationsDropdown');
+        dd.classList.toggle('hidden');
+        if (!dd.classList.contains('hidden')) {
+            dd.querySelector('.max-h-96').innerHTML = `<div class="px-4 py-6 text-center text-gray-500">Đang tải...</div>`;
+            loadNotifications();
+        }
+
+    }
+
+    // tự load khi trang mở & refresh định kỳ
+    document.addEventListener('DOMContentLoaded', () => {
+        loadNotifications();
+        setInterval(loadNotifications, 30000);
+    });
     </script>
 
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement(\'script\');d.innerHTML="window.__CF$cv$params={r:\'98f4561c8249f995\',t:\'MTc2MDU4Mzk0NS4wMDAwMDA=\'};var a=document.createElement(\'script\');a.nonce=\'\';a.src=\'/cdn-cgi/challenge-platform/scripts/jsd/main.js\';document.getElementsByTagName(\'head\')[0].appendChild(a);";b.getElementsByTagName(\'head\')[0].appendChild(d)}}if(document.body){var a=document.createElement(\'iframe\');a.height=1;a.width=1;a.style.position=\'absolute\';a.style.top=0;a.style.left=0;a.style.border=\'none\';a.style.visibility=\'hidden\';document.body.appendChild(a);if(\'loading\'!==document.readyState)c();else if(window.addEventListener)document.addEventListener(\'DOMContentLoaded\',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);\'loading\'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
