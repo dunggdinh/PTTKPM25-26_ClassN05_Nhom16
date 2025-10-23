@@ -498,37 +498,37 @@
 
         // ==== CART (giữ nguyên kiểu bạn đang dùng) ====
         async function addToCart(productName, price) {
-        if (!selectedColor || !selectedStorage) {
-            showToast('Vui lòng chọn Màu sắc và Dung lượng trước khi thêm vào giỏ!', false);
-            return;
-        }
-
-        const productId = document.getElementById('detail-id').textContent.trim();
-        const qty = parseInt(document.getElementById('quantity').textContent, 10) || 1;
-
-        try {
-            const res = await fetch("{{ route('customer.cart.add') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify({
-                    product_id: productId,
-                    quantity: qty
-                })
-            });
-
-            const data = await res.json();
-            if (data.success) {
-                showToast(data.message, true);
-            } else {
-                showToast(data.message || 'Không thể thêm sản phẩm', false);
+            if (!selectedColor || !selectedStorage) {
+                showToast('Vui lòng chọn Màu sắc và Dung lượng trước khi thêm vào giỏ!', false);
+                return;
             }
-        } catch (err) {
-            showToast('Lỗi kết nối máy chủ!', false);
+
+            const productId = document.getElementById('detail-id').textContent.trim();
+            const qty = parseInt(document.getElementById('quantity').textContent, 10) || 1;
+
+            try {
+                const res = await fetch("{{ route('customer.cart.add') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({
+                        product_id: productId,
+                        quantity: qty
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    showToast(data.message, true);
+                } else {
+                    showToast(data.message || 'Không thể thêm sản phẩm', false);
+                }
+            } catch (err) {
+                showToast('Lỗi kết nối máy chủ!', false);
+            }
         }
-    }
 
 
         // ==== TABS ====

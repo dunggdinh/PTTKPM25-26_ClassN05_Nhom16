@@ -56,33 +56,13 @@
                 </button>
                 
                 <div>
-                    <h2 class="text-3xl font-bold text-gray-900">ElectroStore</h2>
+                    <h2 class="text-3xl font-bold text-gray-900">LC Electronics</h2>
                     <p class="text-base font-medium text-gray-700" id="pageSubtitle">Trang chủ</p>
                 </div>
             </div>
             
             <!-- Right side - Notifications and User -->
-            <div class="flex items-center space-x-4">
-                <!-- Notification Bell -->
-                <div class="relative cursor-pointer">
-                    <div class="p-2 hover:bg-gray-100 rounded-full transition-colors" onclick="toggleNotifications()">
-                        <span class="text-xl">🔔</span>
-                    </div>
-                    <div class="notification-badge absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                        3
-                    </div>
-                    
-                    <!-- Notifications Dropdown -->
-                    <div id="notificationsDropdown"
-                            class="dropdown absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 py-2 hidden z-50">
-                        <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-                            <h3 class="font-semibold text-gray-800">Thông báo</h3>
-                            <button onclick="markAllRead()" class="text-xs text-blue-600 hover:underline">Đánh dấu tất cả đã đọc</button>
-                        </div>
-                        <div class="max-h-96 overflow-y-auto"></div>
-                    </div>
-                </div>
-                
+            <div class="flex items-center space-x-4">     
                 <!-- User Account Dropdown -->
                 <div class="relative">
                     <div class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg transition-colors" onclick="toggleDropdown()">
@@ -168,12 +148,6 @@
             </a>
             <div class="menu-divider"></div>
 
-            <a href="/admin/payments_gateway" class="menu-item flex items-center px-6 py-4 text-gray-600 hover:bg-gray-100">
-                <span class="mr-4 text-lg">💳</span>
-                <span class="text-base">Quản lý thanh toán</span>
-            </a>
-            <div class="menu-divider"></div>
-
             <a href="/admin/deliveries" class="menu-item flex items-center px-6 py-4 text-gray-600 hover:bg-gray-100">
                 <span class="mr-4 text-lg">🚚</span>
                 <span class="text-base">Quản lý nhập hàng</span>
@@ -211,8 +185,7 @@
             'Quản lý kho': '/admin/inventory',
             'Quản lý đơn hàng': '/admin/order',
             'Đổi/Trả hàng': '/admin/return',
-            'Quản lý thanh toán': '/admin/payments_gateway',
-            'Quản lý khuyến mãi': '/admin/promotion', // 👈 thêm dòng này
+            'Quản lý khuyến mãi': '/admin/promotion', 
             'Quản lý lô hàng nhập': '/admin/deliveries',
             'Hỗ trợ khách hàng': '/admin/support',
             'Báo cáo & thống kê': '/admin/report'

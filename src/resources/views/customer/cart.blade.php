@@ -9,6 +9,15 @@
                 <div class="bg-white rounded-xl shadow-lg p-6">
                     <h2 class="text-xl font-semibold mb-6 text-gray-800">Sản Phẩm Trong Giỏ</h2>
 
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-sm text-gray-500">Tích chọn các sản phẩm để thao tác nhanh</div>
+                        <div class="space-x-2">
+                            <button type="button" id="clear-cart" class="px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg">
+                                Xóa tất cả
+                            </button>
+                        </div>
+                    </div>
+
                     <form id="cart-form">
                         @foreach ($cart->CartItem as $item)
                         <div class="flex items-center justify-between border-b py-4">
@@ -30,6 +39,7 @@
                                 <button type="button" class="decrease bg-gray-200 px-2 rounded" data-id="{{ $item->cart_item_id }}">−</button>
                                 <input type="number" class="w-12 text-center border rounded quantity-input" value="{{ $item->quantity }}" min="1" data-id="{{ $item->cart_item_id }}">
                                 <button type="button" class="increase bg-gray-200 px-2 rounded" data-id="{{ $item->cart_item_id }}">+</button>
+                                <button type="button" class="remove-item text-red-600 hover:text-red-800 ml-3" data-id="{{ $item->cart_item_id }}">Xóa</button>
                             </div>
                         </div>
                         @endforeach
@@ -77,10 +87,26 @@
                 </button>
             </div>
         </div>
+        <!-- Payment Methods -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800">Phương Thức Thanh Toán</h3>
+                    <div class="space-y-3">
+                        <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="radio" name="payment" value="cod" class="mr-3">
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-2">💰</span>
+                                <span>Thanh toán khi nhận hàng</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
         <!-- Nút tiến hành thanh toán -->
-        <button onclick="proceedToCheckout()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105">
-            Tiến Hành Thanh Toán
+        <button onclick="placeOrder()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105">
+            Đặt hàng
         </button>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
@@ -224,6 +250,58 @@ document.addEventListener('DOMContentLoaded', function() {
         updateOrderSummary();
     }
 
+    // ===== XÓA 1 ITEM =====
+    async function removeItem(cartItemId) {
+        try {
+            const res = await fetch(`/cart/remove/${cartItemId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+            });
+            if (!res.ok) throw new Error('Remove failed');
+            // Xóa dòng trên UI
+            const row = cartForm.querySelector(`.cart-checkbox[data-id="${cartItemId}"]`)?.closest('.flex.items-center.justify-between.border-b.py-4');
+            if (row) row.remove();
+            updateOrderSummary();
+        } catch (e) {
+            alert('Xóa sản phẩm thất bại, thử lại sau.');
+            console.error(e);
+        }
+    }
+
+    // Gắn sự kiện nút "Xóa" từng dòng
+    cartForm.addEventListener('click', (e) => {
+        const btn = e.target.closest('.remove-item');
+        if (!btn) return;
+        const id = btn.dataset.id;
+        if (!id) return;
+        removeItem(id);
+    });
+
+    // ===== XÓA TẤT CẢ =====
+    async function clearCart() {
+        if (!confirm('Bạn có chắc muốn xóa toàn bộ giỏ hàng?')) return;
+        try {
+            const res = await fetch(`/cart/clear`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            });
+            if (!res.ok) throw new Error('Clear failed');
+            // Xóa sạch UI
+            cartForm.innerHTML = '';
+            updateOrderSummary();
+        } catch (e) {
+            alert('Xóa toàn bộ giỏ hàng thất bại.');
+            console.error(e);
+        }
+    }
+    document.getElementById('clear-cart')?.addEventListener('click', clearCart);
+
     // ✅ Áp dụng mã custom nhập tay
     window.applyCustomPromo = function() {
         const code = customPromoInput.value.trim();
@@ -244,6 +322,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateOrderSummary();
             });
     }
+
+
 
     // ✅ Xác nhận thanh toán
     window.proceedToCheckout = function() {
@@ -285,7 +365,62 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ✅ Chạy lần đầu
     updateOrderSummary();
-});
+    });
+    function closeSuccess() {
+        const successMessage = document.getElementById('success-message');
+        if (successMessage) {
+            successMessage.classList.add('hidden'); 
+        }
+    }
+
+
+    // ✅ Hàm đặt hàng mới
+    window.placeOrder = function() {
+        const selectedItems = [...cartForm.querySelectorAll('.cart-checkbox')]
+            .filter(cb => cb.checked)
+            .map(cb => cb.dataset.id);
+
+        if (selectedItems.length === 0) {
+            return alert('Vui lòng chọn sản phẩm để đặt hàng');
+        }
+
+        fetch('{{ route("customer.cart.placeOrder") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ items: selectedItems })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Hiển thị popup thành công
+                const successMessage = document.getElementById('success-message');
+                if (successMessage) {
+                    successMessage.classList.remove('hidden');
+                }
+
+                // Xóa sản phẩm đã đặt khỏi giỏ hàng UI
+                selectedItems.forEach(id => {
+                    const itemDiv = cartForm.querySelector(`.cart-checkbox[data-id="${id}"]`);
+                    if (itemDiv) {
+                        itemDiv.closest('div.flex.items-center.justify-between').remove();
+                    }
+                });
+
+                // Cập nhật lại order summary
+                updateOrderSummary();
+
+            } else {
+                alert(data.message || 'Đặt hàng thất bại');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Có lỗi xảy ra khi đặt hàng');
+        });
+    }
 </script>
 
 

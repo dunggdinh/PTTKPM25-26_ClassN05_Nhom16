@@ -16,15 +16,56 @@ class DashboardController extends Controller
     public function index()
     {
         // ==== Tổng doanh thu ====
-        $totalRevenue = Order::where('status', 'completed')->sum('total_amount');
+        $totalRevenue = Order::where('status', 'Hoàn tất')->sum('total_amount');
+        
+        // Doanh thu tuần trước
+        $lastWeekRevenue = Order::where('status', 'Hoàn tất')
+            ->whereBetween('created_at', [
+                Carbon::now()->subWeek()->startOfWeek(),
+                Carbon::now()->subWeek()->endOfWeek()
+            ])->sum('total_amount');
 
-        // ==== Đơn hàng ====
+        // Doanh thu tuần này
+        $thisWeekRevenue = Order::where('status', 'Hoàn tất')
+            ->whereBetween('created_at', [
+                Carbon::now()->startOfWeek(),
+                Carbon::now()->endOfWeek()
+            ])->sum('total_amount');
+
+        // Tính % tăng trưởng
+        $revenueGrowth = $lastWeekRevenue > 0 
+            ? round(($thisWeekRevenue - $lastWeekRevenue) / $lastWeekRevenue * 100, 1)
+            : 0;
+
+        // ==== Đơn hàng và % tăng ====
         $totalOrders = Order::count();
+        
+        // So sánh với tuần trước
+        $lastWeekOrders = Order::whereBetween('created_at', [
+            Carbon::now()->subWeek()->startOfWeek(),
+            Carbon::now()->subWeek()->endOfWeek()
+        ])->count();
 
-        // ==== Khách hàng ====
+        $thisWeekOrders = Order::whereBetween('created_at', [
+            Carbon::now()->startOfWeek(),
+            Carbon::now()->endOfWeek()
+        ])->count();
+
+        $orderGrowth = $lastWeekOrders > 0
+            ? round(($thisWeekOrders - $lastWeekOrders) / $lastWeekOrders * 100, 1)
+            : 0;
+
+        // ==== Khách hàng và số khách mới ====
         $totalCustomers = User::where('role', 'customer')->count();
+        
+        // Đếm khách hàng mới trong tuần này
+        $newCustomers = User::where('role', 'customer')
+            ->whereBetween('created_at', [
+                Carbon::now()->startOfWeek(),
+                Carbon::now()->endOfWeek()
+            ])->count();
 
-        // ==== Sản phẩm ====
+        // ==== Sản phẩm và sản phẩm sắp hết ====
         $totalProducts = Product::count();
 
         // ==== Sản phẩm sắp hết hàng (<=10 sp) ====
@@ -36,7 +77,7 @@ class DashboardController extends Controller
                 DB::raw('SUM(total_amount) as total')
             )
             ->whereYear('created_at', date('Y'))
-            ->where('status', 'completed')
+            ->where('status', 'Hoàn tất')
             ->groupBy(DB::raw('MONTH(created_at)'))
             ->pluck('total', 'month');
 
@@ -50,8 +91,11 @@ class DashboardController extends Controller
 
         return view('admin.dashboard', compact(
             'totalRevenue',
-            'totalOrders',
+            'revenueGrowth',
+            'totalOrders', 
+            'orderGrowth',
             'totalCustomers',
+            'newCustomers',
             'totalProducts',
             'lowStockProducts',
             'monthlyRevenue',

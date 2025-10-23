@@ -65,11 +65,10 @@ Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(functi
 
     Route::post('/cart/add',         [CartController::class, 'addToCart'])->name('cart.add');
     Route::patch('/cart/item/{id}',  [CartController::class, 'updateItem'])->name('cart.update');
+    Route::post('/cart/place-order', [CartController::class, 'placeOrder'])->name('cart.placeOrder');
     Route::delete('/cart/item/{id}', [CartController::class, 'removeItem'])->name('cart.remove');
     Route::delete('/cart/clear',     [CartController::class, 'clear'])->name('cart.clear');
-    Route::post('/vnpay/create-payment', [VnpayController::class, 'createPayment'])->name('vnpay.create');
-    Route::get('/vnpay/callback', [VnpayController::class, 'callback'])->name('vnpay.callback');
-    Route::post('/vnpay/checkout', [VnpayController::class, 'createPayment'])->name('vnpay.create');
+
 
 
 });
@@ -94,7 +93,7 @@ Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(functi
     Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 
     // Các trang tĩnh còn lại
-    // Route::view('/review', 'customer.review')->name('review');
+    Route::view('/review', 'customer.review')->name('review');
     Route::get('/support/{conversation}', function (\App\Models\admin\SupportConversation $conversation) {
         return view('customer.support', compact('conversation'));
     })->name('support');
@@ -118,6 +117,12 @@ Route::middleware(['auth'])->group(function () {
     // JSON chi tiết đơn cho modal
     Route::get('/customer/orders/{id}', [CustomerOrderController::class, 'show'])
         ->name('customer.orders.show');
+
+    Route::post('/cart/add',          [CartController::class, 'addToCart'])->name('customer.cart.add');
+    Route::post('/cart/update/{id}',  [CartController::class, 'updateItem'])->name('customer.cart.update');
+    Route::post('/cart/remove/{id}',  [CartController::class, 'removeItem'])->name('customer.cart.remove');
+    Route::post('/cart/clear',        [CartController::class, 'clear'])->name('customer.cart.clear');
+    Route::get('/cart/data',          [CartController::class, 'data'])->name('customer.cart.data');
 });
 
 /*
@@ -176,10 +181,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::delete('/orders/{id}', [OrderController::class, 'destroy'])->name('order.destroy');
     Route::get('/order/reload', [OrderController::class, 'reload'])->name('order.reload');
 
-    // Payments (Controller)
-    Route::get('/payments_gateway', [PaymentController::class, 'index'])->name('payments_gateway');
-    Route::get('/payments/verify/{id}', [PaymentController::class, 'verify'])->name('payments.verify');
-    Route::get('/payments/reject/{id}', [PaymentController::class, 'reject'])->name('payments.reject');
 
     // Report (Controller)
     Route::get('/report', [ReportController::class, 'index'])->name('report');
