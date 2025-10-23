@@ -179,8 +179,6 @@ async function sendMessage(content) {
         const msg = await res.json();
         // ✅ Thêm dòng này để ngăn loadMessages() chèn lại cùng tin
         lastMessageId = msg.message_id;
-        // lastMessageId = Number(msg.message_id) + 1;
-        // lastMessageId = Math.max(lastMessageId || 0, Number(msg.message_id) + 1);
 
         // ✅ Hiển thị tin nhắn mới ngay lập tức
         messagesContainer.insertAdjacentHTML('beforeend', bubbleHtml(msg));
