@@ -37,9 +37,12 @@ class Discount extends Model
 
         static::creating(function ($discount) {
             if (!$discount->discount_id) {
-                $last = static::orderBy('discount_id', 'desc')->first();
-                $lastNumber = 0;
+                // Lấy bản ghi cuối có dạng DC_### đúng định dạng
+                $last = static::where('discount_id', 'REGEXP', '^DC_[0-9]+$')
+                            ->orderBy('discount_id', 'desc')
+                            ->first();
 
+                $lastNumber = 0;
                 if ($last && preg_match('/DC_(\d+)/', $last->discount_id, $matches)) {
                     $lastNumber = intval($matches[1]);
                 }
@@ -48,6 +51,7 @@ class Discount extends Model
             }
         });
     }
+
     // Active theo NGÀY (phù hợp cột DATE)
     public function scopeActive($q)
     {

@@ -80,10 +80,6 @@
                                     {{ $ticket->issue_type }} - {{ $ticket->priority }}
                                 </p>
                             </div>
-                            <!-- <a href="{{ route('admin.tickets.show', $ticket->ticket_id) }}"
-                                class="text-blue-600 font-semibold hover:underline">
-                                Xem
-                            </a> -->
                         </div>
                     @endforeach
 

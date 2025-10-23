@@ -29,7 +29,7 @@ use App\Http\Controllers\customer\PromotionController;
 use App\Http\Controllers\customer\NotificationController;
 use App\Http\Controllers\admin\SupportTicketController;
 use App\Http\Controllers\customer\PromotionController as CustomerPromotionController;
-
+use App\Http\Controllers\customer\ReviewController;
 use App\Http\Controllers\admin\SupportMessageController;
 
 /*
@@ -202,7 +202,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::delete('/warranties/{id}', [WarrantyController::class, 'destroy'])->name('warranties.destroy');
     Route::get('/warranties/reload', [WarrantyController::class, 'reload'])->name('warranties.reload');
 
+    Route::get('admin/promotion/list', [PromotionController::class, 'list'])->name('admin.promotion.list');
+    Route::post('admin/promotion', [PromotionController::class, 'store'])->name('admin.promotion.store');
+    Route::put('admin/promotion/{id}', [PromotionController::class, 'update'])->name('admin.promotion.update');
+    Route::post('admin/promotion/{id}/toggle', [PromotionController::class, 'toggle'])->name('admin.promotion.toggle');
+    Route::delete('admin/promotion/{id}', [PromotionController::class, 'destroy'])->name('admin.promotion.destroy');
+
+
 });
+
+Route::get('/admin/promotion/stats', [App\Http\Controllers\admin\PromotionController::class, 'stats'])
+    ->name('admin.promotion.stats');
+Route::post('/admin/promotion/{id}/toggle', [\App\Http\Controllers\admin\PromotionController::class, 'toggle'])
+    ->name('admin.promotion.toggle');
 
 /*
 |--------------------------------------------------------------------------
@@ -300,4 +312,19 @@ Route::prefix('api/map')->group(function () {
     Route::get('/test', [GoogleController::class, 'index']);
     Route::get('/address-from-latlng', [GoogleController::class, 'getAddressFromLatLng']);
     Route::get('/search-address', [GoogleController::class, 'searchAddress']);
+});
+
+Route::middleware(['web','auth'])->group(function () {
+    // Trang review (render Blade của cậu)
+    Route::get('/reviews', [ReviewController::class, 'index'])->name('customer.reviews.index');
+
+    // Tạo review (AJAX/POST form)
+    Route::post('/reviews', [ReviewController::class, 'store'])->name('customer.reviews.store');
+
+    // API list review (lọc/sắp xếp/phân trang cho phần danh sách)
+    Route::get('/reviews/_list.json', [ReviewController::class, 'list'])->name('customer.reviews.list');
+
+    // API sản phẩm đã mua – còn “đủ điều kiện” review
+    Route::get('/customer/reviews/eligible', [ReviewController::class, 'eligible'])
+        ->name('customer.reviews.eligible');
 });

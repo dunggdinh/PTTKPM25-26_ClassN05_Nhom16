@@ -25,7 +25,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-600">Tổng Khuyến Mãi</p>
-                    <p class="text-2xl font-bold text-gray-900">24</p>
+                    <p class="text-2xl font-bold text-gray-900"><span id="stat-total">0</span></p>
                 </div>
                 <div class="bg-blue-100 p-3 rounded-lg">
                     <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,7 +38,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-600">Đang Hoạt Động</p>
-                    <p class="text-2xl font-bold text-green-600">8</p>
+                    <p class="text-2xl font-bold text-green-600"><span id="stat-active">0</span></p>
                 </div>
                 <div class="bg-green-100 p-3 rounded-lg">
                     <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,7 +51,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-600">Sắp Hết Hạn</p>
-                    <p class="text-2xl font-bold text-orange-600">3</p>
+                    <p class="text-2xl font-bold text-orange-600"><span id="stat-nearly">0</span></p>
                 </div>
                 <div class="bg-orange-100 p-3 rounded-lg">
                     <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,7 +64,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-600">Đã Kết Thúc</p>
-                    <p class="text-2xl font-bold text-gray-600">13</p>
+                    <p class="text-2xl font-bold text-gray-600"><span id="stat-expired">0</span></p>
                 </div>
                 <div class="bg-gray-100 p-3 rounded-lg">
                     <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -122,7 +122,8 @@
                         <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khuyến Mãi</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loại</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giá Trị</th>
-                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thời Gian</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bắt đầu</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kết thúc</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng Thái</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Đã Sử Dụng</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao Tác</th>
@@ -165,21 +166,22 @@
         </div>
         
         <form id="promotionForm" class="p-6 space-y-6">
+            <!-- Mã khuyến mãi: full width -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label for="promoName" class="block text-sm font-medium text-gray-700 mb-2">Tên Khuyến Mãi</label>
-                    <input type="text" id="promoName" name="promoName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="VD: Giảm giá mùa hè">
-                </div>
-                <div>
+                <div class="md:col-span-2">
                     <label for="promoCode" class="block text-sm font-medium text-gray-700 mb-2">Mã Khuyến Mãi</label>
-                    <input type="text" id="promoCode" name="promoCode" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="VD: SUMMER2024">
+                    <input type="text" id="promoCode" name="promoCode"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="VD: SUMMER2024">
                 </div>
             </div>
 
+            <!-- GIỮ NGUYÊN các khối bên dưới -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label for="discountType" class="block text-sm font-medium text-gray-700 mb-2">Loại Giảm Giá</label>
-                    <select id="discountType" name="discountType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <select id="discountType" name="discountType"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         <option value="percentage">Giảm theo phần trăm (%)</option>
                         <option value="fixed">Giảm số tiền cố định (VNĐ)</option>
                         <option value="shipping">Miễn phí vận chuyển</option>
@@ -188,37 +190,41 @@
                 </div>
                 <div>
                     <label for="discountValue" class="block text-sm font-medium text-gray-700 mb-2">Giá Trị Giảm</label>
-                    <input type="number" id="discountValue" name="discountValue" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="VD: 20">
+                    <input type="number" id="discountValue" name="discountValue"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="VD: 20">
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label for="startDate" class="block text-sm font-medium text-gray-700 mb-2">Ngày Bắt Đầu</label>
-                    <input type="datetime-local" id="startDate" name="startDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <input type="datetime-local" id="startDate" name="startDate"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 </div>
                 <div>
                     <label for="endDate" class="block text-sm font-medium text-gray-700 mb-2">Ngày Kết Thúc</label>
-                    <input type="datetime-local" id="endDate" name="endDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <input type="datetime-local" id="endDate" name="endDate"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label for="usageLimit" class="block text-sm font-medium text-gray-700 mb-2">Giới Hạn Sử Dụng</label>
-                    <input type="number" id="usageLimit" name="usageLimit" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="VD: 100">
+                    <input type="number" id="usageLimit" name="usageLimit"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="VD: 100">
                 </div>
                 <div>
                     <label for="minOrderValue" class="block text-sm font-medium text-gray-700 mb-2">Giá Trị Đơn Hàng Tối Thiểu</label>
-                    <input type="number" id="minOrderValue" name="minOrderValue" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="VD: 500000">
+                    <input type="number" id="minOrderValue" name="minOrderValue"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="VD: 500000">
                 </div>
             </div>
 
-            <div>
-                <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Mô Tả</label>
-                <textarea id="description" name="description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Mô tả chi tiết về chương trình khuyến mãi..."></textarea>
-            </div>
-
+            <!-- Checkboxes giữ nguyên -->
             <div class="flex items-center space-x-4">
                 <label class="flex items-center">
                     <input type="checkbox" id="isActive" name="isActive" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
@@ -231,8 +237,14 @@
             </div>
 
             <div class="flex justify-end space-x-4 pt-4 border-t border-gray-200">
-                <button type="button" id="cancelBtn" class="px-6 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors duration-200">Hủy</button>
-                <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors duration-200">Lưu Khuyến Mãi</button>
+                <button type="button" id="cancelBtn"
+                        class="px-6 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors duration-200">
+                    Hủy
+                </button>
+                <button type="submit"
+                        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors duration-200">
+                    Lưu Khuyến Mãi
+                </button>
             </div>
         </form>
     </div>
@@ -362,13 +374,39 @@ async function exportPromotions(type, mode='dom') {
 
 
 <script>
+
+const CSRF = document.querySelector('meta[name="csrf-token"]').content;
+const routes = {
+  list  : @json(route('admin.promotion.list')),
+  store : @json(route('admin.promotion.store')),
+  // 3 route dưới dùng placeholder :id để thay
+  update: (id) => @json(route('admin.promotion.update', ':id')).replace(':id', id),
+  toggle: (id) => @json(route('admin.promotion.toggle', ':id')).replace(':id', id),
+  destroy:(id) => @json(route('admin.promotion.destroy', ':id')).replace(':id', id),
+  stats : @json(route('admin.promotion.stats')),
+};
+
 /** ====== STATE ====== */
 let promotions = []; // giữ danh sách lấy từ server
+let editingId = null;
 
+function setText(id, val){ const el = document.getElementById(id); if (el) el.textContent = val; }
+
+async function loadStats(){
+  try{
+    const res = await fetch(routes.stats, { headers: { 'Accept':'application/json' } });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const s = await res.json();
+    setText('stat-total',   s.total   ?? 0);
+    setText('stat-active',  s.active  ?? 0);
+    setText('stat-nearly',  s.nearly  ?? 0);
+    setText('stat-expired', s.expired ?? 0);
+  }catch(e){ console.error(e); }
+}
 /** ====== Fetch dữ liệu từ Controller ====== */
 async function loadPromotions() {
   try {
-    const res = await fetch('{{ route('admin.promotion.list') }}', {
+    const res = await fetch(routes.list, {
       headers: { 
         'Accept': 'application/json', 
         'X-Requested-With': 'XMLHttpRequest' 
@@ -455,9 +493,8 @@ function renderPromotions(data) {
             </td>
             <td class="px-6 py-4 text-sm text-gray-900">${getTypeText(type)}</td>
             <td class="px-6 py-4 text-sm font-medium text-gray-900">${formatValue(type, value)}</td>
-            <td class="px-6 py-4 text-sm text-gray-500">
-                <div>${formatDate(start_date)} - ${formatDate(end_date)}</div>
-            </td>
+            <td class="px-6 py-4 text-sm text-gray-500">${formatDate(start_date)}</td>
+            <td class="px-6 py-4 text-sm text-gray-500">${formatDate(end_date)}</td>
             <td class="px-6 py-4">${getStatusBadge(status)}</td>
             <td class="px-6 py-4 text-sm text-gray-900">
                 <span class="text-gray-500 italic">—</span>
@@ -466,6 +503,7 @@ function renderPromotions(data) {
                 <div class="flex space-x-2">
                     <button onclick="editPromotion('${pk}')" class="text-blue-600 hover:text-blue-900 transition-colors">Sửa</button>
                     <button onclick="togglePromotion('${pk}')" class="text-green-600 hover:text-green-900 transition-colors">
+                        ${status === 'expired' ? 'disabled' : ''}
                         ${status === 'active' ? 'Tạm dừng' : 'Kích hoạt'}
                     </button>
                     <button onclick="deletePromotion('${pk}')" class="text-red-600 hover:text-red-900 transition-colors">Xóa</button>
@@ -487,17 +525,19 @@ function closeModalFunc(){
     promotionModal.classList.add('hidden');
     promotionModal.classList.remove('flex');
     promotionForm.reset();
+    editingId = null;
 }
 
 /** ====== ACTIONS (UI demo) ====== */
 // Nếu bạn đã có API PUT/DELETE/toggle, thay các hàm này bằng fetch() tới route tương ứng.
 
 window.editPromotion = function(pk){
+    editingId = pk;
     const promo = promotions.find(p => (p.discount_id ?? '') === pk);
     if (!promo) return;
     openModal('Chỉnh Sửa Khuyến Mãi');
     // map lên form
-    document.getElementById('promoName').value      = promo.code || ''; // tạm coi "Tên KM" = code (DB chưa có cột name)
+    // document.getElementById('promoName').value      = promo.code || ''; // tạm coi "Tên KM" = code (DB chưa có cột name)
     document.getElementById('promoCode').value      = promo.code || '';
     document.getElementById('discountType').value   = promo.type || '';
     document.getElementById('discountValue').value  = promo.value || 0;
@@ -506,38 +546,61 @@ window.editPromotion = function(pk){
     document.getElementById('isActive').checked     = promo.status === 'active';
 };
 
-window.togglePromotion = function(pk){
-    const idx = promotions.findIndex(p => (p.discount_id ?? '') === pk);
-    if (idx < 0) return;
-    promotions[idx].status = promotions[idx].status === 'active' ? 'paused' : 'active';
-    renderPromotions();
-    showNotification(`Khuyến mãi đã được ${promotions[idx].status === 'active' ? 'kích hoạt' : 'tạm dừng'}!`);
-    // TODO: gọi API update status nếu cần
+window.togglePromotion = async function(pk){
+  try {
+    const res = await fetch(routes.toggle(pk), {
+      method: 'POST',
+      headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      credentials: 'same-origin',
+    });
+    const j = await res.json().catch(()=> ({}));
+    if (!res.ok) throw new Error(j.message || `Lỗi ${res.status}`);
+    await loadPromotions();
+    await loadStats();
+    showNotification('Đã cập nhật trạng thái!');
+  } catch (e) {
+    console.error(e);
+    showNotification(e.message || 'Không thể cập nhật trạng thái', 'error');
+  }
 };
 
 window.deletePromotion = function(pk){
-    const confirmDialog = document.createElement('div');
-    confirmDialog.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-    confirmDialog.innerHTML = `
-        <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Xác nhận xóa</h3>
-            <p class="text-gray-600 mb-6">Bạn có chắc chắn muốn xóa khuyến mãi này? Hành động này không thể hoàn tác.</p>
-            <div class="flex justify-end space-x-4">
-                <button id="cancelDelete" class="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Hủy</button>
-                <button id="confirmDelete" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">Xóa</button>
-            </div>
-        </div>`;
-    document.body.appendChild(confirmDialog);
-    document.getElementById('cancelDelete').onclick = () => document.body.removeChild(confirmDialog);
-    document.getElementById('confirmDelete').onclick = async () => {
-        // UI remove
-        promotions = promotions.filter(p => (p.discount_id ?? '') !== pk);
-        renderPromotions();
-        showNotification('Khuyến mãi đã được xóa thành công!');
-        // TODO: gọi API DELETE nếu cần
-        document.body.removeChild(confirmDialog);
-    };
+  const confirmDialog = document.createElement('div');
+  confirmDialog.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+  confirmDialog.innerHTML = `
+    <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Xác nhận xóa</h3>
+      <p class="text-gray-600 mb-6">Bạn có chắc chắn muốn xóa khuyến mãi này? Hành động này không thể hoàn tác.</p>
+      <div class="flex justify-end space-x-4">
+        <button id="cancelDelete" class="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Hủy</button>
+        <button id="confirmDelete" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">Xóa</button>
+      </div>
+    </div>`;
+  document.body.appendChild(confirmDialog);
+
+  document.getElementById('cancelDelete').onclick = () => document.body.removeChild(confirmDialog);
+  document.getElementById('confirmDelete').onclick = async () => {
+    try {
+      const res = await fetch(routes.destroy(pk), {
+        method: 'DELETE',
+        headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        credentials: 'same-origin',
+      });
+      const j = await res.json().catch(()=> ({}));
+      if (!res.ok) throw new Error(j.message || `Lỗi ${res.status}`);
+
+      await loadPromotions();
+      await loadStats();
+      showNotification('Xóa khuyến mãi thành công!');
+    } catch (e) {
+      console.error(e);
+      showNotification(e.message || 'Không thể xóa khuyến mãi', 'error');
+    } finally {
+      document.body.removeChild(confirmDialog);
+    }
+  };
 };
+
 
 /** ====== FILTER ====== */
 function filterPromotions(){
@@ -564,7 +627,12 @@ function showNotification(message, type='success'){
 }
 
 /** ====== EVENTS ====== */
-if (createPromoBtn) createPromoBtn.addEventListener('click', openModal);
+if (createPromoBtn) createPromoBtn.addEventListener('click', () => {
+    editingId = null; 
+    promotionForm.reset();
+    openModal('Tạo Khuyến Mãi Mới');
+});
+
 if (closeModal)    closeModal.addEventListener('click', closeModalFunc);
 if (cancelBtn)     cancelBtn.addEventListener('click', closeModalFunc);
 
@@ -575,11 +643,18 @@ if (promotionForm) {
     e.preventDefault();
     const fd = new FormData(promotionForm);
 
+    // (tuỳ chọn) set status theo checkbox
+    fd.set('isActive', document.getElementById('isActive').checked ? '1' : '0');
+
+    const url    = editingId ? routes.update(editingId) : routes.store;
+    const method = 'POST';
+    if (editingId) fd.set('_method', 'PUT');  // <-- QUAN TRỌNG
+
     try {
-      const res = await fetch('{{ route('admin.promotion.store') }}', {
-        method: 'POST',
+      const res = await fetch(url, {
+        method,
         headers: {
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+          'X-CSRF-TOKEN': CSRF,
           'Accept': 'application/json',
           'X-Requested-With': 'XMLHttpRequest',
         },
@@ -587,26 +662,22 @@ if (promotionForm) {
         credentials: 'same-origin',
       });
 
-      if (!res.ok) {
-        let msg = `Lỗi ${res.status}`;
-        try { const j = await res.json(); msg = j.message || msg; } catch {}
-        throw new Error(msg);
+      const json = await res.json().catch(()=> ({}));
+      if (!res.ok || json?.success === false) {
+        throw new Error(json.message || `Lỗi ${res.status}`);
       }
 
-      const result = await res.json();
-      if (result?.success) {
-        await loadPromotions();
-        closeModalFunc();
-        showNotification(result.message || 'Tạo khuyến mãi thành công!');
-      } else {
-        showNotification('Tạo khuyến mãi thất bại!', 'error');
-      }
+      await loadPromotions();
+      closeModalFunc();
+      await loadStats();
+      showNotification(editingId ? 'Cập nhật khuyến mãi thành công!' : 'Tạo khuyến mãi thành công!');
     } catch (err) {
       console.error(err);
-      showNotification(err.message || 'Không thể tạo khuyến mãi', 'error');
+      showNotification(err.message || 'Không thể lưu khuyến mãi', 'error');
     }
   });
 }
+
 
 
 if (searchInput)  searchInput.addEventListener('input',  filterPromotions);
@@ -622,7 +693,10 @@ if (exportPdfBtn) exportPdfBtn.addEventListener('click', () => {
 if (promotionModal) promotionModal.addEventListener('click', (e)=> { if(e.target === promotionModal) closeModalFunc(); });
 
 /** ====== INIT ====== */
-document.addEventListener('DOMContentLoaded', loadPromotions);
+document.addEventListener('DOMContentLoaded', () => {
+    loadPromotions();
+    loadStats();
+});
 </script>
 
 @endsection
