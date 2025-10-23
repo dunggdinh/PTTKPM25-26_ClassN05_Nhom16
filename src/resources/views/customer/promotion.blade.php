@@ -35,19 +35,19 @@
         <!-- Promotion Categories -->
         <section class="mb-12">
             <div class="flex flex-wrap justify-center gap-4 mb-8">
-                <button class="category-btn bg-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-blue-700 transition-colors" data-category="all">
+                <button onclick="window.location.href='{{ url('/customer/product') }}?category=all'" class="category-btn bg-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-blue-700 transition-colors" data-category="all">
                     Tất cả
                 </button>
-                <button class="category-btn bg-gray-200 text-gray-700 px-6 py-3 rounded-full font-semibold hover:bg-gray-300 transition-colors" data-category="smartphone">
+                <button onclick="window.location.href='{{ url('/customer/product') }}?category=smartphone'" class="category-btn bg-gray-200 text-gray-700 px-6 py-3 rounded-full font-semibold hover:bg-gray-300 transition-colors" data-category="smartphone">
                     📱 Smartphone
                 </button>
-                <button class="category-btn bg-gray-200 text-gray-700 px-6 py-3 rounded-full font-semibold hover:bg-gray-300 transition-colors" data-category="laptop">
+                <button onclick="window.location.href='{{ url('/customer/product') }}?category=laptop'" class="category-btn bg-gray-200 text-gray-700 px-6 py-3 rounded-full font-semibold hover:bg-gray-300 transition-colors" data-category="laptop">
                     💻 Laptop
                 </button>
-                <button class="category-btn bg-gray-200 text-gray-700 px-6 py-3 rounded-full font-semibold hover:bg-gray-300 transition-colors" data-category="accessories">
+                <button onclick="window.location.href='{{ url('/customer/product') }}?category=accessories'" class="category-btn bg-gray-200 text-gray-700 px-6 py-3 rounded-full font-semibold hover:bg-gray-300 transition-colors" data-category="accessories">
                     🎧 Phụ kiện
                 </button>
-                <button class="category-btn bg-gray-200 text-gray-700 px-6 py-3 rounded-full font-semibold hover:bg-gray-300 transition-colors" data-category="home">
+                <button onclick="window.location.href='{{ url('/customer/product') }}?category=home'" class="category-btn bg-gray-200 text-gray-700 px-6 py-3 rounded-full font-semibold hover:bg-gray-300 transition-colors" data-category="home">
                     🏠 Gia dụng
                 </button>
             </div>

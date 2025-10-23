@@ -10,6 +10,36 @@
 
 </head>
 <body class="bg-gray-50 font-sans">
+    @php
+        // Lấy user từ guard mặc định (nếu bạn chưa tạo guard 'admin')
+        $authUser = Auth::user();
+
+        // Tên hiển thị
+        $displayName = $authUser->name
+            ?? $authUser->full_name
+            ?? $authUser->username
+            ?? 'Admin';
+
+        $initial = strtoupper(mb_substr($displayName, 0, 1, 'UTF-8'));
+
+        // ===== Map vai trò (ưu tiên cột `role`) =====
+        $rawRole = $authUser?->role ?? $authUser?->role_name ?? null;
+        $displayRole = 'User';
+
+        if ($rawRole) {
+            $val = strtolower((string)$rawRole);
+            if (in_array($val, ['admin','administrator','superadmin','root'])) {
+                $displayRole = 'Admin';
+            }
+        } elseif (isset($authUser->role_id) && (int)$authUser->role_id === 1) {
+            $displayRole = 'Admin';
+        } elseif (isset($authUser->is_admin) && (int)$authUser->is_admin === 1) {
+            $displayRole = 'Admin';
+        }
+    @endphp
+
+
+
     <!-- Header Bar -->
     <header class="fixed top-0 left-0 right-0 shadow-sm border-b border-gray-200 px-6 py-4 z-20 gradient-header">
 
@@ -58,18 +88,23 @@
                     <div class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg transition-colors" onclick="toggleDropdown()">
                         <!-- Avatar -->
                         <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-lg">
-                            N
+                            {{ $initial }}
                         </div>
                         <!-- User Name -->
                         <div class="text-right">
-                            <p class="text-xl font-bold text-gray-900">Nguyễn Văn Thăng</p>
-                            <p class="text-sm font-semibold text-gray-600">Admin</p>
+                            <p class="text-xl font-bold text-gray-900">
+                                {{ $displayName }}
+                            </p>
+                            <p class="text-sm font-semibold text-gray-600">
+                                {{ $displayRole }}
+                            </p>
                         </div>
                         <!-- Dropdown Arrow -->
                         <svg class="w-4 h-4 text-gray-600 transition-transform" id="dropdownArrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </div>
+
                     
                     <!-- Dropdown Menu -->
                     <div class="dropdown absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2" id="userDropdown">

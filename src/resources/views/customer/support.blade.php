@@ -1,7 +1,15 @@
 @extends('customer.layout')
 @section('title', 'Hỗ trợ khách hàng')
 
+<!-- @section('content') -->
+<!-- <div class="bg-gradient-to-br from-blue-50 to-indigo-100"> -->
 @section('content')
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<div id="chat-context"
+    data-conversation-id="{{ $conversation->conversation_id }}"
+    data-user-id="{{ auth()->user()->user_id }}"
+    data-user-role="{{ auth()->user()->role ?? 'customer' }}">
+</div>
 <div class="bg-gradient-to-br from-blue-50 to-indigo-100">
     <main class="container mx-auto px-4 py-8 max-w-6xl">
         <!-- Header -->
@@ -241,160 +249,322 @@
         requestTab.addEventListener('click', () => switchTo('request'));
 
         // ---------- Chat ----------
+        // const chatForm = document.getElementById('chatForm');
+        // const chatInput = document.getElementById('chatInput');
+        // const messagesContainer = document.getElementById('messagesContainer');
+
+        // const LS_KEY = 'support_chat_messages_v1';
+
+        // function addMessage(message, isUser = false, timeStr = null, save = true) {
+        //     const msg = message.trim();
+        //     if (!msg) return;
+
+        //     const currentTime = timeStr || new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
+        //     const wrapper = document.createElement('div');
+        //     wrapper.className = 'chat-bubble flex items-start space-x-3 fade-in ' + (isUser ? 'flex-row-reverse space-x-reverse' : '');
+
+        //     wrapper.innerHTML = `
+        //         <div class="w-8 h-8 ${isUser ? 'bg-green-500' : 'bg-blue-500'} rounded-full flex items-center justify-center text-white text-sm"> ${isUser ? '👤' : '👨‍💼'} </div>
+        //         <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
+        //             <p class="text-gray-800">${escapeHTML(msg)}</p>
+        //             <span class="text-xs text-gray-500 mt-1 block">${currentTime}</span>
+        //         </div>
+        //     `;
+        //     messagesContainer.appendChild(wrapper);
+        //     messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        //     if (save) {
+        //         const history = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+        //         history.push({ message: msg, isUser, time: currentTime });
+        //         localStorage.setItem(LS_KEY, JSON.stringify(history));
+        //     }
+        // }
+
+        // function showTypingIndicator() {
+        //     removeTypingIndicator();
+        //     const typingDiv = document.createElement('div');
+        //     typingDiv.className = 'typing-indicator flex items-start space-x-3';
+        //     typingDiv.id = 'typingIndicator';
+        //     typingDiv.innerHTML = `
+        //         <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm">👨‍💼</div>
+        //         <div class="bg-white p-3 rounded-lg shadow-sm">
+        //             <p class="text-gray-500">Đang nhập...</p>
+        //         </div>
+        //     `;
+        //     messagesContainer.appendChild(typingDiv);
+        //     messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        // }
+        // function removeTypingIndicator() {
+        //     const el = document.getElementById('typingIndicator');
+        //     if (el) el.remove();
+        // }
+
+        // // Auto-responder with DH pattern
+        // function getAutoResponse(userMessage) {
+        //     const message = userMessage.toLowerCase();
+
+        //     // Detect order code DHxxxxxx
+        //     const dhMatch = userMessage.toUpperCase().match(/DH(\d{6,})/);
+        //     if (dhMatch) {
+        //         const code = dhMatch[0];
+        //         // Mock statuses
+        //         const statuses = [
+        //             'Đã tiếp nhận',
+        //             'Đang xử lý tại kho',
+        //             'Đã bàn giao cho đơn vị vận chuyển',
+        //             'Đang vận chuyển',
+        //             'Đang giao',
+        //             'Giao thành công'
+        //         ];
+        //         const idx = parseInt(code.slice(-1)) % statuses.length;
+        //         return `Tình trạng đơn ${code}: ${statuses[idx]}. Dự kiến giao trong 1-3 ngày làm việc. Bạn cần hỗ trợ gì thêm không?`;
+        //     }
+
+        //     if (message.includes('đơn hàng') || message.includes('kiểm tra')) {
+        //         return 'Để kiểm tra tình trạng đơn hàng, bạn vui lòng cung cấp mã đơn hàng. Mã đơn thường có dạng DH + 6 số (VD: DH123456).';
+        //     } else if (message.includes('đổi') || message.includes('trả')) {
+        //         return 'Chính sách đổi trả: trong 7 ngày, còn nguyên tem mác & phụ kiện. Có thể mang tới cửa hàng hoặc gửi bưu điện.';
+        //     } else if (message.includes('thanh toán') || message.includes('payment')) {
+        //         return 'Hỗ trợ: Thẻ tín dụng/ghi nợ, chuyển khoản, ví MoMo/ZaloPay, và COD khi nhận hàng.';
+        //     } else if (message.includes('tư vấn') || message.includes('sản phẩm')) {
+        //         return 'Mình tư vấn ngay! Bạn quan tâm danh mục nào: điện thoại, laptop, phụ kiện hay gia dụng?';
+        //     } else if (message.includes('kỹ thuật') || message.includes('lỗi')) {
+        //         return 'Bạn mô tả chi tiết lỗi + model sản phẩm giúp mình nhé. Mình sẽ hướng dẫn từng bước khắc phục.';
+        //     } else {
+        //         return 'Cảm ơn bạn đã liên hệ! Bạn có thể cung cấp thêm chi tiết để mình hỗ trợ chính xác hơn không?';
+        //     }
+        // }
+
+        // // Load history or seed greeting
+        // function loadHistory() {
+        //     messagesContainer.innerHTML = '';
+        //     const history = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+        //     if (history.length) {
+        //         history.forEach(h => addMessage(h.message, h.isUser, h.time, false));
+        //     } else {
+        //         addMessage('Xin chào! Mình là Minh, tư vấn viên của cửa hàng. Mình có thể hỗ trợ gì cho bạn hôm nay?', false);
+        //     }
+        // }
+
+        // // Submit handler
+        // chatForm.addEventListener('submit', (e) => {
+        //     e.preventDefault();
+        //     const message = chatInput.value.trim();
+        //     if (!message) return;
+
+        //     addMessage(message, true);
+        //     chatInput.value = '';
+
+        //     showTypingIndicator();
+        //     setTimeout(() => {
+        //         removeTypingIndicator();
+        //         const response = getAutoResponse(message);
+        //         addMessage(response, false);
+        //     }, 900 + Math.random() * 900);
+        // });
+
+        // // Shift+Enter newline; Enter submit
+        // chatInput.addEventListener('keydown', (e) => {
+        //     if (e.key === 'Enter' && !e.shiftKey) {
+        //         e.preventDefault();
+        //         chatForm.dispatchEvent(new Event('submit'));
+        //     }
+        // });
+
+        // // Quick action buttons
+        // document.querySelectorAll('.quick-action').forEach(btn => {
+        //     btn.addEventListener('click', () => {
+        //         const msg = btn.getAttribute('data-message') || '';
+        //         chatInput.value = msg;
+        //         chatForm.dispatchEvent(new Event('submit'));
+        //     });
+        // });
+        const CTX = document.getElementById('chat-context').dataset;
+        const CONV_ID = Number(CTX.conversationId);
+        const CUR_USER_ID = String(CTX.userId);
+        const CUR_ROLE = CTX.userRole || 'customer';
+        const CSRF = document.querySelector('meta[name="csrf-token"]').content;
+
         const chatForm = document.getElementById('chatForm');
         const chatInput = document.getElementById('chatInput');
         const messagesContainer = document.getElementById('messagesContainer');
-
-        const LS_KEY = 'support_chat_messages_v1';
-
-        function addMessage(message, isUser = false, timeStr = null, save = true) {
-            const msg = message.trim();
-            if (!msg) return;
-
-            const currentTime = timeStr || new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
-            const wrapper = document.createElement('div');
-            wrapper.className = 'chat-bubble flex items-start space-x-3 fade-in ' + (isUser ? 'flex-row-reverse space-x-reverse' : '');
-
-            wrapper.innerHTML = `
-                <div class="w-8 h-8 ${isUser ? 'bg-green-500' : 'bg-blue-500'} rounded-full flex items-center justify-center text-white text-sm"> ${isUser ? '👤' : '👨‍💼'} </div>
+        
+        // function bubbleHtml(msg) {
+        //     const isMine = String(msg.sender_id) === CUR_USER_ID;
+        //     const side = isMine ? 'flex-row-reverse space-x-reverse' : '';
+        //     const bg = isMine ? 'bg-green-500' : 'bg-blue-500';
+        //     const avatar = isMine ? '👤' : (msg.sender_role === 'admin' ? '👨‍💼' : '👤');
+        //     const time = new Date(msg.sent_at || Date.now()).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
+        //     return 
+        //         <div class="chat-bubble flex items-start space-x-3 ${side}">
+        //             <div class="w-8 h-8 ${bg} rounded-full flex items-center justify-center text-white text-sm">${avatar}</div>
+        //             <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
+        //                 <p class="text-gray-800 whitespace-pre-line">${escapeHTML(msg.content || '')}</p>
+        //                 <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
+        //             </div>
+        //         </div>`;
+        // }
+        function bubbleHtml(msg) {
+        // const isMine = String(msg.sender_id) === CUR_USER_ID;
+        const isMine = msg.sender_role === 'customer';
+        const side = isMine ? 'flex-row-reverse space-x-reverse' : '';
+        const bg = isMine ? 'bg-green-500' : 'bg-blue-500';
+        // const avatar = isMine ? '👤' : (msg.sender_role === 'admin' ? '👨‍💼' : '👤');
+        const avatar = isMine ? '👤' : '👨‍💼';
+        const time = new Date(msg.sent_at || Date.now()).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        return `
+            <div class="chat-bubble flex items-start space-x-3 ${side}">
+                <div class="w-8 h-8 ${bg} rounded-full flex items-center justify-center text-white text-sm">${avatar}</div>
                 <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
-                    <p class="text-gray-800">${escapeHTML(msg)}</p>
-                    <span class="text-xs text-gray-500 mt-1 block">${currentTime}</span>
+                    <p class="text-gray-800 whitespace-pre-line">${escapeHTML(msg.content || '')}</p>
+                    <span class="text-xs text-gray-500 mt-1 block">${time}</span>
                 </div>
-            `;
-            messagesContainer.appendChild(wrapper);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            </div>`;
+        }
+        let lastMessageId = null;
+        // async function loadMessages() {
+        //     try {
+        //         const res = await fetch(`/conversations/${CONV_ID}/messages`, { headers: { 'Accept':'application/json' }});
+        //         if (!res.ok) throw new Error(await res.text());
+        //         const data = await res.json();
+        //         messagesContainer.innerHTML = '';
+        //         data.forEach(m => messagesContainer.insertAdjacentHTML('beforeend', bubbleHtml(m)));
+        //         messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        //     } catch (err) {
+        //         console.error('Load failed', err);
+        //     }
+        // }
+        async function loadMessages() {
+            try {
+                const res = await fetch(`/conversations/${CONV_ID}/messages`, {
+                    headers: { 'Accept': 'application/json' }
+                });
+                if (!res.ok) throw new Error(await res.text());
+                const data = await res.json();
 
-            if (save) {
-                const history = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
-                history.push({ message: msg, isUser, time: currentTime });
-                localStorage.setItem(LS_KEY, JSON.stringify(history));
+        // Nếu chưa có message_id cuối cùng → hiển thị toàn bộ
+                if (!lastMessageId) {
+                    data.forEach(m => messagesContainer.insertAdjacentHTML('beforeend', bubbleHtml(m)));
+                } else {
+            // Nếu đã có, chỉ thêm tin mới thôi
+                    // const newMessages = data.filter(m => m.message_id > lastMessageId);
+                    const newMessages = data.filter(m => 
+                        m.message_id > lastMessageId && String(m.sender_id) !== CUR_USER_ID
+                    );
+                    newMessages.forEach(m => messagesContainer.insertAdjacentHTML('beforeend', bubbleHtml(m)));
+                }
+
+        // Cập nhật message_id cuối cùng
+                if (data.length > 0) {
+                    lastMessageId = data[data.length - 1].message_id;
+                }
+
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            } catch (err) {
+                console.error('Load messages failed:', err);
             }
         }
 
-        function showTypingIndicator() {
-            removeTypingIndicator();
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'typing-indicator flex items-start space-x-3';
-            typingDiv.id = 'typingIndicator';
-            typingDiv.innerHTML = `
-                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm">👨‍💼</div>
-                <div class="bg-white p-3 rounded-lg shadow-sm">
-                    <p class="text-gray-500">Đang nhập...</p>
-                </div>
-            `;
-            messagesContainer.appendChild(typingDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        // async function sendMessage(content) {
+        //     const res = await fetch(`/conversations/${CONV_ID}/messages`, {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type':'application/json',
+        //             'Accept':'application/json',
+        //             'X-CSRF-TOKEN': CSRF,
+        //         },
+        //         body: JSON.stringify({ content }),
+        //     });
+        //     if (!res.ok) throw new Error(await res.text());
+        //     const msg = await res.json();
+        //     messagesContainer.insertAdjacentHTML('beforeend', bubbleHtml(msg));
+        //     messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        //     return msg;
+        // }
+        async function sendMessage(content) {
+            const res = await fetch(`/conversations/${CONV_ID}/messages`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': CSRF
+                },
+                body: JSON.stringify({ content })
+            });
+            if (!res.ok) throw new Error(await res.text());
+            const msg = await res.json();
+
+            // ✅ Thêm dòng này để ngăn loadMessages() chèn lại cùng tin
+            // lastMessageId = msg.message_id;
+            lastMessageId = Math.max(lastMessageId || 0, Number(msg.message_id) + 1);
+
+
+            messagesContainer.insertAdjacentHTML('beforeend', bubbleHtml(msg));
+            messagesContainer.scrollTop = messagesContainer.scrollHeight; 
+            return msg;
         }
-        function removeTypingIndicator() {
-            const el = document.getElementById('typingIndicator');
-            if (el) el.remove();
-        }
-
-        // Auto-responder with DH pattern
-        function getAutoResponse(userMessage) {
-            const message = userMessage.toLowerCase();
-
-            // Detect order code DHxxxxxx
-            const dhMatch = userMessage.toUpperCase().match(/DH(\d{6,})/);
-            if (dhMatch) {
-                const code = dhMatch[0];
-                // Mock statuses
-                const statuses = [
-                    'Đã tiếp nhận',
-                    'Đang xử lý tại kho',
-                    'Đã bàn giao cho đơn vị vận chuyển',
-                    'Đang vận chuyển',
-                    'Đang giao',
-                    'Giao thành công'
-                ];
-                const idx = parseInt(code.slice(-1)) % statuses.length;
-                return `Tình trạng đơn ${code}: ${statuses[idx]}. Dự kiến giao trong 1-3 ngày làm việc. Bạn cần hỗ trợ gì thêm không?`;
-            }
-
-            if (message.includes('đơn hàng') || message.includes('kiểm tra')) {
-                return 'Để kiểm tra tình trạng đơn hàng, bạn vui lòng cung cấp mã đơn hàng. Mã đơn thường có dạng DH + 6 số (VD: DH123456).';
-            } else if (message.includes('đổi') || message.includes('trả')) {
-                return 'Chính sách đổi trả: trong 7 ngày, còn nguyên tem mác & phụ kiện. Có thể mang tới cửa hàng hoặc gửi bưu điện.';
-            } else if (message.includes('thanh toán') || message.includes('payment')) {
-                return 'Hỗ trợ: Thẻ tín dụng/ghi nợ, chuyển khoản, ví MoMo/ZaloPay, và COD khi nhận hàng.';
-            } else if (message.includes('tư vấn') || message.includes('sản phẩm')) {
-                return 'Mình tư vấn ngay! Bạn quan tâm danh mục nào: điện thoại, laptop, phụ kiện hay gia dụng?';
-            } else if (message.includes('kỹ thuật') || message.includes('lỗi')) {
-                return 'Bạn mô tả chi tiết lỗi + model sản phẩm giúp mình nhé. Mình sẽ hướng dẫn từng bước khắc phục.';
-            } else {
-                return 'Cảm ơn bạn đã liên hệ! Bạn có thể cung cấp thêm chi tiết để mình hỗ trợ chính xác hơn không?';
-            }
-        }
-
-        // Load history or seed greeting
-        function loadHistory() {
-            messagesContainer.innerHTML = '';
-            const history = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
-            if (history.length) {
-                history.forEach(h => addMessage(h.message, h.isUser, h.time, false));
-            } else {
-                addMessage('Xin chào! Mình là Minh, tư vấn viên của cửa hàng. Mình có thể hỗ trợ gì cho bạn hôm nay?', false);
-            }
-        }
-
-        // Submit handler
-        chatForm.addEventListener('submit', (e) => {
+        chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const message = chatInput.value.trim();
             if (!message) return;
-
-            addMessage(message, true);
             chatInput.value = '';
-
-            showTypingIndicator();
-            setTimeout(() => {
-                removeTypingIndicator();
-                const response = getAutoResponse(message);
-                addMessage(response, false);
-            }, 900 + Math.random() * 900);
+            try { await sendMessage(message); } catch (err) { alert('Gửi thất bại'); }
         });
-
-        // Shift+Enter newline; Enter submit
-        chatInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                chatForm.dispatchEvent(new Event('submit'));
-            }
-        });
-
-        // Quick action buttons
         document.querySelectorAll('.quick-action').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const msg = btn.getAttribute('data-message') || '';
-                chatInput.value = msg;
-                chatForm.dispatchEvent(new Event('submit'));
+            btn.addEventListener('click', async () => {
+            const msg = btn.getAttribute('data-message');
+            if (!msg) return;
+            try { await sendMessage(msg); } catch (err) { alert('Gửi thất bại'); }
             });
         });
-
         // ---------- Support form ----------
         const supportForm = document.getElementById('supportForm');
         const successMessage = document.getElementById('successMessage');
         const ticketId = document.getElementById('ticketId');
 
+        // supportForm.addEventListener('submit', (e) => {
+        //     e.preventDefault();
+            
+        //     // Generate ticket ID
+        //     const ticketNumber = 'SP' + Date.now().toString().slice(-6);
+        //     ticketId.textContent = ticketNumber;
+            
+        //     // Show success message
+        //     successMessage.classList.remove('hidden');
+        //     supportForm.style.display = 'none';
+            
+        //     // Scroll to success message
+        //     successMessage.scrollIntoView({ behavior: 'smooth' });
+
+        //     // (Optional) push a chat note
+        //     addMessage(`Mình đã tạo phiếu hỗ trợ ${ticketNumber} cho bạn. Bộ phận CSKH sẽ phản hồi trong 24h.`, false);
+
+        //     // Reset form after 5 seconds
+        //     setTimeout(() => {
+        //         supportForm.reset();
+        //         successMessage.classList.add('hidden');
+        //         supportForm.style.display = 'block';
+        //     }, 5000);
+        // });
         supportForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            
-            // Generate ticket ID
             const ticketNumber = 'SP' + Date.now().toString().slice(-6);
             ticketId.textContent = ticketNumber;
-            
-            // Show success message
+
             successMessage.classList.remove('hidden');
             supportForm.style.display = 'none';
-            
-            // Scroll to success message
             successMessage.scrollIntoView({ behavior: 'smooth' });
 
-            // (Optional) push a chat note
-            addMessage(`Mình đã tạo phiếu hỗ trợ ${ticketNumber} cho bạn. Bộ phận CSKH sẽ phản hồi trong 24h.`, false);
+            // Hiển thị 1 note tại client (không ghi DB)
+            const note = {
+                sender_id: 'system',
+                sender_role: 'system',
+                content: `Mình đã tạo phiếu hỗ trợ ${ticketNumber} cho bạn. Bộ phận CSKH sẽ phản hồi trong 24h.`,
+                sent_at: new Date().toISOString()
+            };
+            messagesContainer.insertAdjacentHTML('beforeend', bubbleHtml(note));
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-            // Reset form after 5 seconds
             setTimeout(() => {
                 supportForm.reset();
                 successMessage.classList.add('hidden');
@@ -402,9 +572,14 @@
             }, 5000);
         });
 
+
         // ---------- Init ----------
-        loadHistory();
-        switchTo('chat');
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMessages();
+            switchTo('chat');
+            setInterval(loadMessages, 3000); // tự đồng bộ 3 giây
+        });
+
     </script>
 </div>
 @endsection

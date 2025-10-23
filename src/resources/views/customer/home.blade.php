@@ -70,7 +70,7 @@
         <section class="mb-12">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-gray-800">Sản phẩm nổi bật</h2>
-                <button class="text-blue-600 hover:text-blue-800 font-medium">Xem tất cả →</button>
+                <a href="{{ url('/customer/product') }}" class="text-blue-600 hover:text-blue-800 font-medium">Xem tất cả →</a>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <!-- Product 1 -->
@@ -184,12 +184,22 @@
 
 <script>
     function redirectToProduct() {
-        window.location.href = 'product';
+        window.location.href = '{{ url('/customer/product') }}';
     }
 
     function redirectToCategory(categoryName) {
-        // Redirect to product page with specific category
-        window.location.href = `product?category=${encodeURIComponent(categoryName)}`;
+        // Map friendly names to exact database category IDs
+        const categoryMap = {
+            'Điện thoại': 'SM_001',
+            'Laptop': 'LT_001',  // Updated to match exact database category ID
+            'Tai nghe': 'headphone',
+            'Đồng hồ': 'watch', 
+            'Camera': 'camera',
+            'Gaming': 'gaming'
+        };
+        
+        const categoryId = categoryMap[categoryName] || 'all';
+        window.location.href = `{{ url('/customer/product') }}?search=&category=${encodeURIComponent(categoryId)}&sort_by=name&sort_direction=asc`;
     }
 
     function addToCart(productName, price) {

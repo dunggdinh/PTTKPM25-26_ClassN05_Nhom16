@@ -201,6 +201,8 @@
                             <h1 id="detail-title" class="text-3xl font-bold text-gray-800 mb-4">—</h1>
                             <div class="flex items-center mb-4">
                                 <div class="flex text-yellow-400 text-lg">⭐⭐⭐⭐⭐</div>
+                                <span class="text-gray-600 ml-2">(— đánh giá)</span>
+                                <span class="text-blue-600 ml-4 cursor-pointer hover:underline">Viết đánh giá</span>
                             </div>
 
                             <div class="mb-6">
@@ -253,6 +255,9 @@
                                     onclick="addToCart(document.getElementById('detail-title').textContent, parsePrice(document.getElementById('detail-price').textContent))"
                                     class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold text-lg transition-colors">
                                     Thêm vào giỏ hàng
+                                </button>
+                                <button class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-bold text-lg transition-colors">
+                                    Mua ngay
                                 </button>
                             </div>
 
@@ -497,39 +502,32 @@
         }
 
         // ==== CART (giữ nguyên kiểu bạn đang dùng) ====
-        async function addToCart(productName, price) {
-        if (!selectedColor || !selectedStorage) {
-            showToast('Vui lòng chọn Màu sắc và Dung lượng trước khi thêm vào giỏ!', false);
-            return;
-        }
-
-        const productId = document.getElementById('detail-id').textContent.trim();
-        const qty = parseInt(document.getElementById('quantity').textContent, 10) || 1;
-
-        try {
-            const res = await fetch("{{ route('customer.cart.add') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify({
-                    product_id: productId,
-                    quantity: qty
-                })
-            });
-
-            const data = await res.json();
-            if (data.success) {
-                showToast(data.message, true);
-            } else {
-                showToast(data.message || 'Không thể thêm sản phẩm', false);
+        function addToCart(productName, price){
+            // yêu cầu chọn color + storage (tùy policy)
+            if(!selectedColor || !selectedStorage){
+                showToast('Vui lòng chọn Màu sắc và Dung lượng trước khi thêm vào giỏ!', false);
+                return;
             }
-        } catch (err) {
-            showToast('Lỗi kết nối máy chủ!', false);
-        }
-    }
+            // cộng delta theo storage
+            let finalPrice = Number(price||0) + (storagePriceDelta[selectedStorage]||0);
 
+            let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            const qty = parseInt(document.getElementById('quantity')?.textContent, 10) || 1;
+
+            const product = {
+                id: Date.now(),
+                name: productName,
+                price: finalPrice,
+                quantity: qty,
+                image: 'default',
+                variant: { color: selectedColor, storage: selectedStorage }
+            };
+
+            cart.push(product);
+            localStorage.setItem('cart', JSON.stringify(cart));
+
+            showToast(`Đã thêm ${productName} (${selectedStorage}, ${selectedColor}) (x${qty}) vào giỏ hàng!`, true);
+        }
 
         // ==== TABS ====
         function showTab(tabName){
