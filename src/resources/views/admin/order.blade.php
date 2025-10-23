@@ -149,6 +149,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sản Phẩm</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tổng Tiền</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng Thái</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng Thái Thanh Toán</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Địa Chỉ</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày Đặt</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao Tác</th>
@@ -184,6 +185,19 @@
                                     </span>
                                 </td>
 
+                                <td class="px-6 py-4 text-sm">
+                                    @php
+                                        $payment_status = trim($order->status);
+                                        $statusColors = [
+                                            'Đã thanh toán' => 'bg-green-100 text-green-800',
+                                            'Chưa thanh toán' => 'bg-red-100 text-red-800',
+                                        ];
+                                    @endphp
+
+                                    <span class="px-3 py-1 rounded-full text-xs font-semibold {{ $statusColors[$payment_status] ?? 'bg-gray-100 text-gray-800' }}">
+                                        {{ $payment_status }}
+                                    </span>
+                                </td>
                                 <td class="px-6 py-4 text-sm text-gray-700">{{ $order->shipping_address }}</td>
                                 <td class="px-6 py-4 text-sm text-gray-700">{{ \Carbon\Carbon::parse($order->created_at)->format('d/m/Y H:i') }}</td>
                                 

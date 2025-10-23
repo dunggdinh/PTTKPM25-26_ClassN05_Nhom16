@@ -34,14 +34,6 @@
                         </div>
                         @endforeach
 
-
-                        <div class="mt-6 text-right">
-                            <button type="button" 
-                                    id="confirm-selection" 
-                                    class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
-                                Xác nhận thanh toán
-                            </button>
-                        </div>
                     </form>
                 </div>
             </div>
@@ -90,7 +82,9 @@
         <button onclick="proceedToCheckout()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105">
             Tiến Hành Thanh Toán
         </button>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
+        <div id="qr-code" class="mt-4"></div>
     </main>
 
 <script>
@@ -138,7 +132,9 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 discountAmount = appliedDiscount.value;
             }
+            // discountAmount = Math.min(discountAmount, subtotal); // ✅ giới hạn
         }
+
 
         const tax = (subtotal - discountAmount) * 0.1;
         const total = subtotal - discountAmount + tax;
@@ -257,32 +253,40 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (selectedItems.length === 0) return alert('Vui lòng chọn sản phẩm để thanh toán');
 
-        // Gửi lên server để tạo order
-        fetch('/checkout', {
+        fetch('{{ route("customer.vnpay.create") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
-            body: JSON.stringify({
-                items: selectedItems,
-                discount: appliedDiscount ? appliedDiscount.code : null
-            })
+            body: JSON.stringify({ items: selectedItems })
         })
         .then(res => res.json())
         .then(data => {
-            if (data.success) {
-                alert('Thanh toán thành công!');
-                window.location.reload();
+            if (data.success && data.payment_url) {
+                // Hiển thị QR code
+                document.getElementById('qr-code').innerHTML = '';
+                new QRCode(document.getElementById('qr-code'), {
+                    text: data.payment_url,
+                    width: 200,
+                    height: 200
+                });
+
+                alert('Quét QR code để thanh toán');
+
+                // Có thể poll trạng thái đơn hàng (xem bước 3)
             } else {
-                alert(data.message || 'Thanh toán thất bại');
+                alert(data.message || 'Tạo QR code thất bại');
             }
         });
     }
+
+
 
     // ✅ Chạy lần đầu
     updateOrderSummary();
 });
 </script>
+
 
 @endsection

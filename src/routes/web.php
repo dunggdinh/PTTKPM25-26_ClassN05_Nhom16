@@ -28,7 +28,7 @@ use App\Http\Controllers\customer\CartController;
 use App\Http\Controllers\customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\customer\PromotionController;
 use App\Http\Controllers\customer\NotificationController;
-
+use App\Http\Controllers\customer\VnpayController;
 /*
 |--------------------------------------------------------------------------
 | PUBLIC / CUSTOMER PRODUCT
@@ -60,6 +60,11 @@ Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(functi
     Route::patch('/cart/item/{id}',  [CartController::class, 'updateItem'])->name('cart.update');
     Route::delete('/cart/item/{id}', [CartController::class, 'removeItem'])->name('cart.remove');
     Route::delete('/cart/clear',     [CartController::class, 'clear'])->name('cart.clear');
+    Route::post('/vnpay/create-payment', [VnpayController::class, 'createPayment'])->name('vnpay.create');
+    Route::get('/vnpay/callback', [VnpayController::class, 'callback'])->name('vnpay.callback');
+    Route::post('/vnpay/checkout', [VnpayController::class, 'createPayment'])->name('vnpay.create');
+
+
 });
 
 
