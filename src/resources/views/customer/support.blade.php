@@ -521,7 +521,56 @@
         const supportForm = document.getElementById('supportForm');
         const successMessage = document.getElementById('successMessage');
         const ticketId = document.getElementById('ticketId');
+        supportForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
+    // ✅ Lấy dữ liệu từ form
+        const formData = {
+            name: document.getElementById('customerName').value,
+            email: document.getElementById('customerEmail').value,
+            phone: document.getElementById('customerPhone').value,
+            order_id: document.getElementById('orderNumber').value,
+            issue_type: document.getElementById('issueType').value,
+            priority: document.querySelector('input[name="priority"]:checked')?.value,
+            description: document.getElementById('description').value
+        };
+        try {
+            // ✅ Gửi dữ liệu thật đến Laravel (controller SupportTicketController@store)
+            const res = await fetch('/admin/tickets', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': CSRF
+                },
+                body: JSON.stringify(formData)
+            });
+            if (!res.ok) throw new Error(await res.text());
+            const data = await res.json();
+
+            // ✅ Hiển thị thông báo thành công
+            ticketId.textContent = data.ticket_id || '(chưa rõ)';
+            successMessage.classList.remove('hidden');
+            supportForm.style.display = 'none';
+            successMessage.scrollIntoView({ behavior: 'smooth' });
+            const note = {
+                sender_id: 'system',
+                sender_role: 'system',
+                content: `Mình đã tạo phiếu hỗ trợ ${data.ticket_id}. Bộ phận CSKH sẽ phản hồi trong 24h.`,
+                sent_at: new Date().toISOString()
+            };
+            messagesContainer.insertAdjacentHTML('beforeend', bubbleHtml(note));
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            setTimeout(() => {
+                supportForm.reset();
+                successMessage.classList.add('hidden');
+                supportForm.style.display = 'block';
+            }, 5000);
+        } catch (err) {
+            console.error('Gửi phiếu thất bại:', err);
+            alert('Không gửi được yêu cầu hỗ trợ. Vui lòng thử lại!');
+        }
+    });
         // supportForm.addEventListener('submit', (e) => {
         //     e.preventDefault();
             
@@ -577,7 +626,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadMessages();
             switchTo('chat');
-            setInterval(loadMessages, 3000); // tự đồng bộ 3 giây
+            // setInterval(loadMessages, 3000); // tự đồng bộ 3 giây
         });
 
     </script>

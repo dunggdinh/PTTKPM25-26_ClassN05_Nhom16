@@ -30,102 +30,14 @@
                 </div>
             </div>
             
-            <!-- Right side - Notifications and User -->
+            <!-- Right side - User -->
             <div class="flex items-center space-x-4">
-                <!-- Notification Bell -->
-                <div class="relative cursor-pointer">
-                    <div class="p-2 hover:bg-gray-100 rounded-full transition-colors" onclick="toggleNotifications()">
-                        <span class="text-xl">🔔</span>
-                    </div>
-                    <div class="notification-badge absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                        3
-                    </div>
-                    
-                    <!-- Notifications Dropdown -->
-                    <div class="dropdown absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 py-2 hidden" id="notificationsDropdown">
-                        <div class="px-4 py-3 border-b border-gray-100">
-                            <h3 class="font-semibold text-gray-800">Thông báo</h3>
-                        </div>
-                        <div class="max-h-96 overflow-y-auto">
-                            <!-- New notifications -->
-                            <div class="px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50">
-                                <div class="flex items-start space-x-3">
-                                    <div class="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                                    <div class="flex-1">
-                                        <p class="font-bold text-gray-800 text-sm">Đơn hàng #DH001 đã được xác nhận</p>
-                                        <p class="text-xs text-gray-500 mt-1">Đơn hàng iPhone 15 Pro của bạn đã được xác nhận và đang chuẩn bị</p>
-                                        <p class="text-xs text-blue-600 mt-1">5 phút trước</p>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50">
-                                <div class="flex items-start space-x-3">
-                                    <div class="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                                    <div class="flex-1">
-                                        <p class="font-bold text-gray-800 text-sm">Khuyến mãi đặc biệt 50% OFF</p>
-                                        <p class="text-xs text-gray-500 mt-1">Giảm giá lên đến 50% cho tất cả laptop gaming</p>
-                                        <p class="text-xs text-blue-600 mt-1">15 phút trước</p>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50">
-                                <div class="flex items-start space-x-3">
-                                    <div class="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
-                                    <div class="flex-1">
-                                        <p class="font-bold text-gray-800 text-sm">Sản phẩm trong giỏ hàng sắp hết</p>
-                                        <p class="text-xs text-gray-500 mt-1">AirPods Pro chỉ còn 2 sản phẩm cuối cùng</p>
-                                        <p class="text-xs text-blue-600 mt-1">30 phút trước</p>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Old notifications -->
-                            <div class="px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50">
-                                <div class="flex items-start space-x-3">
-                                    <div class="w-2 h-2 flex-shrink-0 mt-2"></div>
-                                    <div class="flex-1">
-                                        <p class="text-gray-600 text-sm">Đánh giá sản phẩm Samsung Galaxy S24</p>
-                                        <p class="text-xs text-gray-400 mt-1">Cảm ơn bạn đã mua hàng, hãy để lại đánh giá nhé</p>
-                                        <p class="text-xs text-gray-400 mt-1">2 giờ trước</p>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50">
-                                <div class="flex items-start space-x-3">
-                                    <div class="w-2 h-2 flex-shrink-0 mt-2"></div>
-                                    <div class="flex-1">
-                                        <p class="text-gray-600 text-sm">Chương trình tích điểm thành viên</p>
-                                        <p class="text-xs text-gray-400 mt-1">Bạn đã tích được 150 điểm từ đơn hàng gần đây</p>
-                                        <p class="text-xs text-gray-400 mt-1">1 ngày trước</p>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="px-4 py-3 hover:bg-gray-50 transition-colors">
-                                <div class="flex items-start space-x-3">
-                                    <div class="w-2 h-2 flex-shrink-0 mt-2"></div>
-                                    <div class="flex-1">
-                                        <p class="text-gray-600 text-sm">Chào mừng bạn đến với ElectroStore</p>
-                                        <p class="text-xs text-gray-400 mt-1">Cảm ơn bạn đã đăng ký tài khoản thành công</p>
-                                        <p class="text-xs text-gray-400 mt-1">3 ngày trước</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-
-                    </div>
-                </div>
-                
                 <!-- User Account Dropdown -->
                 <div class="relative">
                     <div class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg transition-colors" onclick="toggleDropdown()">
                         <!-- Avatar -->
                         <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-lg">
-                            {{ Auth::check() ? strtoupper(substr(Auth::user()->name, 0, 1) . (str_contains(Auth::user()->name, ' ') ? substr(Auth::user()->name, strrpos(Auth::user()->name, ' ') + 1, 1) : '')) : 'N' }}
+                            N
                         </div>
                         <!-- User Name -->
                         <div class="text-right">
@@ -295,9 +207,6 @@
                 });
             }
         }
-        function toggleNotifications() {
-            document.getElementById('notificationsDropdown').classList.toggle('hidden');
-        }
         function toggleSidebar() {
             const sidebar = document.querySelector('.sidebar');
             const main = document.querySelector('#mainContent');
@@ -312,22 +221,6 @@
         @csrf
     </form>
     <script>
-        const dropdown = document.getElementById('notificationsDropdown');
-        const badge = document.querySelector('.notification-badge');
-
-        async function loadNotifications() {
-            try {
-                const res = await fetch(`{{ route('customer.notifications') }}`, {
-                    headers: {'X-Requested-With':'XMLHttpRequest'}
-                });
-                const data = await res.json();
-                renderNotifications(data.items);
-                renderBadge(data.unread);
-            } catch (e) {
-                console.error('Load notifications error', e);
-            }
-        }
-
         function renderBadge(unread) {
             if (!badge) return;
             badge.textContent = unread > 99 ? '99+' : unread;
@@ -363,78 +256,6 @@
             </div>
             </div>`;
         }
-
-        function renderNotifications(items) {
-            const container = dropdown.querySelector('.max-h-96');
-            if (!container) return;
-            if (!items || items.length === 0) {
-                container.innerHTML = `
-                <div class="px-4 py-6 text-center text-gray-500">
-                    Không có thông báo nào
-                </div>`;
-                return;
-            }
-            container.innerHTML = items.map(itemTemplate).join('');
-
-            // Gắn handler "Đã đọc" & "Xóa"
-            container.querySelectorAll('.mark-read').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    const id = e.currentTarget.dataset.id;
-                    await fetch(`/customer/notifications/${id}/read`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': `{{ csrf_token() }}`,
-                            'X-Requested-With':'XMLHttpRequest'
-                        }
-                    });
-                    await loadNotifications();
-                });
-            });
-            container.querySelectorAll('.remove').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    const id = e.currentTarget.dataset.id;
-                    await fetch(`/customer/notifications/${id}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': `{{ csrf_token() }}`,
-                            'X-Requested-With':'XMLHttpRequest'
-                        }
-                    });
-                    await loadNotifications();
-                });
-            });
-        }
-
-        // Khi mở dropdown, đánh dấu tất cả là đã đọc (tuỳ chọn)
-        async function markAllRead() {
-            await fetch(`{{ route('customer.notifications.read_all') }}`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': `{{ csrf_token() }}`,
-                    'X-Requested-With':'XMLHttpRequest'
-                }
-            });
-            await loadNotifications();
-        }
-
-        // Gắn vào nút chuông của bạn
-        function toggleNotifications() {
-            const dd = document.getElementById('notificationsDropdown');
-            dd.classList.toggle('hidden');
-            if (!dd.classList.contains('hidden')) {
-                // vừa mở dropdown → load và (tuỳ chọn) mark read
-                loadNotifications();
-                // Nếu muốn chỉ mark read khi người dùng bấm nút riêng thì bỏ dòng dưới:
-                // markAllRead();
-            }
-        }
-
-        // Tải khi trang mở & refresh định kỳ
-        document.addEventListener('DOMContentLoaded', () => {
-            loadNotifications();
-            // fallback polling mỗi 30s (nếu chưa dùng realtime)
-            setInterval(loadNotifications, 30000);
-        });
     </script>
 
     <script>

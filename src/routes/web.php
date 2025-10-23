@@ -18,7 +18,7 @@ use App\Http\Controllers\admin\ReportController;
 use App\Http\Controllers\admin\PaymentController;
 use App\Http\Controllers\admin\NotificationController as AdminNotificationController;
 use App\Http\Controllers\admin\DiscountController;
-
+use App\Http\Controllers\admin\PromotionController as AdminPromotionController;
 
 // Customer Controllers
 use App\Http\Controllers\customer\GoogleController;
@@ -28,8 +28,9 @@ use App\Http\Controllers\customer\CartController;
 use App\Http\Controllers\customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\customer\PromotionController;
 use App\Http\Controllers\customer\NotificationController;
+use App\Http\Controllers\admin\SupportTicketController;
+use App\Http\Controllers\customer\PromotionController as CustomerPromotionController;
 
-use App\Http\Controllers\customer\VnpayController;
 
 
 use App\Http\Controllers\admin\SupportConversationController;
@@ -87,9 +88,9 @@ Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(functi
     // Home
     Route::view('/home', 'customer.home')->name('home');
 
-    // Promotion động (ưu tiên Controller thay vì Route::view để tránh trùng /promotion)
-    Route::get('/promotion', [PromotionController::class, 'index'])->name('promotion');
-    Route::get('/vouchers/_active.json', [PromotionController::class, 'vouchersJson'])->name('vouchers.json');
+    // ✅ Promotion (customer)
+    Route::get('/promotion',                [CustomerPromotionController::class, 'index'])->name('promotion');
+    Route::get('/vouchers/_active.json',    [CustomerPromotionController::class, 'vouchersJson'])->name('vouchers.json');
 
     // Profile (gộp về một nơi, dùng show/update/password)
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
@@ -138,6 +139,20 @@ Route::get('/test-auth', function () {
     dd(Auth::user());
 })->middleware('auth');
 
+/* ============================================================
+| ADMIN PROMOTION (dùng AdminPromotionController)
+|============================================================*/
+Route::middleware(['auth'])
+    ->prefix('admin/promotion')->name('admin.promotion.')
+    ->group(function () {
+        Route::get('/',              [AdminPromotionController::class, 'index'])->name('index');    // trang Blade admin
+        Route::get('/list',          [AdminPromotionController::class, 'list'])->name('list');      // JSON cho bảng
+        Route::post('/',             [AdminPromotionController::class, 'store'])->name('store');    // tạo
+        Route::put('/{id}',          [AdminPromotionController::class, 'update'])->name('update');  // cập nhật
+        Route::patch('/{id}/toggle', [AdminPromotionController::class, 'toggle'])->name('toggle');  // bật/tạm dừng
+        Route::delete('/{id}',       [AdminPromotionController::class, 'destroy'])->name('destroy');// xoá
+    });
+
 /*
 |--------------------------------------------------------------------------
 | ADMIN (prefix /admin)
@@ -152,13 +167,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         return view('admin.support', compact('conversation'));
     })->name('support');
 
-    // Promotion
-    Route::get('/promotion',        [DiscountController::class, 'index'])->name('promotions');        // admin.promotions
-    // API cho JS
-    Route::get('/promotions/list',  [DiscountController::class, 'list'])->name('promotions.list');    // admin.promotions.list
-    Route::post('/promotions',      [DiscountController::class, 'store'])->name('promotions.store');  // admin.promotions.store
-    Route::put('/promotions/{id}',  [DiscountController::class, 'update'])->name('promotions.update');// admin.promotions.update
-    Route::delete('/promotions/{id}', [DiscountController::class, 'destroy'])->name('promotions.destroy'); // admin.promotions.destroy
     // Customer
     Route::get('/user', [UserController::class, 'index'])->name('user');
     Route::get('/user/export', [UserController::class, 'exportExcel'])->name('user.export');
@@ -308,6 +316,9 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::post('/notifications/read-all',   [AdminNotificationController::class, 'markAllRead'])->name('admin.notifications.read_all');
     Route::post('/notifications/{id}/read',  [AdminNotificationController::class, 'markOneRead'])->name('admin.notifications.read_one');
     Route::delete('/notifications/{id}',     [AdminNotificationController::class, 'remove'])->name('admin.notifications.remove');
+    Route::get('/tickets', [SupportTicketController::class, 'index'])->name('admin.tickets.index');
+    Route::post('/tickets', [SupportTicketController::class, 'store'])->name('admin.tickets.store');
+    Route::get('/tickets/{id}', [SupportTicketController::class, 'show'])->name('admin.tickets.show');
 });
 
 

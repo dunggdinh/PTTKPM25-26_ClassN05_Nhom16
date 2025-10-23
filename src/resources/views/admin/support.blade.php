@@ -287,7 +287,7 @@ chatForm.addEventListener('submit', async (e) => {
 
 document.addEventListener('DOMContentLoaded', () => {
     loadMessages();
-    setInterval(loadMessages, 3000); // tự reload mỗi 3s
+    // setInterval(loadMessages, 3000); // tự reload mỗi 3s
 });
 
 
