@@ -9,6 +9,15 @@
                 <div class="bg-white rounded-xl shadow-lg p-6">
                     <h2 class="text-xl font-semibold mb-6 text-gray-800">Sản Phẩm Trong Giỏ</h2>
 
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-sm text-gray-500">Tích chọn các sản phẩm để thao tác nhanh</div>
+                        <div class="space-x-2">
+                            <button type="button" id="clear-cart" class="px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg">
+                                Xóa tất cả
+                            </button>
+                        </div>
+                    </div>
+
                     <form id="cart-form">
                         @foreach ($cart->CartItem as $item)
                         <div class="flex items-center justify-between border-b py-4">
@@ -30,6 +39,7 @@
                                 <button type="button" class="decrease bg-gray-200 px-2 rounded" data-id="{{ $item->cart_item_id }}">−</button>
                                 <input type="number" class="w-12 text-center border rounded quantity-input" value="{{ $item->quantity }}" min="1" data-id="{{ $item->cart_item_id }}">
                                 <button type="button" class="increase bg-gray-200 px-2 rounded" data-id="{{ $item->cart_item_id }}">+</button>
+                                <button type="button" class="remove-item text-red-600 hover:text-red-800 ml-3" data-id="{{ $item->cart_item_id }}">Xóa</button>
                             </div>
                         </div>
                         @endforeach
@@ -224,6 +234,58 @@ document.addEventListener('DOMContentLoaded', function() {
         updateOrderSummary();
     }
 
+    // ===== XÓA 1 ITEM =====
+    async function removeItem(cartItemId) {
+        try {
+            const res = await fetch(`/cart/remove/${cartItemId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+            });
+            if (!res.ok) throw new Error('Remove failed');
+            // Xóa dòng trên UI
+            const row = cartForm.querySelector(`.cart-checkbox[data-id="${cartItemId}"]`)?.closest('.flex.items-center.justify-between.border-b.py-4');
+            if (row) row.remove();
+            updateOrderSummary();
+        } catch (e) {
+            alert('Xóa sản phẩm thất bại, thử lại sau.');
+            console.error(e);
+        }
+    }
+
+    // Gắn sự kiện nút "Xóa" từng dòng
+    cartForm.addEventListener('click', (e) => {
+        const btn = e.target.closest('.remove-item');
+        if (!btn) return;
+        const id = btn.dataset.id;
+        if (!id) return;
+        removeItem(id);
+    });
+
+    // ===== XÓA TẤT CẢ =====
+    async function clearCart() {
+        if (!confirm('Bạn có chắc muốn xóa toàn bộ giỏ hàng?')) return;
+        try {
+            const res = await fetch(`/cart/clear`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            });
+            if (!res.ok) throw new Error('Clear failed');
+            // Xóa sạch UI
+            cartForm.innerHTML = '';
+            updateOrderSummary();
+        } catch (e) {
+            alert('Xóa toàn bộ giỏ hàng thất bại.');
+            console.error(e);
+        }
+    }
+    document.getElementById('clear-cart')?.addEventListener('click', clearCart);
+
     // ✅ Áp dụng mã custom nhập tay
     window.applyCustomPromo = function() {
         const code = customPromoInput.value.trim();
@@ -244,6 +306,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateOrderSummary();
             });
     }
+
+
 
     // ✅ Xác nhận thanh toán
     window.proceedToCheckout = function() {

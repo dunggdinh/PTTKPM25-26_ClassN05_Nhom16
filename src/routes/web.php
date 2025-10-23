@@ -93,7 +93,7 @@ Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(functi
     Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 
     // Các trang tĩnh còn lại
-    // Route::view('/review', 'customer.review')->name('review');
+    Route::view('/review', 'customer.review')->name('review');
     Route::get('/support/{conversation}', function (\App\Models\admin\SupportConversation $conversation) {
         return view('customer.support', compact('conversation'));
     })->name('support');
@@ -117,6 +117,12 @@ Route::middleware(['auth'])->group(function () {
     // JSON chi tiết đơn cho modal
     Route::get('/customer/orders/{id}', [CustomerOrderController::class, 'show'])
         ->name('customer.orders.show');
+
+    Route::post('/cart/add',          [CartController::class, 'addToCart'])->name('customer.cart.add');
+    Route::post('/cart/update/{id}',  [CartController::class, 'updateItem'])->name('customer.cart.update');
+    Route::post('/cart/remove/{id}',  [CartController::class, 'removeItem'])->name('customer.cart.remove');
+    Route::post('/cart/clear',        [CartController::class, 'clear'])->name('customer.cart.clear');
+    Route::get('/cart/data',          [CartController::class, 'data'])->name('customer.cart.data');
 });
 
 /*

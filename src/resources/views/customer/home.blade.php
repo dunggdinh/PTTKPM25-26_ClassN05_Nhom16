@@ -39,30 +39,6 @@
                     </div>
                     <p class="font-medium text-gray-700">Laptop</p>
                 </button>
-                <button onclick="redirectToCategory('Tai nghe')" class="bg-white p-6 rounded-xl text-center category-icon hover:bg-red-50 hover:shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500">
-                    <div class="w-12 h-12 mx-auto mb-3 text-red-500 text-3xl">
-                        🎧
-                    </div>
-                    <p class="font-medium text-gray-700">Tai nghe</p>
-                </button>
-                <button onclick="redirectToCategory('Đồng hồ')" class="bg-white p-6 rounded-xl text-center category-icon hover:bg-green-50 hover:shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500">
-                    <div class="w-12 h-12 mx-auto mb-3 text-green-500 text-3xl">
-                        ⌚
-                    </div>
-                    <p class="font-medium text-gray-700">Đồng hồ</p>
-                </button>
-                <button onclick="redirectToCategory('Camera')" class="bg-white p-6 rounded-xl text-center category-icon hover:bg-purple-50 hover:shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                    <div class="w-12 h-12 mx-auto mb-3 text-purple-500 text-3xl">
-                        📷
-                    </div>
-                    <p class="font-medium text-gray-700">Camera</p>
-                </button>
-                <button onclick="redirectToCategory('Gaming')" class="bg-white p-6 rounded-xl text-center category-icon hover:bg-orange-50 hover:shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500">
-                    <div class="w-12 h-12 mx-auto mb-3 text-orange-500 text-3xl">
-                        🎮
-                    </div>
-                    <p class="font-medium text-gray-700">Gaming</p>
-                </button>
             </div>
         </section>
 
@@ -86,7 +62,11 @@
                     <p class="text-gray-600 text-sm mb-3">256GB - Titan Tự Nhiên</p>
                     <div class="flex items-center justify-between">
                         <span class="text-xl font-bold text-red-600">29.990.000₫</span>
-                        <button onclick="addToCart('iPhone 15 Pro Max', '29.990.000₫')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        <button
+                            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                            data-product-id="PRD_051"
+                            data-price="29990000"
+                        >
                             Mua
                         </button>
                     </div>
@@ -101,11 +81,15 @@
                             <rect x="30" y="67" width="20" height="8" rx="2" fill="#6b7280"/>
                         </svg>
                     </div>
-                    <h3 class="font-semibold text-gray-800 mb-2">MacBook Air M3</h3>
+                    <h3 class="font-semibold text-gray-800 mb-2">MacBook Pro 16 M3 Max</h3>
                     <p class="text-gray-600 text-sm mb-3">13 inch - 8GB RAM - 256GB SSD</p>
                     <div class="flex items-center justify-between">
-                        <span class="text-xl font-bold text-red-600">27.990.000₫</span>
-                        <button onclick="addToCart('MacBook Air M3', '27.990.000₫')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        <span class="text-xl font-bold text-red-600">69.990.000₫</span>
+                        <button
+                            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                            data-product-id="PRD_012"
+                            data-price="69990000"
+                        >
                             Mua
                         </button>
                     </div>
@@ -115,17 +99,20 @@
                 <div class="bg-white rounded-xl p-6 product-card cursor-pointer">
                     <div class="bg-gray-100 rounded-lg p-4 mb-4 flex items-center justify-center h-48">
                         <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-                            <path d="M20 30 Q20 20 30 20 L50 20 Q60 20 60 30 L60 50 Q60 60 50 60 L30 60 Q20 60 20 50 Z" fill="#1f2937"/>
-                            <circle cx="25" cy="35" r="8" fill="#374151"/>
-                            <circle cx="55" cy="35" r="8" fill="#374151"/>
-                            <path d="M25 50 Q40 55 55 50" stroke="#6b7280" stroke-width="3" fill="none"/>
+                            <rect x="5" y="20" width="70" height="45" rx="6" fill="#1f2937" stroke="#374151" stroke-width="2"/>
+                            <rect x="10" y="25" width="60" height="35" rx="3" fill="#374151"/>
+                            <rect x="30" y="67" width="20" height="8" rx="2" fill="#6b7280"/>
                         </svg>
                     </div>
-                    <h3 class="font-semibold text-gray-800 mb-2">AirPods Pro 2</h3>
-                    <p class="text-gray-600 text-sm mb-3">Chống ồn chủ động</p>
+                    <h3 class="font-semibold text-gray-800 mb-2">Acer Nitro 5</h3>
+                    <p class="text-gray-600 text-sm mb-3">13 inch - 8GB RAM - 512GB SSD</p>
                     <div class="flex items-center justify-between">
-                        <span class="text-xl font-bold text-red-600">6.490.000₫</span>
-                        <button onclick="addToCart('AirPods Pro 2', '6.490.000₫')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        <span class="text-xl font-bold text-red-600">26.990.000₫</span>
+                        <button
+                            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                            data-product-id="PRD_004"
+                            data-price="26990000"
+                        >
                             Mua
                         </button>
                     </div>
@@ -135,16 +122,20 @@
                 <div class="bg-white rounded-xl p-6 product-card cursor-pointer">
                     <div class="bg-gray-100 rounded-lg p-4 mb-4 flex items-center justify-center h-48">
                         <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-                            <circle cx="40" cy="40" r="30" fill="#1f2937" stroke="#374151" stroke-width="2"/>
-                            <circle cx="40" cy="40" r="20" fill="#374151"/>
-                            <rect x="35" y="10" width="10" height="15" rx="2" fill="#6b7280"/>
+                            <rect x="10" y="5" width="60" height="70" rx="8" fill="#1f2937" stroke="#374151" stroke-width="2"/>
+                            <rect x="15" y="15" width="50" height="30" rx="4" fill="#3b82f6"/>
+                            <circle cx="40" cy="60" r="8" fill="#6b7280"/>
                         </svg>
                     </div>
-                    <h3 class="font-semibold text-gray-800 mb-2">Apple Watch Series 9</h3>
-                    <p class="text-gray-600 text-sm mb-3">45mm GPS - Dây Sport</p>
+                    <h3 class="font-semibold text-gray-800 mb-2">Samsung Galaxy S24 Ultra</h3>
+                    <p class="text-gray-600 text-sm mb-3">512GB - Đen</p>
                     <div class="flex items-center justify-between">
-                        <span class="text-xl font-bold text-red-600">9.990.000₫</span>
-                        <button onclick="addToCart('Apple Watch Series 9', '9.990.000₫')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        <span class="text-xl font-bold text-red-600">30.490.000₫</span>
+                        <button
+                            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                            data-product-id="PRD_052"
+                            data-price="30490000"
+                        >
                             Mua
                         </button>
                     </div>
@@ -188,36 +179,78 @@
     }
 
     function redirectToCategory(categoryName) {
-        // Redirect to product page with specific category
-        window.location.href = `product?category=${encodeURIComponent(categoryName)}`;
+        const categoryMap = {
+            'Điện thoại': 'SM_001',
+            'Laptop': 'LT_001', 
+        };
+        
+        const categoryId = categoryMap[categoryName] || 'all';
+        window.location.href = {{ url('/customer/product') }}?search=&category=${encodeURIComponent(categoryId)}&sort_by=name&sort_direction=asc;
     }
 
-    function addToCart(productName, price) {
-        // Get existing cart from localStorage or create new one
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-            
-        // Add product to cart
-        const product = {
-            id: Date.now(),
-            name: productName,
-            price: price,
-            quantity: 1,
-            image: 'default'
-        };
-            
-        cart.push(product);
-        localStorage.setItem('cart', JSON.stringify(cart));
-            
-        // Show success notification
-        const notification = document.createElement('div');
-        notification.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-        notification.textContent = `Đã thêm ${productName} vào giỏ hàng!`;
-        document.body.appendChild(notification);
-            
-        setTimeout(() => {
-            notification.remove();
-        }, 2000);
+
+    const CART_KEY = 'cart';
+
+    function toNumber(v) {
+        if (typeof v === 'number') return v;
+        // bỏ mọi ký tự không phải số: dấu chấm, phẩy, ký hiệu ₫ ...
+        return Number(String(v).replace(/[^\d]/g, '')) || 0;
     }
+
+    function toast(msg, bg = 'bg-green-600') {
+        const n = document.createElement('div');
+        n.className = `fixed top-4 right-4 ${bg} text-white px-6 py-3 rounded-lg shadow-lg z-50`;
+        n.textContent = msg;
+        document.body.appendChild(n);
+        setTimeout(() => n.remove(), 2000);
+    }
+
+    function addToCart(productId, quantity = 1) {
+        // Gửi vào giỏ DB (đúng với trang cart của bạn)
+        fetch('{{ route("customer.cart.add") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ product_id: productId, quantity })
+        })
+        .then(async (res) => {
+            // Nếu bị redirect do chưa đăng nhập
+            if (res.status === 401 || res.redirected) {
+                toast('Vui lòng đăng nhập để thêm vào giỏ', 'bg-orange-600');
+                // chuyển hướng trang đăng nhập nếu muốn:
+                // window.location.href = '/login';
+                return;
+            }
+            const data = await res.json().catch(() => ({}));
+            if (res.ok && (data.success ?? true)) {
+                toast('Đã thêm vào giỏ hàng!');
+                // (tuỳ chọn) cập nhật badge số lượng ở header:
+                // updateCartBadge();
+            } else {
+                toast(data.message || 'Thêm giỏ hàng thất bại', 'bg-red-600');
+            }
+        })
+        .catch(() => {
+            toast('Lỗi mạng, thử lại sau', 'bg-red-600');
+        });
+    }
+
+
+    // Thêm vào giỏ hàng (GỌI addToCart)
+    document.querySelectorAll('.product-card button').forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.stopPropagation();
+            const productId = this.dataset.productId;
+            if (!productId) {
+                toast('Mã sản phẩm không hợp lệ', 'bg-red-600');
+                return;
+            }
+        addToCart(productId, 1);
+        });
+    });
 
     function redirectToPromotion() {
         window.location.href = 'promotion';
@@ -298,27 +331,6 @@
                 }, 2000);
             });
         });
-
-        // Thêm vào giỏ hàng
-        document.querySelectorAll('.product-card button').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.stopPropagation();
-                
-                const productName = this.closest('.product-card').querySelector('h3').textContent;
-                
-                // Tạo và hiển thị thông báo
-                const notification = document.createElement("div");
-                notification.className = "fixed top-4 right-4 bg-orange-600 text-white px-6 py-3 rounded-lg shadow-lg z-50";
-                notification.textContent = `Đã thêm ${productName} vào giỏ hàng!`;
-                document.body.appendChild(notification);
-                
-                setTimeout(() => {
-                    notification.remove();
-                }, 2000);
-            });
-        });
-
-
 
         // Đếm ngược flash sale
         function updateCountdown() {
