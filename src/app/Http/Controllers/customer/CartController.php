@@ -184,4 +184,55 @@ class CartController extends Controller
             'subtotal' => (float)$subtotal,
         ]);
     }
+    public function placeOrder(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Vui lòng đăng nhập']);
+        }
+
+        $cart = $this->getOrCreateCart($user->user_id);
+
+        $items = CartItem::with('product')
+            ->whereIn('cart_item_id', $request->items)
+            ->where('cart_id', $cart->cart_id)
+            ->get();
+
+        if ($items->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Không có sản phẩm hợp lệ']);
+        }
+
+        // Tạo order
+        $orderId = 'O_' . uniqid();
+        $totalAmount = $items->sum(fn($i) => $i->product->price * $i->quantity);
+
+        $order = \App\Models\admin\Order::create([
+            'order_id' => $orderId,
+            'user_id' => $user->user_id,
+            'total_amount' => $totalAmount,
+            'status' => 1, // đã đặt
+            'payment_status' => 0, // chưa thanh toán
+            'shipping_address' => $user->address ?? '',
+            'created_at' => now(),
+        ]);
+
+        // Lưu chi tiết đơn hàng
+        foreach ($items as $item) {
+            \App\Models\admin\OrderItem::create([
+                'order_item_id' => 'OI_' . uniqid(),
+                'order_id' => $orderId,
+                'product_id' => $item->product_id,
+                'quantity' => $item->quantity,
+                'unit_price' => $item->product->price,
+            ]);
+        }
+
+        // Xóa sản phẩm đã đặt khỏi giỏ
+        CartItem::whereIn('cart_item_id', $request->items)
+            ->where('cart_id', $cart->cart_id)
+            ->delete();
+
+        return response()->json(['success' => true]);
+    }
+
 }

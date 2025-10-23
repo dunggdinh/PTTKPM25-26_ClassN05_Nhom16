@@ -87,10 +87,26 @@
                 </button>
             </div>
         </div>
+        <!-- Payment Methods -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800">Phương Thức Thanh Toán</h3>
+                    <div class="space-y-3">
+                        <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="radio" name="payment" value="cod" class="mr-3">
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-2">💰</span>
+                                <span>Thanh toán khi nhận hàng</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
         <!-- Nút tiến hành thanh toán -->
-        <button onclick="proceedToCheckout()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105">
-            Tiến Hành Thanh Toán
+        <button onclick="placeOrder()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105">
+            Đặt hàng
         </button>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
@@ -350,6 +366,61 @@ document.addEventListener('DOMContentLoaded', function() {
     // ✅ Chạy lần đầu
     updateOrderSummary();
 });
+function closeSuccess() {
+    const successMessage = document.getElementById('success-message');
+    if (successMessage) {
+        successMessage.classList.add('hidden'); // ẩn popup
+    }
+}
+
+
+    // ✅ Hàm đặt hàng mới
+    window.placeOrder = function() {
+        const selectedItems = [...cartForm.querySelectorAll('.cart-checkbox')]
+            .filter(cb => cb.checked)
+            .map(cb => cb.dataset.id);
+
+        if (selectedItems.length === 0) {
+            return alert('Vui lòng chọn sản phẩm để đặt hàng');
+        }
+
+        fetch('{{ route("customer.cart.placeOrder") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ items: selectedItems })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Hiển thị popup thành công
+                const successMessage = document.getElementById('success-message');
+                if (successMessage) {
+                    successMessage.classList.remove('hidden');
+                }
+
+                // Xóa sản phẩm đã đặt khỏi giỏ hàng UI
+                selectedItems.forEach(id => {
+                    const itemDiv = cartForm.querySelector(`.cart-checkbox[data-id="${id}"]`);
+                    if (itemDiv) {
+                        itemDiv.closest('div.flex.items-center.justify-between').remove();
+                    }
+                });
+
+                // Cập nhật lại order summary
+                updateOrderSummary();
+
+            } else {
+                alert(data.message || 'Đặt hàng thất bại');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Có lỗi xảy ra khi đặt hàng');
+        });
+    }
 </script>
 
 
