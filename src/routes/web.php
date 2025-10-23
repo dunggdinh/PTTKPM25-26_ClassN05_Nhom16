@@ -31,9 +31,6 @@ use App\Http\Controllers\customer\NotificationController;
 use App\Http\Controllers\admin\SupportTicketController;
 use App\Http\Controllers\customer\PromotionController as CustomerPromotionController;
 
-
-
-use App\Http\Controllers\admin\SupportConversationController;
 use App\Http\Controllers\admin\SupportMessageController;
 
 /*
@@ -99,10 +96,6 @@ Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(functi
 
     // Các trang tĩnh còn lại
     Route::view('/review', 'customer.review')->name('review');
-    Route::get('/support/{conversation}', function (\App\Models\admin\SupportConversation $conversation) {
-        return view('customer.support', compact('conversation'));
-    })->name('support');
-    // Route::view('/support', 'customer.support')->name('support');
 });
 
 /*
@@ -163,9 +156,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Lưu ý: trong group đã có prefix name "admin.", bên trong đặt name ngắn gọn để tránh "admin.admin.*"
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     // Route::view('/support', 'admin.support')->name('support');
-    Route::get('/support/{conversation}', function (\App\Models\admin\SupportConversation $conversation) {
-        return view('admin.support', compact('conversation'));
-    })->name('support');
 
     // Customer
     Route::get('/user', [UserController::class, 'index'])->name('user');
@@ -263,41 +253,38 @@ Route::get('/css/app.css', function () {
     return Response::make(File::get($path), 200, ['Content-Type' => 'text/css']);
 });
 /*
-|--------------------------------------------------------------------------
-| SUPPORT CHAT API (auth)
-|--------------------------------------------------------------------------
+|-------------------------------------------------------------------------- 
+| SUPPORT CHAT (Kênh chung, gần real-time)
+|-------------------------------------------------------------------------- 
 */
-// Route::middleware('auth')->group(function () {
-Route::prefix('admin')->middleware('auth')->group(function () {
-    // 1) Danh sách conversation
-    Route::get('/conversations', [SupportConversationController::class, 'index'])
-        ->name('conversations.index');
 
-    // 2) Lấy lịch sử tin nhắn theo conversation
-    Route::get('/conversations/{id}/messages', [SupportMessageController::class, 'index'])
-        ->whereNumber('id')->name('conversations.messages.index');
+Route::middleware(['auth'])->group(function () {
+    // ✅ ADMIN SIDE
+    Route::prefix('admin')->group(function () {
+        // Route::get('/support', function () {
+        //     return view('admin.support');
+        // })->name('admin.support');
+        Route::get('/support', [SupportTicketController::class, 'index'])->name('admin.support');
 
-    // 3) Gửi tin nhắn vào conversation
-    Route::post('/conversations/{id}/messages', [SupportMessageController::class, 'store'])
-        ->whereNumber('id')->name('conversations.messages.store');
+        Route::get('/support/messages', [SupportMessageController::class, 'index'])
+            ->name('admin.support.messages');
+
+        Route::post('/support/messages', [SupportMessageController::class, 'store'])
+            ->name('admin.support.messages.store');
+    });
+    // ✅ CUSTOMER SIDE
+    Route::prefix('customer')->group(function () {
+        Route::get('/support', function () {
+            return view('customer.support');
+        })->name('customer.support');
+
+        Route::get('/support/messages', [SupportMessageController::class, 'index'])
+            ->name('customer.support.messages');
+
+        Route::post('/support/messages', [SupportMessageController::class, 'store'])
+            ->name('customer.support.messages.store');
+    });
 });
-/*
-|--------------------------------------------------------------------------
-| SUPPORT CHAT API (CUSTOMER)
-|--------------------------------------------------------------------------
-*/
-Route::middleware('auth')->group(function () {
-    // 1) Lấy danh sách tin nhắn theo conversation
-    Route::get('/conversations/{id}/messages', [SupportMessageController::class, 'index'])
-        ->whereNumber('id')
-        ->name('customer.conversations.messages.index');
-
-    // 2) Gửi tin nhắn mới
-    Route::post('/conversations/{id}/messages', [SupportMessageController::class, 'store'])
-        ->whereNumber('id')
-        ->name('customer.conversations.messages.store');
-});
-
 
 /*
 |--------------------------------------------------------------------------

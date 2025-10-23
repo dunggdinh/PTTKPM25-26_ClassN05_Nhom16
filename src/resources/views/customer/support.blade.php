@@ -6,7 +6,6 @@
 @section('content')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <div id="chat-context"
-    data-conversation-id="{{ $conversation->conversation_id }}"
     data-user-id="{{ auth()->user()->user_id }}"
     data-user-role="{{ auth()->user()->role ?? 'customer' }}">
 </div>
@@ -43,7 +42,7 @@
                                     <span class="text-xl">👨‍💼</span>
                                 </div>
                                 <div>
-                                    <h3 class="font-bold text-lg">Tư vấn viên Minh</h3>
+                                    <h3 class="font-bold text-lg">Tư vấn viên</h3>
                                     <div class="flex items-center space-x-2">
                                         <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                                         <p class="text-sm text-blue-100">Đang trực tuyến</p>
@@ -380,7 +379,7 @@
         //     });
         // });
         const CTX = document.getElementById('chat-context').dataset;
-        const CONV_ID = Number(CTX.conversationId);
+        // const CONV_ID = Number(CTX.conversationId);
         const CUR_USER_ID = String(CTX.userId);
         const CUR_ROLE = CTX.userRole || 'customer';
         const CSRF = document.querySelector('meta[name="csrf-token"]').content;
@@ -388,22 +387,6 @@
         const chatForm = document.getElementById('chatForm');
         const chatInput = document.getElementById('chatInput');
         const messagesContainer = document.getElementById('messagesContainer');
-        
-        // function bubbleHtml(msg) {
-        //     const isMine = String(msg.sender_id) === CUR_USER_ID;
-        //     const side = isMine ? 'flex-row-reverse space-x-reverse' : '';
-        //     const bg = isMine ? 'bg-green-500' : 'bg-blue-500';
-        //     const avatar = isMine ? '👤' : (msg.sender_role === 'admin' ? '👨‍💼' : '👤');
-        //     const time = new Date(msg.sent_at || Date.now()).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
-        //     return 
-        //         <div class="chat-bubble flex items-start space-x-3 ${side}">
-        //             <div class="w-8 h-8 ${bg} rounded-full flex items-center justify-center text-white text-sm">${avatar}</div>
-        //             <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
-        //                 <p class="text-gray-800 whitespace-pre-line">${escapeHTML(msg.content || '')}</p>
-        //                 <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
-        //             </div>
-        //         </div>`;
-        // }
         function bubbleHtml(msg) {
         // const isMine = String(msg.sender_id) === CUR_USER_ID;
         const isMine = msg.sender_role === 'customer';
@@ -422,21 +405,10 @@
             </div>`;
         }
         let lastMessageId = null;
-        // async function loadMessages() {
-        //     try {
-        //         const res = await fetch(`/conversations/${CONV_ID}/messages`, { headers: { 'Accept':'application/json' }});
-        //         if (!res.ok) throw new Error(await res.text());
-        //         const data = await res.json();
-        //         messagesContainer.innerHTML = '';
-        //         data.forEach(m => messagesContainer.insertAdjacentHTML('beforeend', bubbleHtml(m)));
-        //         messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        //     } catch (err) {
-        //         console.error('Load failed', err);
-        //     }
-        // }
         async function loadMessages() {
             try {
-                const res = await fetch(`/conversations/${CONV_ID}/messages`, {
+                // const res = await fetch(`/conversations/${CONV_ID}/messages`, {
+                const res = await fetch(`/customer/support/messages`, {
                     headers: { 'Accept': 'application/json' }
                 });
                 if (!res.ok) throw new Error(await res.text());
@@ -464,25 +436,10 @@
                 console.error('Load messages failed:', err);
             }
         }
-
-        // async function sendMessage(content) {
-        //     const res = await fetch(`/conversations/${CONV_ID}/messages`, {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type':'application/json',
-        //             'Accept':'application/json',
-        //             'X-CSRF-TOKEN': CSRF,
-        //         },
-        //         body: JSON.stringify({ content }),
-        //     });
-        //     if (!res.ok) throw new Error(await res.text());
-        //     const msg = await res.json();
-        //     messagesContainer.insertAdjacentHTML('beforeend', bubbleHtml(msg));
-        //     messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        //     return msg;
-        // }
         async function sendMessage(content) {
-            const res = await fetch(`/conversations/${CONV_ID}/messages`, {
+            // const res = await fetch(`/conversations/${CONV_ID}/messages`, {
+            // const res = await fetch(`/support/messages`, {
+            const res = await fetch(`/customer/support/messages`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -626,7 +583,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadMessages();
             switchTo('chat');
-            // setInterval(loadMessages, 3000); // tự đồng bộ 3 giây
+            setInterval(loadMessages, 3000); // tự đồng bộ 3 giây
         });
 
     </script>

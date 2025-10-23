@@ -1,73 +1,5 @@
 <?php
 
-// namespace App\Http\Controllers\admin;
-
-// use App\Http\Controllers\Controller;
-// use Illuminate\Http\Request;
-// use App\Models\admin\SupportTicket;
-
-// class SupportTicketController extends Controller
-// {
-//     public function store(Request $request)
-//     {
-//         $validated = $request->validate([
-//             'name'        => 'required|string|max:100',
-//             'email'       => 'required|email|max:100',
-//             'phone'       => 'nullable|string|max:20',
-//             'order_id'    => 'nullable|string|max:10',
-//             'issue_type'  => 'required|string|max:50',
-//             'priority'    => 'required|string|max:50',
-//             'description' => 'required|string',
-//         ]);
-
-//         // ✅ Sinh mã tự động an toàn
-//         $lastTicket = SupportTicket::orderByDesc('ticket_id')->first();
-//         $nextNumber = 1;
-//         if ($lastTicket && preg_match('/TIC_(\d+)/', $lastTicket->ticket_id, $matches)) {
-//             $nextNumber = intval($matches[1]) + 1;
-//         }
-//         $ticket_id = 'TIC_' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
-//         // ✅ Tự động bắt đúng guard (web cho customer, admin cho quản trị viên)
-//         $user = auth('web')->user() ?? auth('admin')->user();
-
-//         // ✅ Lưu vào DB
-//         $ticket = SupportTicket::create([
-//             'ticket_id'   => $ticket_id,
-//             // 'user_id'     => auth()->user()->user_id ?? null,
-//             'user_id'     => $user?->user_id,
-//             'order_id'    => $validated['order_id'] ?: null,
-//             'name'        => $validated['name'],
-//             'email'       => $validated['email'],
-//             'phone'       => $validated['phone'] ?? null,
-//             'issue_type'  => $validated['issue_type'],
-//             'priority'    => $validated['priority'],
-//             'description' => $validated['description'],
-//             'status'      => 'Mới tạo',
-//         ]);
-
-//         return response()->json([
-//             'success'   => true,
-//             'ticket_id' => $ticket->ticket_id,
-//             'message'   => 'Yêu cầu hỗ trợ đã được tạo thành công!',
-//         ]);
-//     }
-
-//     public function index()
-//     {
-//         $tickets = SupportTicket::orderByDesc('created_at')->get();
-//         return view('admin.support_tickets.index', compact('tickets'));
-//     }
-
-//     public function show($id)
-//     {
-//         // ✅ Dò theo ticket_id thay vì numeric ID
-//         $ticket = SupportTicket::where('ticket_id', $id)
-//                     ->with(['user', 'order'])
-//                     ->firstOrFail();
-
-//         return response()->json($ticket);
-//     }
-// }
 
 namespace App\Http\Controllers\admin;
 
@@ -147,8 +79,11 @@ class SupportTicketController extends Controller
      */
     public function index()
     {
-        $tickets = SupportTicket::orderByDesc('created_at')->get();
-        return view('admin.support_tickets.index', compact('tickets'));
+        // $tickets = SupportTicket::orderByDesc('created_at')->get();
+        // return view('admin.support_tickets.index', compact('tickets'));
+        // return view('admin.support', compact('tickets'));
+        $tickets = \App\Models\admin\SupportTicket::orderByDesc('created_at')->get();
+        return view('admin.support', compact('tickets'));
     }
 
     /**

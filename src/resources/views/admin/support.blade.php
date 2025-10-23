@@ -5,7 +5,6 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
 <div id="chat-context"
-    data-conversation-id="{{ $conversation->conversation_id }}"
     data-user-id="{{ auth()->user()->user_id }}"
     data-user-role="{{ auth()->user()->role ?? 'admin' }}">
 </div>
@@ -15,7 +14,7 @@
 
         <!-- Header -->
         <header class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Admin - Trung Tâm Hỗ Trợ Khách Hàng</h1>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Trung Tâm Hỗ Trợ Khách Hàng</h1>
             <p class="text-gray-600">Quản lý chat và yêu cầu hỗ trợ khách hàng</p>
         </header>
 
@@ -31,7 +30,7 @@
                             👨‍💼
                         </div>
                         <div>
-                            <h3 class="font-bold text-lg">Tư Vấn Viên Minh</h3>
+                            <h3 class="font-bold text-lg">Tư Vấn Viên</h3>
                             <div class="flex items-center space-x-2">
                                 <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                                 <p class="text-sm text-blue-100">Đang trực tuyến</p>
@@ -69,25 +68,28 @@
                     </form>
                 </div>
             </section>
-
-            <!-- Right Column -->
             <aside class="w-full lg:w-80 bg-white rounded-xl shadow-xl border border-gray-100 p-6 flex flex-col">
                 <h4 class="font-bold text-gray-800 mb-6 text-lg">Yêu Cầu Hỗ Trợ</h4>
+
                 <div class="space-y-3 overflow-y-auto flex-1">
-                    <div class="p-4 bg-blue-50 rounded-xl border border-blue-100 flex justify-between items-center">
-                        <div>
-                            <p class="font-semibold">SP123456 - Nguyễn Văn A</p>
-                            <p class="text-sm text-gray-600">Đơn hàng - Trung bình</p>
+                    @foreach ($tickets as $ticket)
+                        <div class="p-4 bg-blue-50 rounded-xl border border-blue-100 flex justify-between items-center hover:bg-blue-100 transition-all">
+                            <div>
+                                <p class="font-semibold">{{ $ticket->ticket_id }} - {{ $ticket->name }}</p>
+                                <p class="text-sm text-gray-600">
+                                    {{ $ticket->issue_type }} - {{ $ticket->priority }}
+                                </p>
+                            </div>
+                            <!-- <a href="{{ route('admin.tickets.show', $ticket->ticket_id) }}"
+                                class="text-blue-600 font-semibold hover:underline">
+                                Xem
+                            </a> -->
                         </div>
-                        <button class="text-blue-600 font-semibold hover:underline">Xem</button>
-                    </div>
-                    <div class="p-4 bg-blue-50 rounded-xl border border-blue-100 flex justify-between items-center">
-                        <div>
-                            <p class="font-semibold">SP123457 - Trần Thị B</p>
-                            <p class="text-sm text-gray-600">Thanh toán - Cao</p>
-                        </div>
-                        <button class="text-blue-600 font-semibold hover:underline">Xem</button>
-                    </div>
+                    @endforeach
+
+                    @if($tickets->isEmpty())
+                        <p class="text-gray-500 text-sm text-center">Chưa có yêu cầu hỗ trợ nào.</p>
+                    @endif
                 </div>
             </aside>
         </div>
@@ -97,7 +99,7 @@
 {{-- ✅ SCRIPT CHAT --}}
 <script>
 const CTX = document.getElementById('chat-context').dataset;
-const CONV_ID = Number(CTX.conversationId);
+// const CONV_ID = Number(CTX.conversationId);
 const CUR_USER_ID = String(CTX.userId);
 const CUR_ROLE = CTX.userRole || 'admin';
 const CSRF = document.querySelector('meta[name="csrf-token"]').content;
@@ -112,22 +114,6 @@ function escapeHTML(str) {
               .replaceAll("'","&#039;");
 }
 
-// function bubbleHtml(msg) {
-//     const isMine = String(msg.sender_id) === CUR_USER_ID;
-//     const side = isMine ? 'flex-row-reverse space-x-reverse' : '';
-//     const bg = isMine ? 'bg-yellow-500' : 'bg-blue-500';
-//     const avatar = isMine ? '🧑‍💼' : (msg.sender_role === 'customer' ? '👤' : '👨‍💼');
-//     const time = new Date(msg.sent_at || Date.now())
-//                    .toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
-//     return `
-//         <div class="chat-bubble flex items-start space-x-3 ${side}">
-//             <div class="w-8 h-8 ${bg} rounded-full flex items-center justify-center text-white text-sm">${avatar}</div>
-//             <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
-//                 <p class="text-gray-800 whitespace-pre-line">${escapeHTML(msg.content || '')}</p>
-//                 <span class="text-xs text-gray-500 mt-1 block">${time}</span>
-//             </div>
-//         </div>`;
-// }
 function bubbleHtml(msg) {
     // const isMine = String(msg.sender_id) === CUR_USER_ID;
     const isMine = msg.sender_role === 'admin';
@@ -141,7 +127,7 @@ function bubbleHtml(msg) {
         <div class="chat-bubble flex items-start space-x-3 ${side}">
             <div class="w-8 h-8 ${bg} rounded-full flex items-center justify-center text-white text-sm">${avatar}</div>
             <p class="text-xs text-gray-500 mb-1 font-semibold">
-                ${isMine ? 'Bạn' : (msg.sender_name || 'Khách hàng')}
+                ${isMine ? 'Bạn' : (msg.sender?.name || 'Khách hàng')}
             </p>
             <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
                 <p class="text-gray-800 whitespace-pre-line">${escapeHTML(msg.content || '')}</p>
@@ -150,74 +136,11 @@ function bubbleHtml(msg) {
         </div>
     `;
 }
-
-
-// async function loadMessages() {
-//     try {
-//         const res = await fetch(`/conversations/${CONV_ID}/messages`, { headers:{'Accept':'application/json'} });
-//         if (!res.ok) throw new Error(await res.text());
-//         const data = await res.json();
-//         messagesContainer.innerHTML = '';
-//         data.forEach(m => messagesContainer.insertAdjacentHTML('beforeend', bubbleHtml(m)));
-//         messagesContainer.scrollTop = messagesContainer.scrollHeight;
-//     } catch (err) {
-//         console.error('Load messages failed:', err);
-//     }
-// }
-
-// async function sendMessage(content) {
-//     const res = await fetch(`/conversations/${CONV_ID}/messages`, {
-//         method:'POST',
-//         headers:{
-//             'Content-Type':'application/json',
-//             'Accept':'application/json',
-//             'X-CSRF-TOKEN': CSRF
-//         },
-//         body: JSON.stringify({ content })
-//     });
-//     if(!res.ok) throw new Error(await res.text());
-//     const msg = await res.json();
-//     messagesContainer.insertAdjacentHTML('beforeend', bubbleHtml(msg));
-//     messagesContainer.scrollTop = messagesContainer.scrollHeight;
-//     return msg;
-// }
-// async function loadMessages() {
-//     try {
-//         const res = await fetch(`/admin/conversations/${CONV_ID}/messages`, {
-//             headers: { 'Accept': 'application/json' }
-//         });
-//         if (!res.ok) throw new Error(await res.text());
-//         const data = await res.json();
-//         messagesContainer.innerHTML = '';
-//         data.forEach(m =>
-//             messagesContainer.insertAdjacentHTML('beforeend', bubbleHtml(m))
-//         );
-//         messagesContainer.scrollTop = messagesContainer.scrollHeight;
-//     } catch (err) {
-//         console.error('Load messages failed:', err);
-//     }
-// }
-
-// async function sendMessage(content) {
-//     const res = await fetch(`/admin/conversations/${CONV_ID}/messages`, {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json',
-//             'Accept': 'application/json',
-//             'X-CSRF-TOKEN': CSRF
-//         },
-//         body: JSON.stringify({ content })
-//     });
-//     if (!res.ok) throw new Error(await res.text());
-//     const msg = await res.json();
-//     messagesContainer.insertAdjacentHTML('beforeend', bubbleHtml(msg));
-//     messagesContainer.scrollTop = messagesContainer.scrollHeight;
-//     return msg;
-// }
 let lastMessageId = null;
 async function loadMessages() {
     try {
-        const res = await fetch(`/admin/conversations/${CONV_ID}/messages`, {
+        // const res = await fetch(`/admin/conversations/${CONV_ID}/messages`, {
+        const res = await fetch(`/admin/support/messages`, {
             headers: { 'Accept': 'application/json' }
         });
         if (!res.ok) throw new Error(await res.text());
@@ -227,8 +150,7 @@ async function loadMessages() {
             // lần đầu: tải toàn bộ
             data.forEach(m => messagesContainer.insertAdjacentHTML('beforeend', bubbleHtml(m)));
         } else {
-            // chỉ thêm tin mới
-            // const newMessages = data.filter(m => m.message_id > lastMessageId);
+            // newMessages.forEach(m => messagesContainer.insertAdjacentHTML('beforeend', bubbleHtml(m)));
             const newMessages = data.filter(m => 
                 m.message_id > lastMessageId && String(m.sender_id) !== CUR_USER_ID
             );
@@ -246,7 +168,8 @@ async function loadMessages() {
 }
 async function sendMessage(content) {
     try {
-        const res = await fetch(`/admin/conversations/${CONV_ID}/messages`, {
+        // const res = await fetch(`/admin/conversations/${CONV_ID}/messages`, {
+        const res = await fetch(`/admin/support/messages`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -259,9 +182,9 @@ async function sendMessage(content) {
         if (!res.ok) throw new Error(await res.text());
         const msg = await res.json();
         // ✅ Thêm dòng này để ngăn loadMessages() chèn lại cùng tin
-        // lastMessageId = msg.message_id;
+        lastMessageId = msg.message_id;
         // lastMessageId = Number(msg.message_id) + 1;
-        lastMessageId = Math.max(lastMessageId || 0, Number(msg.message_id) + 1);
+        // lastMessageId = Math.max(lastMessageId || 0, Number(msg.message_id) + 1);
 
         // ✅ Hiển thị tin nhắn mới ngay lập tức
         messagesContainer.insertAdjacentHTML('beforeend', bubbleHtml(msg));
@@ -287,7 +210,7 @@ chatForm.addEventListener('submit', async (e) => {
 
 document.addEventListener('DOMContentLoaded', () => {
     loadMessages();
-    // setInterval(loadMessages, 3000); // tự reload mỗi 3s
+    setInterval(loadMessages, 3000); // tự reload mỗi 3s
 });
 
 
