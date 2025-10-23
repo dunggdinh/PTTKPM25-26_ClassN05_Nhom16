@@ -58,7 +58,11 @@ class OrderController extends Controller
         $totalOrders = Order::count();
         $pendingOrders = Order::where('status', 'Chờ xử lý')->count();
         $completedOrders = Order::where('status', 'Đã giao')->count();
-        $revenue = Order::where('status', 'Đã giao')->sum('total_amount');
+        
+        // Tính doanh thu từ các đơn hàng đã giao và đã thanh toán
+        $revenue = Order::where('status', 'Đã giao')
+                       ->where('payment_status', 'Đã thanh toán')
+                       ->sum('total_amount');
 
         return view('admin.order', compact(
             'orders', 'totalOrders', 'pendingOrders', 'completedOrders', 'revenue'
@@ -82,11 +86,13 @@ class OrderController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:Chờ xử lý,Đang giao,Đã giao,Đã hủy'
+            'status' => 'required|in:Chờ xử lý,Đang giao,Đã giao,Đã hủy',
+            'payment_status' => 'required|in:Chưa thanh toán,Đã thanh toán,Hoàn tiền'
         ]);
 
         $order = Order::findOrFail($id);
         $order->status = $request->status;
+        $order->payment_status = $request->payment_status;
         $order->save();
 
         return redirect()->back()->with('success', 'Cập nhật trạng thái thành công!');
@@ -102,7 +108,7 @@ class OrderController extends Controller
 
         foreach ($orders as $order) {
 
-            // Trạng thái với màu
+            // Trạng thái đơn hàng với màu
             $statusColors = [
                 'Chờ xử lý' => 'bg-yellow-100 text-yellow-800',
                 'Đang giao' => 'bg-blue-100 text-blue-800',
@@ -110,6 +116,14 @@ class OrderController extends Controller
                 'Đã hủy' => 'bg-red-100 text-red-800',
             ];
             $statusClass = $statusColors[$order->status] ?? 'bg-gray-100 text-gray-800';
+
+            // Trạng thái thanh toán với màu
+            $paymentStatusColors = [
+                'Chưa thanh toán' => 'bg-orange-100 text-orange-800',
+                'Đã thanh toán' => 'bg-emerald-100 text-emerald-800',
+                'Hoàn tiền' => 'bg-purple-100 text-purple-800'
+            ];
+            $paymentStatusClass = $paymentStatusColors[$order->payment_status] ?? 'bg-gray-100 text-gray-800';
 
             // Các sản phẩm trong đơn
             $itemsHtml = '';
@@ -126,6 +140,9 @@ class OrderController extends Controller
                     <td class='px-6 py-4 text-sm text-gray-700'>".number_format($order->total_amount, 0, ',', '.')." ₫</td>
                     <td class='px-6 py-4 text-sm'>
                         <span class='px-3 py-1 rounded-full text-xs font-semibold {$statusClass}'>".ucfirst($order->status)."</span>
+                    </td>
+                    <td class='px-6 py-4 text-sm'>
+                        <span class='px-3 py-1 rounded-full text-xs font-semibold {$paymentStatusClass}'>".ucfirst($order->payment_status)."</span>
                     </td>
                     <td class='px-6 py-4 text-sm text-gray-700'>{$order->shipping_address}</td>
                     <td class='px-6 py-4 text-sm text-gray-700'>".\Carbon\Carbon::parse($order->created_at)->format('d/m/Y H:i')."</td>

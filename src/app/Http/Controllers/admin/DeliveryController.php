@@ -7,8 +7,10 @@ use Illuminate\Http\Request;
 use App\Models\admin\Product;
 use App\Models\admin\Supplier;
 use App\Models\admin\ImportBatch;
+use App\Models\admin\Category;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ImportBatchExport;
+use Illuminate\Support\Str;
 
 class DeliveryController extends Controller
 {
@@ -53,13 +55,26 @@ class DeliveryController extends Controller
 
         // 📊 Thống kê
         $totalBatches = ImportBatch::count();
-        $completedBatches = ImportBatch::where('status', 'completed')->count();
-        $pendingBatches = ImportBatch::where('status', 'pending')->count();
-        $totalValue = ImportBatch::sum('total_value');
+        
+        // Đếm số lô hàng đã hoàn thành (đã nhập kho)
+        $completedBatches = ImportBatch::where('status', 'Hoàn thành')->count();
+        
+        // Đếm số lô hàng đang chờ xử lý
+        $pendingBatches = ImportBatch::where('status', 'Chờ xử lý')->count();
+        
+        // Tính tổng giá trị của tất cả lô hàng đã hoàn thành
+        $totalValue = ImportBatch::where('status', 'Hoàn thành')
+            ->sum('total_value');
+
+        // Lấy danh sách sản phẩm cho form tạo mới
+        $products = Product::all();
+        $categories = Category::all();
 
         return view('admin.deliveries', compact(
             'batches',
             'suppliers',
+            'products',
+            'categories',
             'totalBatches',
             'completedBatches',
             'pendingBatches',
@@ -125,24 +140,38 @@ class DeliveryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'batch_id' => 'required|unique:import_batches,batch_id',
-            'supplier_id' => 'required',
-            'product_id' => 'required',
+            'supplier_id' => 'required|exists:suppliers,supplier_id',
+            'product_name' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,category_id',
             'quantity' => 'required|numeric|min:1',
-            'price' => 'required|numeric|min:0',
+            'price' => 'required|numeric|min:0'
         ]);
 
-        ImportBatch::create([
-            'batch_id' => $request->batch_id,
+        // Kiểm tra xem supplier_id có tồn tại không
+        $supplier = Supplier::findOrFail($request->supplier_id);
+
+        // Tạo sản phẩm mới - product_id sẽ được tự động tạo bởi Model boot()
+        $product = Product::create([
+            'name' => $request->product_name,
+            'category_id' => $request->category_id,
             'supplier_id' => $request->supplier_id,
-            'product_id' => $request->product_id,
+            'quantity' => 0,  // Số lượng ban đầu là 0
+            'price' => $request->price,
+            'rating' => 0,    // Giá trị mặc định cho rating
+            'warranty' => 12  // Giá trị mặc định cho warranty (tháng)
+        ]);
+
+        // Tạo lô hàng mới - batch_id sẽ được tự động tạo bởi Model boot()
+        $batch = ImportBatch::create([
+            'supplier_id' => $request->supplier_id,
+            'product_id' => $product->product_id, // Sử dụng ID của sản phẩm vừa tạo
             'quantity' => $request->quantity,
             'price' => $request->price,
-            'status' => $request->status ?? 'pending',
-            'total_value' => $request->quantity * $request->price,
+            'status' => 'Chờ xử lý', // Mặc định là Chờ xử lý
+            'total_value' => $request->quantity * $request->price
         ]);
 
-        return redirect()->route('admin.deliveries')->with('success', 'Thêm lô hàng thành công!');
+        return redirect()->route('admin.deliveries')->with('success', 'Thêm sản phẩm và lô hàng mới thành công!');
     }
 
     public function destroy($id)
@@ -162,10 +191,87 @@ class DeliveryController extends Controller
         ]);
 
         $batch = ImportBatch::findOrFail($batchId);
+        $oldStatus = $batch->status;
         $batch->status = $request->status;
+        
+        // Nếu chuyển sang trạng thái Hoàn thành
+        if ($request->status === 'Hoàn thành' && $oldStatus !== 'Hoàn thành') {
+            $product = Product::find($batch->product_id);
+            if ($product) {
+                $product->quantity += $batch->quantity;
+                $product->save();
+            }
+        }
+        // Nếu từ Hoàn thành chuyển sang trạng thái khác
+        else if ($oldStatus === 'Hoàn thành' && $request->status !== 'Hoàn thành') {
+            $product = Product::find($batch->product_id);
+            if ($product) {
+                $product->quantity -= $batch->quantity;
+                $product->save();
+            }
+        }
+
         $batch->save();
 
         return redirect()->back()->with('success', 'Cập nhật trạng thái thành công.');
     }
 
+    public function edit($id)
+    {
+        $batch = ImportBatch::findOrFail($id);
+        $suppliers = Supplier::all();
+        $products = Product::all();
+        return view('admin.deliveries.edit', compact('batch', 'suppliers', 'products'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'supplier_id' => 'required|exists:suppliers,supplier_id',
+            'product_id' => 'required|exists:products,product_id',
+            'quantity' => 'required|numeric|min:1',
+            'price' => 'required|numeric|min:0',
+        ]);
+
+        $batch = ImportBatch::findOrFail($id);
+        
+        // Lưu thông tin cũ trước khi cập nhật
+        $oldQuantity = $batch->quantity;
+        $oldProductId = $batch->product_id;
+        $oldStatus = $batch->status;
+
+        // Cập nhật thông tin lô hàng
+        $batch->supplier_id = $request->supplier_id;
+        $batch->product_id = $request->product_id;
+        $batch->quantity = $request->quantity;
+        $batch->price = $request->price;
+        $batch->total_value = $request->quantity * $request->price;
+        
+        // Nếu lô hàng đã hoàn thành, cập nhật số lượng trong kho
+        if ($batch->status === 'Hoàn thành') {
+                // Nếu sản phẩm thay đổi
+            if ($oldProductId != $request->product_id) {
+                // Trừ số lượng từ sản phẩm cũ
+                $oldProduct = Product::find($oldProductId);
+                if ($oldProduct) {
+                    $oldProduct->quantity -= $oldQuantity;
+                    $oldProduct->save();
+                }
+                
+                // Cộng số lượng vào sản phẩm mới
+                $newProduct = Product::find($request->product_id);
+                $newProduct->quantity += $request->quantity;
+                $newProduct->save();
+            } else {
+                // Nếu chỉ thay đổi số lượng
+                $product = Product::find($request->product_id);
+                $product->quantity = $product->quantity - $oldQuantity + $request->quantity;
+                $product->save();
+            }
+        }
+
+        $batch->save();
+
+        return redirect()->route('admin.deliveries')->with('success', 'Cập nhật lô hàng thành công!');
+    }
 }

@@ -52,6 +52,11 @@ Route::prefix('products')->name('products.')->group(function () {
     Route::get('/', [ProductController::class, 'index'])->name('index');                       // /products
     Route::get('/_list.json', [ProductController::class, 'listJson'])->name('json');           // /products/_list.json
     Route::get('/_show/{product_id}.json', [ProductController::class, 'showJson'])->name('show.json'); // /products/_show/{id}.json
+    Route::get('/create', [ProductController::class, 'create'])->name('create');               // Form thêm sản phẩm mới
+    Route::post('/', [ProductController::class, 'store'])->name('store');                      // Lưu sản phẩm mới
+    Route::get('/{id}/edit', [ProductController::class, 'edit'])->name('edit');                // Form sửa sản phẩm
+    Route::put('/{id}', [ProductController::class, 'update'])->name('update');                 // Cập nhật sản phẩm
+    Route::delete('/{id}', [ProductController::class, 'destroy'])->name('destroy');            // Xóa sản phẩm
 });
 
 /*
@@ -170,6 +175,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Deliveries
     Route::get('/deliveries', [DeliveryController::class, 'index'])->name('deliveries');
     Route::post('/deliveries', [DeliveryController::class, 'store'])->name('deliveries.store');
+    Route::get('/deliveries/{id}/edit', [DeliveryController::class, 'edit'])->name('deliveries.edit');
+    Route::put('/deliveries/{id}', [DeliveryController::class, 'update'])->name('deliveries.update');
     Route::put('/deliveries/{id}/update-status', [DeliveryController::class, 'updateStatus'])->name('deliveries.updateStatus');
     Route::delete('/deliveries/{id}', [DeliveryController::class, 'destroy'])->name('deliveries.destroy');
     Route::get('/deliveries/export', [DeliveryController::class, 'exportExcel'])->name('deliveries.export');
