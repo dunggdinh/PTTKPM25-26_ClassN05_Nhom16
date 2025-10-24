@@ -104,4 +104,11 @@ Nhóm dự kiến mở rộng hệ thống theo 5 hướng chính:
 
 ---
 
+## 📚 Tài liệu liên quan
+- [📄 Báo cáo chi tiết dự án](https://github.com/user-attachments/files/23112311/PTTKPM25-26_ClassN05_Nhom16_ver3.docx)
+- [💻 Mã nguồn trên GitHub](https://github.com/dunggdinh/PTTKPM25-26_ClassN05_Nhom16)
+- [📗 Bảng theo dõi công việc](https://github.com/user-attachments/files/23120002/PTTKPM25-26_ClassN05_Nhom16.xlsx)
+
+---
+
 **© 2025 - Nhóm 16 | Đại học Phenikaa – Khoa Công nghệ Thông tin**
