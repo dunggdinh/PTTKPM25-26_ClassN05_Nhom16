@@ -107,10 +107,9 @@
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                     <option value="">Tất cả trạng thái</option>
                                     <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Chờ xử lý</option>
-                                    <option value="processing" {{ request('status') == 'processing' ? 'selected' : '' }}>Đang xử lý</option>
                                     <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Đã duyệt</option>
+                                    <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Hoàn tất</option>
                                     <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Từ chối</option>
-                                    <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Hoàn thành</option>
                                 </select>
                             </div>
 
@@ -119,8 +118,8 @@
                                 <select name="type" onchange="this.form.submit()"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                     <option value="">Tất cả loại</option>
-                                    <option value="return" {{ request('type') == 'return' ? 'selected' : '' }}>Trả hàng</option>
-                                    <option value="exchange" {{ request('type') == 'exchange' ? 'selected' : '' }}>Đổi hàng</option>
+                                    <option value="Trả hàng" {{ request('type') == 'Trả hàng' ? 'selected' : '' }}>Trả hàng</option>
+                                    <option value="Đổi hàng" {{ request('type') == 'Đổi hàng' ? 'selected' : '' }}>Đổi hàng</option>
                                 </select>
                             </div>
                         </div>
@@ -196,11 +195,11 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    @if($return->type === 'return')
+                                    @if($return->type === 'Trả hàng')
                                         <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
                                             Trả hàng
                                         </span>
-                                    @elseif($return->type === 'exchange')
+                                    @elseif($return->type === 'Đổi hàng')
                                         <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
                                             Đổi hàng
                                         </span>
@@ -298,28 +297,70 @@ function closeCreateModal() {
 // Hàm xử lý modal sửa
 function openEdit(returnId) {
     document.getElementById('editReturnModal').style.display = 'flex';
-    
-    // Gọi API để lấy thông tin chi tiết
+
+    const form = document.getElementById('editReturnForm');
+    form.setAttribute('data-id', returnId); // ✅ thêm dòng này
+
     fetch(`/admin/return/${returnId}/edit`)
         .then(response => response.json())
         .then(data => {
-            const form = document.getElementById('editReturnForm');
             form.action = `/admin/return/${returnId}`;
-            
-            // Điền thông tin vào form
             form.querySelector('select[name="status"]').value = data.status;
             form.querySelector('select[name="type"]').value = data.type;
             form.querySelector('textarea[name="reason"]').value = data.reason;
         })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Có lỗi xảy ra khi tải thông tin. Vui lòng thử lại.');
-        });
+        .catch(() => alert('Không tải được thông tin'));
 }
+
 
 function closeEditModal() {
     document.getElementById('editReturnModal').style.display = 'none';
 }
+
+// Hàm xử lý submit form edit
+function handleEditSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const returnId = form.getAttribute('data-id');
+
+    if (!returnId) {
+        alert('Không xác định được ID yêu cầu.');
+        return;
+    }
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner"></span> Đang xử lý...';
+
+    const formData = new FormData(form);
+
+    fetch(`/admin/return/${returnId}`, {
+        method: 'POST', // ✅ Giữ POST
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'X-HTTP-Method-Override': 'PUT' // ✅ Laravel hiểu đây là PUT
+        }
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            alert(result.message);
+            window.location.reload();
+        } else {
+            alert(result.message || 'Có lỗi xảy ra');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra. Vui lòng thử lại.');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Cập nhật';
+    });
+}
+
 
 // Hàm xử lý modal xóa
 function openDelete(returnId) {
@@ -332,45 +373,53 @@ function closeDelete(returnId) {
 
 // Hàm validate form
 function validateReturnForm(form) {
-    const requiredFields = form.querySelectorAll('[required]');
+    console.log("Validating form...");
     let isValid = true;
+    const fields = {
+        'customer_id': 'Vui lòng chọn khách hàng',
+        'product_id': 'Vui lòng chọn sản phẩm',
+        'type': 'Vui lòng chọn loại yêu cầu',
+        'reason': 'Vui lòng nhập lý do'
+    };
 
-    requiredFields.forEach(field => {
-        // Đặc biệt xử lý cho select boxes
+    // Reset all errors first
+    form.querySelectorAll('.error-message').forEach(error => {
+        error.classList.add('hidden');
+    });
+    form.querySelectorAll('.border-red-500').forEach(field => {
+        field.classList.remove('border-red-500');
+    });
+
+    // Validate each field
+    Object.keys(fields).forEach(fieldName => {
+        const field = form.querySelector(`[name="${fieldName}"]`);
+        if (!field) {
+            console.log(`Field ${fieldName} not found`);
+            return;
+        }
+        const errorDiv = field.parentElement.querySelector('.error-message');
+        console.log(`Checking ${fieldName}:`, field.value);
+        
         if (field.tagName.toLowerCase() === 'select') {
-            if (field.value === "") {
+            // Kiểm tra select box
+            if (!field.value || field.value === "") {
                 isValid = false;
                 field.classList.add('border-red-500');
-                
-                let errorDiv = field.parentElement.querySelector('.error-message');
-                if (!errorDiv) {
-                    errorDiv = document.createElement('div');
-                    errorDiv.className = 'error-message text-red-500 text-sm mt-1';
-                    field.parentElement.appendChild(errorDiv);
+                if (errorDiv) {
+                    errorDiv.textContent = fields[fieldName];
+                    errorDiv.classList.remove('hidden');
                 }
-                errorDiv.textContent = 'Vui lòng chọn một tùy chọn';
-            } else {
-                field.classList.remove('border-red-500');
-                const errorDiv = field.parentElement.querySelector('.error-message');
-                if (errorDiv) errorDiv.remove();
             }
-        }
-        // Xử lý cho các trường input và textarea
-        else if (!field.value.trim()) {
-            isValid = false;
-            field.classList.add('border-red-500');
-            
-            let errorDiv = field.parentElement.querySelector('.error-message');
-            if (!errorDiv) {
-                errorDiv = document.createElement('div');
-                errorDiv.className = 'error-message text-red-500 text-sm mt-1';
-                field.parentElement.appendChild(errorDiv);
-            }
-            errorDiv.textContent = 'Vui lòng điền thông tin này';
         } else {
-            field.classList.remove('border-red-500');
-            const errorDiv = field.parentElement.querySelector('.error-message');
-            if (errorDiv) errorDiv.remove();
+            // Kiểm tra input text/textarea
+            if (!field.value.trim()) {
+                isValid = false;
+                field.classList.add('border-red-500');
+                if (errorDiv) {
+                    errorDiv.textContent = fields[fieldName];
+                    errorDiv.classList.remove('hidden');
+                }
+            }
         }
     });
 
@@ -471,18 +520,20 @@ document.querySelectorAll('form').forEach(form => {
     <div class="bg-white p-6 rounded-lg shadow-xl w-[500px]">
         <h3 class="text-lg font-semibold mb-4">Sửa yêu cầu đổi/trả hàng</h3>
         
-        <form id="editReturnForm" method="POST" class="space-y-4">
+        <form id="editReturnForm" class="space-y-4" onsubmit="handleEditSubmit(event)">
             @csrf
-            @method('PUT')
+            <input type="hidden" name="_method" value="PUT">
             
             <!-- Trạng thái -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Trạng thái <span class="text-red-500">*</span></label>
                 <select name="status" required class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="">Chọn trạng thái</option>
                     <option value="Chờ xử lý">Chờ xử lý</option>
                     <option value="Đã duyệt">Đã duyệt</option>
                     <option value="Hoàn tất">Hoàn tất</option>
                     <option value="Từ chối">Từ chối</option>
+
                 </select>
             </div>
 
@@ -490,8 +541,8 @@ document.querySelectorAll('form').forEach(form => {
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Loại yêu cầu <span class="text-red-500">*</span></label>
                 <select name="type" required class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
-                    <option value="return">Trả hàng</option>
-                    <option value="exchange">Đổi hàng</option>
+                    <option value="Trả hàng">Trả hàng</option>
+                    <option value="Đổi hàng">Đổi hàng</option>
                 </select>
             </div>
 
@@ -521,7 +572,8 @@ document.querySelectorAll('form').forEach(form => {
     <div class="bg-white p-6 rounded-lg shadow-xl w-[500px]">
         <h3 class="text-lg font-semibold mb-4">Tạo yêu cầu đổi/trả hàng</h3>
         
-        <form action="{{ route('admin.return.store') }}" method="POST" class="space-y-4" onsubmit="return validateReturnForm(this)">
+        <form id="createReturnForm" class="space-y-4" onsubmit="handleCreateSubmit(event)">
+            <meta name="csrf-token" content="{{ csrf_token() }}">
             @csrf
             
             <!-- Khách hàng -->
@@ -531,7 +583,7 @@ document.querySelectorAll('form').forEach(form => {
                     <option value="">Chọn khách hàng</option>
                     @foreach ($users as $customer)
                         @if($customer->role === 'customer')
-                            <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                            <option value="{{ $customer->user_id }}">{{ $customer->name }}</option>
                         @endif
                     @endforeach
                 </select>
@@ -543,7 +595,7 @@ document.querySelectorAll('form').forEach(form => {
                 <select name="product_id" required class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
                     <option value="">Chọn sản phẩm</option>
                     @foreach ($products as $product)
-                        <option value="{{ $product->id }}">{{ $product->name }}</option>
+                        <option value="{{ $product->product_id }}">{{ $product->name }}</option>
                     @endforeach
                 </select>
             </div>
@@ -553,8 +605,8 @@ document.querySelectorAll('form').forEach(form => {
                 <label class="block text-sm font-medium text-gray-700 mb-1">Loại yêu cầu <span class="text-red-500">*</span></label>
                 <select name="type" required class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
                     <option value="">Chọn loại yêu cầu</option>
-                    <option value="return">Trả hàng</option>
-                    <option value="exchange">Đổi hàng</option>
+                    <option value="Trả hàng">Trả hàng</option>
+                    <option value="Đổi hàng">Đổi hàng</option>
                 </select>
             </div>
 

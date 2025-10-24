@@ -15,15 +15,26 @@ class ReturnController extends Controller
     public function index(Request $request)
     {
         // Query setup for ReturnRequests
-        $query = ReturnRequest::query()
-            ->with([
-                'orderItem.order.user',
-                'orderItem.product'
-            ]);
+                // Query setup for ReturnRequests
+        $query = ReturnRequest::query();
 
         // Filtering by status
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $status = $request->status;
+            switch($status) {
+                case 'pending':
+                    $query->where('status', 'Chờ xử lý');
+                    break;
+                case 'approved':
+                    $query->where('status', 'Đã duyệt');
+                    break;
+                case 'completed':
+                    $query->where('status', 'Hoàn tất');
+                    break;
+                case 'rejected':
+                    $query->where('status', 'Từ chối');
+                    break;
+            }
         }
 
         // Filtering by type
@@ -56,10 +67,15 @@ class ReturnController extends Controller
         // Pagination and ordering
         $sortBy = $request->get('sort_by', 'return_id');
         $sortDirection = $request->get('sort_direction', 'asc');
-
-        $returns = $query->orderBy($sortBy, $sortDirection)
-                        ->paginate(10)
-                        ->withQueryString();
+        
+        // Make sure we load all needed relationships
+        $returns = $query->with([
+            'orderItem.product',
+            'orderItem.order.user'
+        ])
+        ->orderBy($sortBy, $sortDirection)
+        ->paginate(10)
+        ->withQueryString();
 
         // Statistics for return requests
         $stats = [
@@ -80,57 +96,83 @@ class ReturnController extends Controller
 
     public function store(Request $request)
     {
-        // Validating the incoming request
-        $validatedData = $request->validate([
-            'order_item_id' => 'required|string',
-            'type' => 'required|string',
-            'reason' => 'required|string',
-        ]);
-
-        // Creating the new return request
-        $returnRequest = new ReturnRequest();
-        $returnRequest->order_item_id = $validatedData['order_item_id'];
-        $returnRequest->type = $validatedData['type'];
-        $returnRequest->reason = $validatedData['reason'];
-        $returnRequest->status = ReturnRequest::STATUS_PENDING;
-        $returnRequest->requested_at = now();
-        $returnRequest->save();
-
-        return redirect()->route('admin.return')->with('success', 'Yêu cầu hoàn trả đã được tạo thành công.');
-    }
-
-    public function edit($return_id)
-    {
         try {
-            $return = ReturnRequest::with(['orderItem.order.user', 'orderItem.product'])
-                ->findOrFail($return_id);
-            
-            return response()->json([
-                'id' => $return->return_id,
-                'status' => $return->status,
-                'type' => $return->type,
-                'reason' => $return->reason,
-                'customer' => $return->orderItem->order->user->name,
-                'product' => $return->orderItem->product->name,
-                'requested_at' => $return->requested_at
+            // Validating the incoming request
+            $validatedData = $request->validate([
+                'customer_id' => 'required|exists:users,user_id',
+                'product_id' => 'required|exists:products,product_id',
+                'type' => 'required|in:Trả hàng,Đổi hàng',
+                'reason' => 'required|string',
             ]);
+
+            // Creating a temporary order item
+            $orderItem = OrderItem::create([
+                'order_id' => 'TEMP_' . time(),
+                'product_id' => $validatedData['product_id'],
+                'quantity' => 1,
+                'unit_price' => 0,
+            ]);
+
+            // Creating the return request
+            $returnRequest = ReturnRequest::create([
+                'order_item_id' => $orderItem->order_item_id,
+                'customer_id' => $validatedData['customer_id'],
+                'type' => $validatedData['type'],
+                'reason' => $validatedData['reason'],
+                'status' => ReturnRequest::STATUS_PENDING,
+                'requested_at' => now(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Yêu cầu hoàn trả đã được tạo thành công.',
+                'data' => $returnRequest
+            ]);
+            
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Không thể tải thông tin yêu cầu'], 500);
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
         }
     }
+
+public function edit($return_id)
+{
+    try {
+        $return = ReturnRequest::with(['orderItem.order.user', 'orderItem.product'])
+            ->findOrFail($return_id);
+
+        return response()->json([
+            'id' => $return->return_id,
+            'status' => $return->status,
+            'type' => $return->type,
+            'reason' => $return->reason,
+            'customer' => optional($return->orderItem->order->user)->name ?? 'N/A',
+            'product' => optional($return->orderItem->product)->name ?? 'N/A',
+            'requested_at' => $return->requested_at
+        ]);
+    } catch (\Exception $e) {
+        \Log::error('Return Edit Error', [
+            'id' => $return_id,
+            'message' => $e->getMessage(),
+        ]);
+        return response()->json(['error' => 'Không thể tải thông tin yêu cầu'], 500);
+    }
+}
+
+
+
+
+
 
     public function update(Request $request, $return_id)
     {
         try {
             // Validating the update request
             $validatedData = $request->validate([
-                'status' => 'required|string|in:'.implode(',', [
-                    ReturnRequest::STATUS_COMPLETED,
-                    ReturnRequest::STATUS_APPROVED,
-                    ReturnRequest::STATUS_PENDING,
-                    ReturnRequest::STATUS_REJECTED
-                ]),
-                'type' => 'required|string|in:return,exchange',
+                'status' => 'required|string|in:Chờ xử lý,Đã duyệt,Hoàn tất,Từ chối',
+                'type' => 'required|string|in:Trả hàng,Đổi hàng',
                 'reason' => 'required|string',
             ]);
 
@@ -142,28 +184,25 @@ class ReturnController extends Controller
             $returnRequest->status = $validatedData['status'];
             $returnRequest->reason = $validatedData['reason'];
             
-            // Cập nhật processed_at khi thay đổi trạng thái
-            if (in_array($validatedData['status'], [
-                ReturnRequest::STATUS_COMPLETED,
-                ReturnRequest::STATUS_APPROVED,
-                ReturnRequest::STATUS_REJECTED
-            ])) {
-                $returnRequest->processed_at = now();
-            }
             
             if ($returnRequest->save()) {
-                return redirect()->route('admin.return')
-                    ->with('success', 'Yêu cầu hoàn trả đã được cập nhật thành công.');
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Yêu cầu hoàn trả đã được cập nhật thành công.',
+                    'data' => $returnRequest
+                ]);
             }
 
-            return redirect()->back()
-                ->withInput()
-                ->withErrors(['error' => 'Không thể cập nhật yêu cầu. Vui lòng thử lại.']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể cập nhật yêu cầu. Vui lòng thử lại.'
+            ], 400);
 
         } catch (\Exception $e) {
-            return redirect()->back()
-                ->withInput()
-                ->withErrors(['error' => 'Lỗi khi cập nhật: ' . $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi cập nhật: ' . $e->getMessage()
+            ], 500);
         }
     }
 

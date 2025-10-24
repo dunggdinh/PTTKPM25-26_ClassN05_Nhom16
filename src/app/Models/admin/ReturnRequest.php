@@ -13,10 +13,13 @@ class ReturnRequest extends Model
     protected $primaryKey = 'return_id';
     public $incrementing = false;
     protected $keyType = 'string';
+    public $timestamps = false;
+
 
     protected $fillable = [
         'return_id',
         'order_item_id',
+        'customer_id',
         'type',
         'reason',
         'status',
@@ -35,7 +38,7 @@ class ReturnRequest extends Model
     
     public function user()
     {
-        return $this->belongsTo(user::class, 'user_id', 'user_id');
+        return $this->belongsTo(user::class, 'customer_id', 'user_id');
     }
     protected static function boot()
     {

@@ -125,7 +125,6 @@
                         <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bắt đầu</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kết thúc</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng Thái</th>
-                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Đã Sử Dụng</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao Tác</th>
                     </tr>
                 </thead>
@@ -302,7 +301,7 @@ function getPromotionsTableDOM() {
 
 // ===== HOẶC: Lấy dữ liệu từ STATE (promotions) để export toàn bộ (bỏ phân trang) =====
 function buildTableFromState(list) {
-  const headers = ['Khuyến Mãi','Loại','Giá Trị','Thời Gian','Trạng Thái','Đã Sử Dụng'].map(vn);
+  const headers = ['Khuyến Mãi','Loại','Giá Trị','Thời Gian','Trạng Thái'].map(vn);
   const rows = (list || []).map(p => {
     const code  = vn(p.code ?? '');
     const type  = vn(({percentage:'Giảm %', fixed:'Giảm cố định', shipping:'Miễn phí ship', bundle:'Mua kèm'})[p.type] || p.type || '');
@@ -311,8 +310,7 @@ function buildTableFromState(list) {
                   : (p.type==='fixed' ? `${Number(p.value||0).toLocaleString('vi-VN')}đ` : (p.type==='shipping'?'Miễn phí': `${Number(p.value||0)}`));
     const time  = vn(`${p.start_date||''} - ${p.end_date||''}`);
     const st    = vn(({active:'Đang hoạt động', scheduled:'Đã lên lịch', expired:'Đã hết hạn', paused:'Tạm dừng'})[p.status] || p.status || '');
-    const used  = '—';
-    return [code, type, val, time, st, used];
+    return [code, type, val, time, st];
   });
   return { headers, rows };
 }
@@ -496,9 +494,6 @@ function renderPromotions(data) {
             <td class="px-6 py-4 text-sm text-gray-500">${formatDate(start_date)}</td>
             <td class="px-6 py-4 text-sm text-gray-500">${formatDate(end_date)}</td>
             <td class="px-6 py-4">${getStatusBadge(status)}</td>
-            <td class="px-6 py-4 text-sm text-gray-900">
-                <span class="text-gray-500 italic">—</span>
-            </td>
             <td class="px-6 py-4 text-sm font-medium">
                 <div class="flex space-x-2">
                     <button onclick="editPromotion('${pk}')" class="text-blue-600 hover:text-blue-900 transition-colors">Sửa</button>
