@@ -132,9 +132,6 @@
                 <table class="w-full border border-gray-200 rounded-lg">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                <input type="checkbox" id="select-all" onchange="toggleSelectAll()" class="text-blue-600 focus:ring-blue-500">
-                            </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã yêu cầu</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khách hàng</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sản phẩm</th>
@@ -151,9 +148,7 @@
                     <tbody id="warrantyTable" class="bg-white divide-y divide-gray-200">
                         @forelse($warranties as $warranty)
                             <tr class="hover:bg-gray-50 transition">
-                                <td class="px-6 py-4 text-sm text-gray-900">
-                                    <input type="checkbox" name="selected[]" value="{{ $warranty->appointment_id }}" class="text-blue-600 focus:ring-blue-500">
-                                </td>
+
                                 <td class="px-6 py-4 text-sm text-gray-900 font-medium">{{ $warranty->appointment_id }}</td>
                                 <td class="px-6 py-4 text-sm text-gray-700">{{ $warranty->user->name ?? 'Không xác định' }}</td>
                                 <!-- <td class="px-6 py-4 text-sm text-gray-700">{{ $warranty->warranty->product->name ?? 'Sản phẩm không tồn tại' }}</td> -->
@@ -185,26 +180,6 @@
                                         <!-- Edit -->
                                         <div>
                                             <button onclick="openEdit('{{ $warranty->appointment_id }}')" class="text-blue-600 hover:underline">Sửa</button>
-                                            <div id="edit-modal-{{ $warranty->appointment_id }}" style="display:none;"
-                                                 class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-20">
-                                                <div class="bg-white p-4 rounded shadow-md w-80">
-                                                    <h3 class="font-semibold mb-2">Cập nhật trạng thái yêu cầu: <span class="text-blue-600">{{ $warranty->warranty_code }}</span></h3>
-                                                    <form action="{{ route('admin.warranties.updateStatus', $warranty->appointment_id) }}" method="POST">
-                                                        @csrf
-                                                        @method('PUT')
-                                                        <select name="status" class="border rounded px-2 py-1 mb-4 w-full">
-                                                            <option value="pending"    {{ $warranty->status=='pending' ? 'selected' : '' }}>Chờ xử lý</option>
-                                                            <option value="processing" {{ $warranty->status=='processing' ? 'selected' : '' }}>Đang xử lý</option>
-                                                            <option value="completed"  {{ $warranty->status=='completed' ? 'selected' : '' }}>Hoàn tất</option>
-                                                            <option value="cancelled"  {{ $warranty->status=='cancelled' ? 'selected' : '' }}>Đã hủy</option>
-                                                        </select>
-                                                        <div class="flex justify-end gap-2">
-                                                            <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Cập nhật</button>
-                                                            <button type="button" onclick="closeEdit('{{ $warranty->appointment_id }}')" class="px-3 py-1 rounded border hover:bg-gray-100">Hủy</button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
                                         </div>
 
                                         <!-- Delete -->
@@ -365,10 +340,231 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 });
+function openEdit(id) {
+    document.getElementById('editWarrantyModal').style.display = 'flex';
+    const form = document.getElementById('editWarrantyForm');
+    form.setAttribute('data-id', id);
+
+    fetch(`/admin/warranties/${id}/edit`)
+        .then(response => response.json())
+        .then(data => {
+            form.action = `/admin/warranties/${id}`;
+            form.querySelector('select[name="status"]').value = data.status;
+            form.querySelector('input[name="appointment_date"]').value = data.appointment_date || '';
+            form.querySelector('input[name="appointment_time"]').value = data.appointment_time || '';
+            form.querySelector('textarea[name="notes"]').value = data.notes || '';
+        })
+        .catch(() => alert('Không thể tải dữ liệu.'));
+}
 
 function openEdit(id){ document.getElementById('edit-modal-'+id).style.display='flex'; }
 function closeEdit(id){ document.getElementById('edit-modal-'+id).style.display='none'; }
 function openDelete(id){ document.getElementById('delete-modal-'+id).style.display='flex'; }
-function closeDelete(id){ document.getElementById('delete-modal-'+id).style.display='none'; }
+function openDelete(id){ document.getElementById('delete-modal-'+id).style.display='none'; }
 </script>
+
+<!-- Modal Edit -->
+<div id="editWarrantyModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center">
+    <div class="bg-white rounded-lg w-full max-w-2xl mx-4">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-semibold text-gray-900">Cập nhật thông tin bảo hành</h3>
+                <button onclick="document.getElementById('editWarrantyModal').style.display='none'" class="text-gray-400 hover:text-gray-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <form id="editWarrantyForm" method="POST" class="p-6 space-y-6">
+            @csrf
+            @method('PUT')
+
+            <!-- Trạng thái -->
+            <div>
+                <label for="status" class="block text-sm font-medium text-gray-700">Trạng thái</label>
+                <select name="status" id="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="pending">Đang chờ xác nhận</option>
+                    <option value="processing">Đang xử lý</option>
+                    <option value="completed">Hoàn thành</option>
+                    <option value="cancelled">Đã hủy</option>
+                </select>
+            </div>
+
+            <!-- Ngày hẹn -->
+            <div>
+                <label for="appointment_date" class="block text-sm font-medium text-gray-700">Ngày hẹn</label>
+                <input type="date" name="appointment_date" id="appointment_date" 
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+
+            <!-- Giờ hẹn -->
+            <div>
+                <label for="appointment_time" class="block text-sm font-medium text-gray-700">Giờ hẹn</label>
+                <input type="time" name="appointment_time" id="appointment_time" 
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+
+            <!-- Ghi chú -->
+            <div>
+                <label for="notes" class="block text-sm font-medium text-gray-700">Ghi chú</label>
+                <textarea name="notes" id="notes" rows="3" 
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                <button type="button" onclick="document.getElementById('editWarrantyModal').style.display='none'"
+                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Hủy
+                </button>
+                <button type="submit"
+                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Lưu thay đổi
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Cập nhật hàm openEdit để điền dữ liệu vào form
+// Hàm mở modal edit
+function openEdit(id) {
+    document.getElementById('editModal').style.display = 'flex';
+    const form = document.getElementById('editForm');
+    form.setAttribute('data-id', id);
+
+    // Lấy thông tin hiện tại
+    fetch(`/admin/warranties/${id}/edit`)
+        .then(res => res.json())
+        .then(data => {
+            // Cập nhật trạng thái
+            form.querySelector('select[name="status"]').value = data.status;
+            
+            // Cập nhật ngày hẹn
+            if (data.appointment_date) {
+                form.querySelector('input[name="appointment_date"]').value = data.appointment_date;
+            }
+            
+            // Cập nhật giờ hẹn
+            if (data.appointment_time) {
+                form.querySelector('input[name="appointment_time"]').value = data.appointment_time;
+            }
+
+            // Cập nhật ghi chú
+            if (data.notes) {
+                form.querySelector('textarea[name="notes"]').value = data.notes;
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Không thể tải thông tin bảo hành');
+        });
+}
+
+function closeEdit() {
+    document.getElementById('editModal').style.display = 'none';
+}
+
+function handleSubmit(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    const id = form.getAttribute('data-id');
+
+    // Đảm bảo có đầy đủ dữ liệu
+    if (!formData.get('status') || !formData.get('appointment_date') || !formData.get('appointment_time')) {
+        alert('Vui lòng điền đầy đủ thông tin bắt buộc!');
+        return;
+    }
+
+    fetch(`/admin/warranties/${id}`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        },
+        credentials: 'same-origin' // Để gửi cookies CSRF token
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Cập nhật thành công!');
+            closeEdit();
+            window.location.reload();
+        } else {
+            throw new Error(data.message || 'Có lỗi xảy ra khi cập nhật!');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert(error.message || 'Có lỗi xảy ra khi cập nhật!');
+    });
+}
+</script>
+
+<!-- Thêm CSRF token meta tag -->
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
+<!-- Modal Edit -->
+<div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full mx-4">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">Cập nhật trạng thái</h3>
+            <button onclick="closeEdit()" class="text-gray-400 hover:text-gray-500">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <form id="editForm" onsubmit="handleSubmit(event)">
+            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="_method" value="PUT">
+            
+            <div class="mb-4">
+                <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Trạng thái</label>
+                <select name="status" id="status" required class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    <option value="pending">Đang chờ xác nhận</option>
+                    <option value="processing">Đang xử lý</option>
+                    <option value="completed">Đã xác nhận</option>
+                    <option value="cancelled">Đã hủy</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label for="appointment_date" class="block text-sm font-medium text-gray-700 mb-2">Ngày hẹn</label>
+                <input type="date" name="appointment_date" id="appointment_date" required
+                    class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <div class="mb-4">
+                <label for="appointment_time" class="block text-sm font-medium text-gray-700 mb-2">Giờ hẹn</label>
+                <input type="time" name="appointment_time" id="appointment_time" required
+                    class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <div class="mb-4">
+                <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">Ghi chú</label>
+                <textarea name="notes" id="notes" rows="3" 
+                    class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Nhập ghi chú nếu có..."></textarea>
+            </div>
+
+            <div class="flex justify-end space-x-3">
+                <button type="button" onclick="closeEdit()"
+                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50">
+                    Hủy
+                </button>
+                <button type="submit"
+                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700">
+                    Cập nhật
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @endsection

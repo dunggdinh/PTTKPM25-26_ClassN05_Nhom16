@@ -198,10 +198,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     // Warranties
     Route::get('/warranties', [WarrantyController::class, 'index'])->name('warranties');
-    Route::put('/warranties/{id}', [WarrantyController::class, 'updateStatus'])->name('warranties.update');
+    Route::put('/warranties/{id}', [WarrantyController::class, 'update'])->name('warranties.update');
     Route::delete('/warranties/{id}', [WarrantyController::class, 'destroy'])->name('warranties.destroy');
     Route::get('/warranties/reload', [WarrantyController::class, 'reload'])->name('warranties.reload');
-    Route::get('/warranties/{return_id}/edit', [WarrantyController::class, 'edit'])->name('warranties.edit');
+    Route::get('/warranties/{appointment_id}/edit', [WarrantyController::class, 'edit'])->name('warranties.edit');
 
     Route::get('admin/promotion/list', [PromotionController::class, 'list'])->name('admin.promotion.list');
     Route::post('admin/promotion', [PromotionController::class, 'store'])->name('admin.promotion.store');
