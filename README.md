@@ -83,25 +83,25 @@ Dự án mô phỏng một nền tảng thương mại điện tử chuyên về
 
 ---
 
-## 🧪 Kiểm thử
+## 🧾 Đánh giá tổng kết
+Dự án **“Hệ thống Quản lý Cửa Hàng Thiết Bị Điện Tử Trực Tuyến”** được phát triển theo **Agile – Scrum**, giúp nhóm cải tiến liên tục và kiểm soát tiến độ hiệu quả.  
+Hệ thống xây dựng trên **Laravel + MySQL + Tailwind CSS**, đáp ứng đầy đủ các luồng chính: đăng ký, tìm kiếm, giỏ hàng, đặt hàng, thanh toán, theo dõi đơn, đánh giá và hỗ trợ khách hàng.  
+Dữ liệu tuân thủ ràng buộc quan hệ, giao diện thân thiện, phân quyền RBAC rõ ràng, bảo mật với bcrypt và HTTPS.  
+Các sơ đồ **Use Case, Class, Sequence, Activity, State** thể hiện đúng nghiệp vụ và kiến trúc 3 tầng.  
+Hạn chế: chưa tích hợp cổng thanh toán thực (VNPAY/Momo), module gợi ý và chat real-time mới ở mức thử nghiệm, và chưa kiểm thử tải quy mô lớn.
 
 ---
 
-## 🚀 Hướng phát triển tương lai
+## 🚀 Hướng phát triển
+Nhóm dự kiến mở rộng hệ thống theo 5 hướng chính:
+1. **Tích hợp thực tế:** kết nối API thanh toán (VNPAY, Momo, ZaloPay), GHN, GHTK, Viettel Post; chuẩn hóa quy trình đổi/trả/bảo hành.  
+2. **Trải nghiệm người dùng:** thiết kế mobile-first, thêm dark mode, thông báo đẩy, cá nhân hóa gợi ý, chat real-time bằng WebSocket/Pusher.  
+3. **Phân tích & báo cáo:** phát triển dashboard doanh thu, tồn kho, áp dụng machine learning cho gợi ý và dự đoán nhu cầu.  
+4. **Nâng cấp nền tảng:** dùng JWT/OAuth2/SSO, triển khai Docker + CI/CD, tăng cường logging, monitoring, backup định kỳ.  
+5. **Mở rộng sản phẩm:** hỗ trợ đa chi nhánh, phát triển app mobile (Flutter/React Native), tích hợp chatbot và hệ gợi ý thông minh.
+
+> Mục tiêu: xây dựng hệ thống thương mại điện tử **an toàn – hiệu quả – dễ mở rộng**, sẵn sàng vận hành thực tế.
 
 ---
 
-## 🏆 Đánh giá tổng quan
-> Hệ thống đạt tiêu chí của một nền tảng bán hàng trực tuyến hiện đại — có tính mở rộng, bảo mật cao và thân thiện người dùng.  
-> Cấu trúc code rõ ràng, tài liệu chi tiết, quy trình phát triển theo Agile giúp nhóm đảm bảo tiến độ và chất lượng sản phẩm.
-
----
-
-### 📚 Tài liệu liên quan
-- [📄 Báo cáo chi tiết dự án](https://github.com/user-attachments/files/23112311/PTTKPM25-26_ClassN05_Nhom16_ver3.docx)
-- [💻 Mã nguồn trên GitHub](https://github.com/dunggdinh/PTTKPM25-26_ClassN05_Nhom16)
-
----
-
-
-**© 2025 - Nhóm 16 | Đại học Phenikaa – Khoa CNTT**
+**© 2025 - Nhóm 16 | Đại học Phenikaa – Khoa Công nghệ Thông tin**
