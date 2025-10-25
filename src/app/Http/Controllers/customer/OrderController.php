@@ -29,9 +29,9 @@ class OrderController extends Controller
         if ($status && in_array($status, ['processing','shipping','delivered'])) {
             // map text UI -> text DB nếu khác
             $map = [
-                'processing' => 'Chờ xử lý',     // tùy cách cậu lưu trong DB
+                'processing' => 'Đang xử lý',     // tùy cách cậu lưu trong DB
                 'shipping'   => 'Đang giao',      // ví dụ
-                'delivered'  => 'Đã giao',        // ví dụ
+                'delivered'  => 'Hoàn tất',        // ví dụ
             ];
             $ordersQ->where('status', $map[$status] ?? $status);
         }

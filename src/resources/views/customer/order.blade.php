@@ -14,9 +14,9 @@
             // Map status DB -> key dùng cho data-status và badge
             $statusKey = function($s){
                 $s = mb_strtolower($s ?? '');
-                if (str_contains($s, 'đã giao')) return 'delivered';
+                if (str_contains($s, 'hoàn tất') || str_contains($s, 'đã giao')) return 'delivered';
                 if (str_contains($s, 'đang giao')) return 'shipping';
-                if (str_contains($s, 'chờ') || str_contains($s, 'xử lý')) return 'processing';
+                if (str_contains($s, 'đang xử lý') || str_contains($s, 'xử lý')) return 'processing';
                 return 'processing';
             };
 
@@ -321,9 +321,6 @@ async function reviewProduct(orderId){
     const order = await fetchOrder(orderId);
     if(!order){ return; }
     const st = (order.status||'').toLowerCase();
-    if(!st.includes('đã giao')){
-        toast('Đơn này chưa giao xong, chưa thể đánh giá.', 'error'); return;
-    }
     if(Array.isArray(order.items) && order.items.length === 1){
         window.location.href = buildReviewUrl(order.items[0], orderId);
         return;

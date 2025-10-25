@@ -254,7 +254,7 @@ class CartController extends Controller
                 'total_amount'     => $total,
                 'subtotal_amount'  => $subtotal,
                 'tax_amount'       => $tax,
-                'status'           => 1,                 // tuỳ quy ước: 1 = chờ xử lý
+                'status'           => 'Đang xử lý',                 // tuỳ quy ước: 1 = chờ xử lý
                 // GIỮ thuộc tính như cũ: chỉ đổi giá trị payment_status thành chuỗi an toàn
                 // vì cột của bạn đang là VARCHAR/ENUM → truyền số 0 gây “Data truncated”
                 'payment_status'   => 'Chưa thanh toán', // ← quan trọng: bỏ số 0

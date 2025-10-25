@@ -16,18 +16,18 @@ class ReportController extends Controller
     public function index()
     {
         // ===== Tổng doanh thu =====
-        $totalRevenue = Order::where('status', 'Hoàn tất')
+        $totalRevenue = Order::whereIn('status',['Hoàn tất','Đã giao'])
             ->where('payment_status', 'Đã thanh toán')
             ->sum('total_amount');
 
         // Doanh thu tháng trước
-        $lastMonthRevenue = Order::where('status', 'Hoàn tất')
+        $lastMonthRevenue = Order::whereIn('status', ['Hoàn tất','Đã giao'])
             ->whereMonth('created_at', now()->subMonth()->month)
             ->whereYear('created_at', now()->subMonth()->year)
             ->sum('total_amount');
 
         // Doanh thu tháng hiện tại
-        $currentMonthRevenue = Order::where('status', 'Hoàn tất')
+        $currentMonthRevenue = Order::whereIn('status', ['Hoàn tất','Đã giao'])
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->sum('total_amount');
@@ -82,7 +82,7 @@ class ReportController extends Controller
                 DB::raw('SUM(quantity * unit_price) as total_revenue')
             )
             ->whereHas('order', function($query) {
-                $query->where('status', 'Hoàn tất')
+                $query->whereIn('status', ['Hoàn tất','Đã giao'])
                       ->where('payment_status', 'Đã thanh toán');
             })
             ->groupBy('product_id')
@@ -108,7 +108,7 @@ class ReportController extends Controller
                 DB::raw('SUM(total_amount) as total')
             )
             ->whereYear('created_at', date('Y'))
-            ->where('status', 'Hoàn tất')
+            ->whereIn('status', ['Hoàn tất','Đã giao'])
             ->where('payment_status', 'Đã thanh toán')
             ->groupBy(DB::raw('MONTH(created_at)'))
             ->pluck('total', 'month');

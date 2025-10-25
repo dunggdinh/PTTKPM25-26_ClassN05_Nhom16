@@ -97,8 +97,7 @@
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-semibold text-gray-900">Doanh Thu Theo Tháng</h3>
                     <select class="text-sm border border-gray-300 rounded-md px-3 py-1">
-                        <option>2024</option>
-                        <option>2023</option>
+                        <option>2025</option>
                     </select>
                 </div>
                 <div style="height: 300px;">

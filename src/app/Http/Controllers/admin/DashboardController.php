@@ -16,12 +16,12 @@ class DashboardController extends Controller
     public function index()
     {
         // ==== Tổng doanh thu từ đơn hoàn tất và đã thanh toán ====
-        $totalRevenue = Order::where('status', 'Hoàn tất')
+        $totalRevenue = Order::whereIn('status', ['Hoàn tất','Đã giao'])
             ->where('payment_status', 'Đã thanh toán')
             ->sum('total_amount');
         
         // Doanh thu tuần trước (đơn hoàn tất và đã thanh toán)
-        $lastWeekRevenue = Order::where('status', 'Hoàn tất')
+        $lastWeekRevenue = Order::whereIn('status', ['Hoàn tất','Đã giao'])
             ->where('payment_status', 'Đã thanh toán')
             ->whereBetween('created_at', [
                 Carbon::now()->subWeek()->startOfWeek(),
@@ -29,7 +29,7 @@ class DashboardController extends Controller
             ])->sum('total_amount');
 
         // Doanh thu tuần này (đơn hoàn tất và đã thanh toán)
-        $thisWeekRevenue = Order::where('status', 'Hoàn tất')
+        $thisWeekRevenue = Order::whereIn('status', ['Hoàn tất','Đã giao'])
             ->where('payment_status', 'Đã thanh toán')
             ->whereBetween('created_at', [
                 Carbon::now()->startOfWeek(),
@@ -81,7 +81,7 @@ class DashboardController extends Controller
                 DB::raw('SUM(total_amount) as total')
             )
             ->whereYear('created_at', date('Y'))
-            ->where('status', 'Hoàn tất')
+            ->whereIn('status', ['Hoàn tất','Đã giao'])
             ->where('payment_status', 'Đã thanh toán')
             ->groupBy(DB::raw('MONTH(created_at)'))
             ->pluck('total', 'month');
@@ -89,7 +89,7 @@ class DashboardController extends Controller
         // ==== Sản phẩm bán chạy (chỉ từ đơn hoàn tất và đã thanh toán) ====
         $topProducts = OrderItem::select('product_id', DB::raw('SUM(quantity) as total_sold'))
             ->whereHas('order', function($query) {
-                $query->where('status', 'Hoàn tất')
+                $query->whereIn('status', ['Hoàn tất','Đã giao'])
                       ->where('payment_status', 'Đã thanh toán');
             })
             ->groupBy('product_id')
