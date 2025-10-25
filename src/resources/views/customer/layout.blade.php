@@ -37,7 +37,7 @@
                     <div class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg transition-colors" onclick="toggleDropdown()">
                         <!-- Avatar -->
                         <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-lg">
-                            N
+                            {{ Auth::check() ? strtoupper(substr(Auth::user()->name, 0, 1) . (str_contains(Auth::user()->name, ' ') ? substr(Auth::user()->name, strrpos(Auth::user()->name, ' ') + 1, 1) : '')) : 'C' }}
                         </div>
                         <!-- User Name -->
                         <div class="text-right">
