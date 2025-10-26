@@ -40,7 +40,7 @@ Dự án mô phỏng một nền tảng thương mại điện tử chuyên về
 |-------------|----------------------|
 | **Front-End** | HTML5, CSS3, JavaScript, Bootstrap |
 | **Back-End** | PHP (Laravel Framework) |
-| **Cơ sở dữ liệu** | MySQL |
+| **Cơ sở dữ liệu** | PhpMyAdmin |
 | **Quản lý phiên bản** | Git & GitHub |
 | **Quy trình phát triển** | Agile – Scrum (chia Sprint, có Product Backlog và Review định kỳ) |
 
@@ -52,16 +52,15 @@ Dự án mô phỏng một nền tảng thương mại điện tử chuyên về
 - **Presentation Layer:**  
   Giao diện người dùng (CustomerUI, AdminUI) và Controller xử lý yêu cầu (ProductController, OrderController…).
 - **Business Layer:**  
-  Chứa logic nghiệp vụ chính (ProductService, OrderService, PaymentService…).
+  Chứa logic nghiệp vụ chính.
 - **Data Access Layer:**  
   Giao tiếp trực tiếp với cơ sở dữ liệu thông qua các Repository.
 
 ### 2. Luồng xử lý chính
 1. Người dùng truy cập website → tìm sản phẩm → thêm vào giỏ  
-2. Tiến hành đặt hàng → chọn phương thức thanh toán  
-3. Hệ thống gửi yêu cầu sang cổng thanh toán → nhận kết quả → cập nhật trạng thái đơn  
-4. Quản trị viên xác nhận, đóng gói, giao hàng → cập nhật hệ thống  
-5. Người dùng nhận hàng, đánh giá, yêu cầu hỗ trợ nếu cần  
+2. Tiến hành đặt hàng → chọn phương thức thanh toán và địa chỉ giao hàng
+3. Quản trị viên xác nhận, đóng gói, giao hàng → cập nhật hệ thống  
+4. Người dùng nhận hàng, đánh giá, yêu cầu hỗ trợ nếu cần  
 
 ---
 
@@ -77,7 +76,7 @@ Dự án mô phỏng một nền tảng thương mại điện tử chuyên về
 ### 🧑‍💼 Quản trị viên
 - Quản lý tài khoản người dùng  
 - Quản lý sản phẩm, danh mục, tồn kho  
-- Quản lý đơn hàng và xử lý hoàn tiền  
+- Quản lý đơn hàng và xử lý đổi trả hàng  
 - Quản lý chương trình khuyến mãi, voucher  
 - Theo dõi thống kê, xuất báo cáo doanh thu
 
@@ -85,7 +84,7 @@ Dự án mô phỏng một nền tảng thương mại điện tử chuyên về
 
 ## 🧾 Đánh giá tổng kết
 Dự án **“Hệ thống Quản lý Cửa Hàng Thiết Bị Điện Tử Trực Tuyến”** được phát triển theo **Agile – Scrum**, giúp nhóm cải tiến liên tục và kiểm soát tiến độ hiệu quả.  
-Hệ thống xây dựng trên **Laravel + MySQL + Tailwind CSS**, đáp ứng đầy đủ các luồng chính: đăng ký, tìm kiếm, giỏ hàng, đặt hàng, thanh toán, theo dõi đơn, đánh giá và hỗ trợ khách hàng.  
+Hệ thống xây dựng trên **Laravel + PhpMyAdmin + Tailwind CSS**, đáp ứng đầy đủ các luồng chính: đăng ký, tìm kiếm, giỏ hàng, đặt hàng, thanh toán, theo dõi đơn, đánh giá và hỗ trợ khách hàng.  
 Dữ liệu tuân thủ ràng buộc quan hệ, giao diện thân thiện, phân quyền RBAC rõ ràng, bảo mật với bcrypt và HTTPS.  
 Các sơ đồ **Use Case, Class, Sequence, Activity, State** thể hiện đúng nghiệp vụ và kiến trúc 3 tầng.  
 Hạn chế: chưa tích hợp cổng thanh toán thực (VNPAY/Momo), module gợi ý và chat real-time mới ở mức thử nghiệm, và chưa kiểm thử tải quy mô lớn.
@@ -105,9 +104,10 @@ Nhóm dự kiến mở rộng hệ thống theo 5 hướng chính:
 ---
 
 ## 📚 Tài liệu liên quan
-- [📄 Báo cáo chi tiết dự án](https://github.com/user-attachments/files/23112311/PTTKPM25-26_ClassN05_Nhom16_ver3.docx)
+- [📄 Báo cáo chi tiết dự án](https://github.com/dunggdinh/PTTKPM25-26_ClassN05_Nhom16/blob/main/Documents/B%C3%A1o_c%C3%A1o_PTTKPM25-26_ClassN05_Nhom16.docx)
 - [💻 Mã nguồn trên GitHub](https://github.com/dunggdinh/PTTKPM25-26_ClassN05_Nhom16)
-- [📗 Bảng theo dõi công việc](https://github.com/user-attachments/files/23120002/PTTKPM25-26_ClassN05_Nhom16.xlsx)
+- [📊 Slide thuyết trình](https://github.com/dunggdinh/PTTKPM25-26_ClassN05_Nhom16/blob/main/Documents/Slide_PTTKPM25-26_ClassN05_Nhom16.pptx)
+- [📗 Bảng theo dõi công việc](https://github.com/dunggdinh/PTTKPM25-26_ClassN05_Nhom16/blob/main/Documents/Ti%E1%BA%BFn_%C4%91%E1%BB%99_c%C3%B4ng_vi%E1%BB%87c_PTTKPM25-26_ClassN05_Nhom16.xlsx)
 
 ---
 
